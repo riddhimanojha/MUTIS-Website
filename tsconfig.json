@@ -16,8 +16,8 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./application/*"]
     }
   },
-  "include": ["src"]
+  "include": ["application"]
 }

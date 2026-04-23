@@ -2,22 +2,22 @@
 
 :root {
   --font-size: 16px;
-  --font-nav: 'Cormorant Garamond', serif;
-  --font-display: 'Inter', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-nav: 'Inter', 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif;
+  --font-display: 'Inter', 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif;
+  --font-body: 'Inter', 'Helvetica Neue', Helvetica, 'Open Sans', Arial, sans-serif;
 
   --royal-blue-950: #0A1F44;
   --royal-blue-900: #0F2855;
   --royal-blue-800: #153366;
   --royal-blue-700: #1B3E77;
-  --royal-blue-600: #2149888;
+  --royal-blue-600: #214988;
   --royal-blue-500: #2B5EA8;
   --royal-blue-400: #4B7BC8;
   --royal-blue-300: #7A9FD9;
   --royal-blue-200: #A9C3EA;
   --royal-blue-100: #D8E7FB;
 
-  --background: var(--royal-blue-950);
+  --background: #0b1f49;
   --foreground: #FFFFFF;
   --card: rgba(255, 255, 255, 0.05);
   --card-foreground: #FFFFFF;
@@ -29,7 +29,7 @@
   --secondary-foreground: #FFFFFF;
   --muted: rgba(255, 255, 255, 0.1);
   --muted-foreground: rgba(255, 255, 255, 0.6);
-  --accent: var(--royal-blue-600);
+  --accent: #5e67d8;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
@@ -55,9 +55,9 @@
   --sidebar-border: rgba(255, 255, 255, 0.1);
   --sidebar-ring: rgba(255, 255, 255, 0.3);
 
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --glass-blur: 20px;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-blur: 10px;
 }
 
 .dark {
@@ -144,8 +144,17 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background: linear-gradient(180deg, #0b1f49 0%, #102a5f 100%);
     font-family: var(--font-body);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  #root {
+    position: relative;
+    z-index: 0;
   }
 
   h1, h2, h3, h4, h5, h6 {

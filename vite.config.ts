@@ -10,7 +10,7 @@ function assetResolver() {
     resolveId(id) {
       if (id.startsWith('asset/')) {
         const filename = id.replace('asset/', '')
-        return path.resolve(__dirname, 'src/assets', filename)
+        return path.resolve(__dirname, 'application/assets', filename)
       }
     },
   }
@@ -24,8 +24,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      // Alias @ to the src directory
-      '@': path.resolve(__dirname, './src'),
+      // Alias @ to the application directory
+      '@': path.resolve(__dirname, './application'),
     },
   },
 
