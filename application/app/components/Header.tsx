@@ -59,19 +59,26 @@ export function Header() {
             Sponsors
           </Link>
           <Link
-            to="/alumni"
+            to="/team"
             className="text-white/80 hover:text-white transition-colors duration-200"
             style={{ fontSize: "0.95rem" }}
           >
-            Alumni
+            Team
           </Link>
-          <a
-            href="mailto:mutis@manchesterstudentsunion.com"
+          <Link
+            to="/articles"
+            className="text-white/80 hover:text-white transition-colors duration-200"
+            style={{ fontSize: "0.95rem" }}
+          >
+            Articles
+          </Link>
+          <Link
+            to="/contact"
             className="text-white/80 hover:text-white transition-colors duration-200"
             style={{ fontSize: "0.95rem" }}
           >
             Contact
-          </a>
+          </Link>
           <Link
             to="/join"
             className="px-4 py-2 rounded-md font-medium transition-all duration-200"

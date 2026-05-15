@@ -26,16 +26,18 @@ export function Events() {
     },
   ];
 
-  const flagship = [
-    { title: "Women in Finance Conference", date: "Annual" },
-    { title: "UK Student Finance Summit (with Career26)", date: "Annual" },
-    { title: "UK Investment Competition", date: "Annual" },
-    { title: "Private Equity Challenge", date: "Annual" },
-    { title: "Dare Trading Championship", date: "Annual" },
-    { title: "Stock Pitch Competitions", date: "Throughout the Year" },
-    { title: "Trading Simulations", date: "Throughout the Year" },
-    { title: "Business Ball", date: "Annual" },
-    { title: "Holiday Socials", date: "Termly" },
+  const upcoming = [
+    { title: "Women in Finance Conference", date: "2026-10-12", venue: "Alliance Manchester Business School", register: "#" },
+    { title: "UK Student Finance Summit (with Career26)", date: "2026-11-21", venue: "University of Manchester", register: "#" },
+    { title: "M&A Challenge", date: "2027-01-24", venue: "Hybrid", register: "#" },
+    { title: "Dare Trading Championship", date: "2027-02-13", venue: "AMBS Trading Lab", register: "#" },
+    { title: "Business Ball", date: "2027-03-20", venue: "Manchester City Centre", register: "#" },
+  ];
+
+  const previous = [
+    { title: "Stock Pitch Competition", date: "2026-03-06" },
+    { title: "Trading Simulation Bootcamp", date: "2026-02-14" },
+    { title: "Holiday Social", date: "2025-12-11" },
   ];
 
   return (
@@ -92,23 +94,48 @@ export function Events() {
         </div>
 
         <h2 className="mb-8" style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)", color: "white", fontFamily: "var(--font-nav)", fontWeight: 600 }}>
-          Flagship Calendar
+          Upcoming Events
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-          {flagship.map((event, index) => (
-            <div
-              key={index}
-              className="p-6 rounded-lg"
-              style={{
-                background: "#1a1f2e",
-                border: "1px solid #2d3748",
-              }}
-            >
-              <h4 className="text-base font-semibold text-white mb-2">{event.title}</h4>
-              <span className="text-sm" style={{ color: "#9ab8dc" }}>
-                {event.date}
-              </span>
+        <div className="mb-16 rounded-lg overflow-hidden" style={{ border: "1px solid #374151" }}>
+          <ul>
+            {upcoming.map((event, index) => (
+              <li
+                key={event.title}
+                className="px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+                style={{
+                  background: index % 2 === 0 ? "#111827" : "#1a1f2e",
+                  borderBottom: index === upcoming.length - 1 ? "none" : "1px solid #2d3748",
+                }}
+              >
+                <div>
+                  <h4 className="text-lg font-semibold text-white mb-1">{event.title}</h4>
+                  <p className="text-sm" style={{ color: "#9ab8dc" }}>
+                    {event.date} · {event.venue}
+                  </p>
+                </div>
+                <a
+                  href={event.register}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium"
+                  style={{ background: "#1a3370", color: "white", border: "1px solid #374151" }}
+                >
+                  Register
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <h3 className="mb-5" style={{ fontSize: "1.2rem", color: "white", fontFamily: "var(--font-nav)", fontWeight: 600 }}>
+          Previous Events
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+          {previous.map((event) => (
+            <div key={event.title} className="p-5 rounded-lg" style={{ background: "#111827", border: "1px solid #374151" }}>
+              <h4 className="text-white font-medium mb-1">{event.title}</h4>
+              <p className="text-sm" style={{ color: "#9ab8dc" }}>{event.date}</p>
             </div>
           ))}
         </div>

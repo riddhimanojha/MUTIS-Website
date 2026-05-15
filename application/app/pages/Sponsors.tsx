@@ -1,4 +1,48 @@
 export function Sponsors() {
+  const vacancyLinks: Record<string, string> = {
+    "UBS": "https://www.ubs.com/global/en/careers.html",
+    "Rothschild & Co": "https://www.rothschildandco.com/en/careers/",
+    "Goldman Sachs": "https://www.goldmansachs.com/careers/",
+    "Wall Street Oasis (WSO)": "https://www.wallstreetoasis.com/jobs",
+    "TradingView": "https://www.tradingview.com/careers/",
+    "Career26": "https://career26.com/",
+    "Prima Ekuiti": "https://primaekuiti.com/",
+    "Bank of America": "https://careers.bankofamerica.com/en-us",
+    "Barclays": "https://search.jobs.barclays/",
+    "BNY": "https://jobs.bny.com/",
+    "Morgan Stanley": "https://www.morganstanley.com/careers",
+    "NatWest": "https://jobs.natwestgroup.com/",
+    "RBC": "https://jobs.rbc.com/",
+    "LGT Wealth Management": "https://www.lgtwm.com/en/careers/",
+    "Invesco": "https://careers.invesco.com/",
+    "Volcafe": "https://www.volcafe.com/careers/",
+    "AmplifyME": "https://www.amplifyme.com/careers",
+    "Shade Tree Fund": "https://shadetreefund.org/",
+    "Trackr": "https://www.trackr.com/",
+  };
+
+  const logoMap: Record<string, string> = {
+    "UBS": "https://logo.clearbit.com/ubs.com",
+    "Rothschild & Co": "https://logo.clearbit.com/rothschildandco.com",
+    "Goldman Sachs": "https://logo.clearbit.com/goldmansachs.com",
+    "Wall Street Oasis (WSO)": "https://logo.clearbit.com/wallstreetoasis.com",
+    "TradingView": "https://logo.clearbit.com/tradingview.com",
+    "Career26": "https://logo.clearbit.com/career26.com",
+    "Prima Ekuiti": "https://logo.clearbit.com/primaekuiti.com",
+    "Bank of America": "https://logo.clearbit.com/bankofamerica.com",
+    "Barclays": "https://logo.clearbit.com/barclays.com",
+    "BNY": "https://logo.clearbit.com/bny.com",
+    "Morgan Stanley": "https://logo.clearbit.com/morganstanley.com",
+    "NatWest": "https://logo.clearbit.com/natwest.com",
+    "RBC": "https://logo.clearbit.com/rbc.com",
+    "LGT Wealth Management": "https://logo.clearbit.com/lgt.com",
+    "Invesco": "https://logo.clearbit.com/invesco.com",
+    "Volcafe": "https://logo.clearbit.com/volcafe.com",
+    "AmplifyME": "https://logo.clearbit.com/amplifyme.com",
+    "Shade Tree Fund": "https://logo.clearbit.com/shadetreefund.org",
+    "Trackr": "https://logo.clearbit.com/trackr.com",
+  };
+
   const partners = [
     {
       tier: "Current Corporate Sponsors & Partners",
@@ -73,16 +117,27 @@ export function Sponsors() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {group.firms.map((firm) => (
-                <div
+                <a
                   key={firm}
-                  className="p-6 rounded-lg"
+                  href={vacancyLinks[firm] ?? "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-6 rounded-lg flex items-center justify-center min-h-[110px]"
                   style={{
                     background: "#111827",
                     border: "1px solid #374151",
                   }}
                 >
-                  <h3 className="text-base font-semibold text-white">{firm}</h3>
-                </div>
+                  <div className="text-center">
+                    <div className="text-[0.68rem] uppercase tracking-[0.2em] mb-1" style={{ color: "#9ab8dc" }}>
+                      Vacancies
+                    </div>
+                    <img src={logoMap[firm]} alt={firm} className="h-7 mx-auto mb-2 object-contain" />
+                    <h3 className="text-lg font-semibold text-white" style={{ fontFamily: "var(--font-nav)" }}>
+                      {firm}
+                    </h3>
+                  </div>
+                </a>
               ))}
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Instagram, Linkedin, MessageCircle, Mail } from "lucide-react";
 import { motion } from "motion/react";
 
 export function Home() {
@@ -12,6 +12,7 @@ export function Home() {
         description="Weekly meetings, technical workshops, live competitions, and the MUTIS Ethical Investment Fund (MEIF) give members practical exposure to trading, investing, and investment banking."
         linkTo="/about"
         linkLabel="Explore all activities"
+        withImage
       />
       <EventsSummary />
       <SummarySection
@@ -19,6 +20,7 @@ export function Home() {
         description="From CV and cover letter sessions to recruitment preparation for spring weeks, internships, and graduate roles, MUTIS helps students break into top financial institutions."
         linkTo="/join"
         linkLabel="Join the community"
+        withImage
       />
       <CommunitySummary />
       <MEIFSummary />
@@ -64,8 +66,8 @@ function HeroSection() {
           <motion.h1
             className="mb-6 tracking-tight"
             style={{
-              fontSize: "clamp(2.6rem, 6.4vw, 4.8rem)",
-              lineHeight: "1.1",
+              fontSize: "clamp(2.2rem, 5.2vw, 4rem)",
+              lineHeight: "1.08",
               fontWeight: "700",
               color: "white",
               fontFamily: "var(--font-nav)",
@@ -74,7 +76,8 @@ function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            Manchester University Trading and Investment Society
+            <span className="block">University of Manchester</span>
+            <span className="block">Trading and Investment Society</span>
           </motion.h1>
           <motion.p
             className="text-base md:text-xl max-w-[760px] mx-auto"
@@ -129,6 +132,30 @@ function HeroSection() {
             </button>
           </motion.div>
         </motion.div>
+
+        <motion.div
+          className="flex items-center justify-center gap-3 mt-7"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {[
+            { icon: Instagram, href: "https://instagram.com/mutisfinancesoc", label: "Instagram" },
+            { icon: Linkedin, href: "https://www.linkedin.com/company/mutis-finance-society", label: "LinkedIn" },
+            { icon: MessageCircle, href: "#", label: "Discord" },
+            { icon: Mail, href: "mailto:mutis@manchesterstudentsunion.com", label: "Email" },
+          ].map((social) => (
+            <a
+              key={social.label}
+              href={social.href}
+              aria-label={social.label}
+              className="w-10 h-10 rounded-md flex items-center justify-center"
+              style={{ background: "#1a3370", border: "1px solid #374151", color: "#c8d8f2" }}
+            >
+              <social.icon className="w-4 h-4" />
+            </a>
+          ))}
+        </motion.div>
       </motion.div>
     </section>
   );
@@ -137,8 +164,8 @@ function HeroSection() {
 function StatsSection() {
   const stats = [
     { number: "5000+", label: "Members" },
-    { number: "100+", label: "Events Per Year" },
-    { number: "All", label: "Academic Backgrounds" },
+    { number: "19", label: "Industry Partners" },
+    { number: "10+", label: "Flagship Events" },
   ];
 
   return (
@@ -182,14 +209,33 @@ function SummarySection({
   description,
   linkTo,
   linkLabel,
+  withImage,
 }: {
   title: string;
   description: string;
   linkTo: string;
   linkLabel: string;
+  withImage?: boolean;
 }) {
   return (
-    <section className="relative py-20">
+    <section className="relative py-20 overflow-hidden">
+      {withImage && (
+        <>
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: "url('/application/assets/backgrounds/Alliance-Manchester_2.jpeg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              opacity: 0.14,
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: "linear-gradient(180deg, rgba(9, 20, 49, 0.95) 0%, rgba(8, 18, 44, 0.98) 100%)" }}
+          />
+        </>
+      )}
       <div className="max-w-[820px] mx-auto px-8 text-center">
         <h2
           className="mb-6"
@@ -230,7 +276,7 @@ function EventsSummary() {
   const events = [
     { title: "Women in Finance Conference", date: "Autumn Term" },
     { title: "UK Student Finance Summit", date: "Spring Term" },
-    { title: "Private Equity Challenge", date: "Throughout the Year" },
+    { title: "M&A Challenge", date: "Throughout the Year" },
   ];
 
   return (
@@ -364,7 +410,7 @@ function MEIFSummary() {
           className="text-lg mb-10 max-w-[620px] mx-auto"
           style={{ color: "#c8d8f2", lineHeight: "1.7" }}
         >
-          MEIF is a student-led global equity fund where members gain hands-on portfolio experience through sector coverage including TMT, Energy, and Industrials.
+          MEIF is a student-led global equity fund where members gain hands-on portfolio experience through sector coverage including Consumer Goods, Financials, and Macro Research.
         </p>
         <Link
           to="/meif"

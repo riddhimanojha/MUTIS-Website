@@ -62,7 +62,8 @@ export function Footer() {
               {[
                 { label: "About", href: "/about" },
                 { label: "Events", href: "/events" },
-                { label: "Alumni", href: "/alumni" },
+                { label: "Team", href: "/team" },
+                { label: "Articles", href: "/articles" },
                 { label: "MEIF", href: "/meif" },
               ].map((link, index) => (
                 <li key={index}>
@@ -86,8 +87,8 @@ export function Footer() {
               {[
                 { label: "Sponsors", href: "/sponsors" },
                 { label: "Join MUTIS", href: "/join" },
-                { label: "Constitution", href: "#" },
-                { label: "Privacy", href: "#" },
+                { label: "Latest Articles", href: "/articles" },
+                { label: "Meet the Team", href: "/team" },
               ].map((link, index) => (
                 <li key={index}>
                   <Link

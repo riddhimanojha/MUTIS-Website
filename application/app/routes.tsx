@@ -7,8 +7,10 @@ import { MEIF } from "./pages/MEIF";
 import { About } from "./pages/About";
 import { Events } from "./pages/Events";
 import { Sponsors } from "./pages/Sponsors";
-import { Alumni } from "./pages/Alumni";
+import { Articles } from "./pages/Articles";
+import { Team } from "./pages/Team";
 import { Join } from "./pages/Join";
+import { Contact } from "./pages/Contact";
 
 function Root() {
   const location = useLocation();
@@ -44,8 +46,11 @@ export const router = createBrowserRouter([
       { path: "about", Component: About },
       { path: "events", Component: Events },
       { path: "sponsors", Component: Sponsors },
-      { path: "alumni", Component: Alumni },
+      { path: "team", Component: Team },
+      { path: "articles", Component: Articles },
+      { path: "alumni", Component: Articles },
       { path: "join", Component: Join },
+      { path: "contact", Component: Contact },
       { path: "meif", Component: MEIF },
       { path: "*", Component: () => <div className="p-20 text-center text-2xl font-semibold">404 - Not Found</div> },
     ],

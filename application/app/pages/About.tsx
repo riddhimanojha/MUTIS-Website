@@ -13,7 +13,7 @@ export function About() {
       icon: <Briefcase className="w-10 h-10" />,
       title: "MUTIS Ethical Investment Fund",
       description:
-        "MEIF is a student-led global equity fund where members work on portfolio management and sector research, including TMT, Energy, and Industrials.",
+        "MEIF is a student-led global equity fund where members work on portfolio management and sector research, including Consumer Goods, Financials, and Macro Research.",
     },
     {
       icon: <Award className="w-10 h-10" />,
@@ -74,6 +74,26 @@ export function About() {
               <p className="text-base leading-relaxed" style={{ color: "#c8d8f2" }}>
                 {pillar.description}
               </p>
+              {pillar.title === "MUTIS Ethical Investment Fund" && (
+                <Link
+                  to="/meif"
+                  className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 rounded-md text-sm font-medium"
+                  style={{ background: "#1a3370", color: "white", border: "1px solid #374151" }}
+                >
+                  Go to MEIF
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
+              {pillar.title === "Community & Network" && (
+                <Link
+                  to="/events"
+                  className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 rounded-md text-sm font-medium"
+                  style={{ background: "#1a3370", color: "white", border: "1px solid #374151" }}
+                >
+                  Community Events
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
           ))}
         </div>
@@ -89,7 +109,7 @@ export function About() {
             Competitions, Conferences, and Industry Access
           </h2>
           <p className="text-base leading-relaxed" style={{ color: "#c8d8f2" }}>
-            Members take part in trading simulations, stock pitch competitions, and signature challenges like the Private Equity Challenge and Dare Trading Championship. MUTIS hosts flagship conferences including Women in Finance and the UK Student Finance Summit, supported by a broad partner network including UBS, Rothschild & Co, Goldman Sachs, Wall Street Oasis, TradingView, Career26, Prima Ekuiti, and educational support such as the Shade Tree Fund.
+            Members take part in trading simulations, stock pitch competitions, and signature challenges like the M&A Challenge and Dare Trading Championship. MUTIS hosts flagship conferences including Women in Finance and the UK Student Finance Summit, supported by a broad partner network including UBS, Rothschild & Co, Goldman Sachs, Wall Street Oasis, TradingView, Career26, Prima Ekuiti, and educational support such as the Shade Tree Fund.
           </p>
         </div>
 
@@ -107,6 +127,26 @@ export function About() {
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
+
+        <section className="mt-16">
+          <h2 className="text-2xl text-white mb-6" style={{ fontFamily: "var(--font-nav)", fontWeight: 600 }}>
+            MUTIS in Action
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[1, 2, 3].map((slot) => (
+              <div
+                key={slot}
+                className="h-52 rounded-lg"
+                style={{
+                  backgroundImage: "url('/application/assets/backgrounds/Alliance-Manchester_2.jpeg')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  border: "1px solid #374151",
+                }}
+              />
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
