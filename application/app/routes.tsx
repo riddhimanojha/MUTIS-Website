@@ -11,6 +11,7 @@ import { Articles } from "./pages/Articles";
 import { Team } from "./pages/Team";
 import { Join } from "./pages/Join";
 import { Contact } from "./pages/Contact";
+import { Admin } from "./pages/Admin";
 
 function Root() {
   const location = useLocation();
@@ -48,11 +49,20 @@ export const router = createBrowserRouter([
       { path: "sponsors", Component: Sponsors },
       { path: "team", Component: Team },
       { path: "articles", Component: Articles },
+      // /alumni redirects to articles to avoid dead links
       { path: "alumni", Component: Articles },
       { path: "join", Component: Join },
       { path: "contact", Component: Contact },
       { path: "meif", Component: MEIF },
-      { path: "*", Component: () => <div className="p-20 text-center text-2xl font-semibold">404 - Not Found</div> },
+      { path: "admin", Component: Admin },
+      {
+        path: "*",
+        Component: () => (
+          <div className="p-20 text-center text-2xl font-semibold text-white">
+            404 — Page not found
+          </div>
+        ),
+      },
     ],
   },
 ]);
