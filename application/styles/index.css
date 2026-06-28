@@ -1,0 +1,20 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* MUTIS cinematic redesign  -  base, scroll-pinned home, subpage layouts */
+@import './mutis-base.css';
+@import './mutis-scroll.css';
+@import './mutis-subpage.css';
+@import './mutis-light.css';
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

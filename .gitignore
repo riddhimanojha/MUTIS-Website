@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Vite cache
+.vite/
+.vite-temp/
+
+# Environment files (may contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Local config files
+*.local
+
+# Claude Code IDE config
+.claude/
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Editor junk
+*.swp
+*.swo
+*~
+*.orig
+*.bak
+.idea/
+.vscode/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Type-check cache
+*.tsbuildinfo

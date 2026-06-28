@@ -1,0 +1,12 @@
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA fallback so React Router deep links resolve after refresh.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

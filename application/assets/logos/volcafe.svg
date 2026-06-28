@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 96" role="img" aria-label="Volcafe">
+  <!-- coffee-bean mark -->
+  <g transform="translate(20,18)">
+    <ellipse cx="30" cy="30" rx="28" ry="30" fill="#1e6b4f"/>
+    <path d="M30 4 C 12 16, 12 44, 30 56 C 24 44, 24 16, 30 4 Z" fill="#0f4a35"/>
+    <path d="M30 4 C 48 16, 48 44, 30 56 C 36 44, 36 16, 30 4 Z" fill="#16523c"/>
+  </g>
+  <text x="78" y="62" font-family="Georgia, 'Times New Roman', serif" font-weight="700"
+        font-size="46" letter-spacing="0.5" fill="#16294d">Volcafe</text>
+</svg>

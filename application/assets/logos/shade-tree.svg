@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 96" role="img" aria-label="Shade Tree Fund">
+  <!-- tree mark -->
+  <g transform="translate(22,16)">
+    <circle cx="30" cy="26" r="26" fill="#2f8f5b"/>
+    <circle cx="14" cy="34" r="16" fill="#3aa468"/>
+    <circle cx="46" cy="34" r="16" fill="#256f47"/>
+    <rect x="26" y="44" width="8" height="22" rx="2" fill="#5b4632"/>
+  </g>
+  <text x="84" y="44" font-family="Georgia, 'Times New Roman', serif" font-weight="700"
+        font-size="34" letter-spacing="0.5" fill="#16294d">Shade Tree</text>
+  <text x="85" y="70" font-family="Manrope, Arial, sans-serif" font-weight="600"
+        font-size="14" letter-spacing="0.32em" fill="#0e7fa3">FOUNDATION</text>
+</svg>

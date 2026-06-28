@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07183a" />
+
+    <title>MUTIS Finance Society</title>
+    <meta
+      name="description"
+      content="MUTIS is the University of Manchester's largest trading and investment society : events, the student-run Ethical Investment Fund (MEIF), member research, and industry partnerships."
+    />
+    <link rel="canonical" href="https://mutis.co.uk/" />
+
+    <link rel="icon" type="image/jpeg" href="/mutislogo.jpg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MUTIS Finance Society" />
+    <meta property="og:title" content="MUTIS Finance Society" />
+    <meta
+      property="og:description"
+      content="The University of Manchester's largest trading and investment society : events, a student-run fund, member research, and industry partners."
+    />
+    <meta property="og:url" content="https://mutis.co.uk/" />
+    <meta property="og:image" content="/mutislogo.jpg" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MUTIS Finance Society" />
+    <meta
+      name="twitter:description"
+      content="The University of Manchester's largest trading and investment society."
+    />
+    <meta name="twitter:image" content="/mutislogo.jpg" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Hidden static form so Netlify's build bot can register the form for a Vite SPA. -->
+    <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <select name="reason">
+        <option>I want to join MUTIS</option>
+        <option>Partnership / sponsorship enquiry</option>
+        <option>MEIF analyst application</option>
+        <option>Event press / media</option>
+        <option>Other</option>
+      </select>
+      <textarea name="message"></textarea>
+      <input name="bot-field" />
+    </form>
+
+    <!-- Hidden static form for the Sponsors page sponsorship enquiry. -->
+    <form name="sponsorship" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="company" />
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <textarea name="message"></textarea>
+      <input name="bot-field" />
+    </form>
+
+    <script type="module" src="/application/main.tsx"></script>
+  </body>
+</html>

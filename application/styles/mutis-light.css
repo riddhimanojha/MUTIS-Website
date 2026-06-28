@@ -1,0 +1,334 @@
+/* ============================================================
+   MUTIS  -  Light interior pages
+   Scoped under .subpage-light (applied to <main> on every route
+   except the home page). Keeps the dark cinematic home intact
+   while giving content pages a clean, white, neutral surface with
+   blue/teal used only as an accent.
+   ============================================================ */
+
+.subpage-light {
+  /* Brand palette: #021967 navy · #15b8e1 cyan · #9ec1d4 soft blue · #f2f3ee ivory */
+  --navy: #021967;              /* deep brand navy */
+  --navy-2: #0a2a6b;
+  --blue: #15b8e1;              /* bright cyan accent */
+  --blue-deep: #0e7fa3;         /* deeper cyan (readable on white) */
+  --blue-light: #9ec1d4;        /* soft blue for navy backgrounds */
+
+  --ink-text: #021967;          /* primary text (navy) */
+  --ink-soft: #3c4a66;          /* body / muted text (slate) */
+  --ink-faint: #76869f;         /* labels / dim text (grey) */
+  --hair: rgba(2, 25, 103, 0.14);     /* navy-tinted hairline */
+  --hair-soft: rgba(2, 25, 103, 0.07);
+  --surface: #ffffff;           /* default page surface (white) */
+  --surface-alt: #f2f3ee;       /* alternating bands (warm ivory) */
+
+  /* Shared accent tokens -> cyan, with a deeper cyan for accent text */
+  --pm-accent: #15b8e1;
+  --pm-accent-2: #0e7fa3;
+  --pm-accent-dim: rgba(21, 184, 225, 0.12);
+  --pm-accent-glow: rgba(21, 184, 225, 0.22);
+  --muted: var(--ink-soft);
+  --dim: var(--ink-faint);
+
+  background: var(--surface);
+  color: var(--ink-text);
+}
+
+/* ---------- Page hero: navy banner ---------- */
+.subpage-light .page-hero {
+  background: linear-gradient(135deg, #021967 0%, #0a2a6b 52%, #0e7fa3 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.subpage-light .page-hero::before {
+  background:
+    radial-gradient(circle at 78% 24%, rgba(21, 184, 225, 0.22) 0%, transparent 46%),
+    radial-gradient(circle at 8% 84%, rgba(158, 193, 212, 0.10) 0%, transparent 50%);
+}
+.subpage-light .page-hero::after {
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 96px, rgba(255, 255, 255, 0.04) 96px 97px),
+    repeating-linear-gradient(90deg, transparent 0 96px, rgba(255, 255, 255, 0.04) 96px 97px);
+}
+
+/* Hero text is light on the navy banner */
+.subpage-light .page-hero .page-title { color: #ffffff; }
+.subpage-light .page-hero .page-title .accent { color: var(--blue-light); }
+.subpage-light .page-hero .page-sub { color: rgba(255, 255, 255, 0.78); }
+.subpage-light .page-hero .crumb { color: rgba(255, 255, 255, 0.6); }
+.subpage-light .page-hero .crumb a:hover { color: #ffffff; }
+.subpage-light .page-hero .crumb span { color: rgba(255, 255, 255, 0.3); }
+.subpage-light .page-hero .page-eyebrow { color: var(--blue-light); }
+.subpage-light .page-hero .page-eyebrow .bar { background: var(--blue-light); box-shadow: 0 0 10px rgba(122,183,224,0.5); }
+
+/* Events page keeps its own photographic hero */
+.subpage-light .page-hero-events { border-bottom: 1px solid rgba(255,255,255,0.08); }
+
+/* ---------- Sections & type ---------- */
+.subpage-light .page-section { background: var(--surface); color: var(--ink-text); }
+.subpage-light .page-section .page-eyebrow { color: var(--pm-accent-2); }
+.subpage-light .page-title { color: var(--ink-text); }
+.subpage-light .page-sub { color: var(--ink-soft); }
+.subpage-light .page-section h2 { color: var(--ink-text); }
+.subpage-light .page-section .lede { color: var(--ink-soft); }
+.subpage-light p { color: var(--ink-soft); }
+
+/* Pages that hard-code dark band backgrounds via inline styles
+   (var(--base)) — repaint those bands as the light alt surface. */
+.subpage-light [style*="--base"] { background: var(--surface-alt) !important; }
+
+/* ---------- Cards ---------- */
+.subpage-light .dark-card {
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  box-shadow: 0 1px 2px rgba(10, 31, 68, 0.04);
+}
+.subpage-light .dark-card:hover {
+  border-color: rgba(15, 122, 168, 0.45);
+  box-shadow: 0 18px 50px -22px rgba(15, 122, 168, 0.30);
+}
+.subpage-light .dark-card h3 { color: var(--ink-text); }
+.subpage-light .dark-card p { color: var(--ink-soft); }
+.subpage-light .dark-card .foot {
+  border-top: 1px solid var(--hair);
+  color: var(--ink-faint);
+}
+.subpage-light .dark-card .foot .more { color: var(--ink-text); }
+
+/* ---------- Split text ---------- */
+.subpage-light .split-text p { color: var(--ink-soft); }
+.subpage-light .split-text p strong { color: var(--ink-text); }
+
+/* ---------- Numbered list ---------- */
+.subpage-light .numlist-item { border-top: 1px solid var(--hair); }
+.subpage-light .numlist-item:last-child { border-bottom: 1px solid var(--hair); }
+.subpage-light .numlist-item:hover { background: linear-gradient(90deg, rgba(15,122,168,0.06) 0%, transparent 100%); }
+.subpage-light .numlist-item .t { color: var(--ink-text); }
+.subpage-light .numlist-item .d { color: var(--ink-soft); }
+.subpage-light .numlist-item .arrow { border-color: var(--hair); }
+
+/* ---------- Tier heads ---------- */
+.subpage-light .tier-head { color: var(--ink-text); }
+
+/* ---------- Sponsor grid ---------- */
+.subpage-light .sponsor-grid { border-top: 1px solid var(--hair); border-left: 1px solid var(--hair); }
+.subpage-light .sponsor-cell { border-bottom: 1px solid var(--hair); border-right: 1px solid var(--hair); }
+.subpage-light .sponsor-cell:hover { background: rgba(15, 122, 168, 0.06); }
+.subpage-light .sponsor-cell .name { color: var(--ink-text); }
+.subpage-light .sponsor-cell .role { color: var(--ink-faint); }
+.subpage-light .sponsor-logo-fallback {
+  color: var(--ink-text);
+  background: linear-gradient(180deg, rgba(15,122,168,0.14) 0%, rgba(15,122,168,0.04) 100%);
+}
+
+/* ---------- Committee / members ---------- */
+.subpage-light .committee-grid { border-top: 1px solid var(--hair); }
+.subpage-light .member { border-bottom: 1px solid var(--hair); border-right: 1px solid var(--hair); }
+.subpage-light .member:first-child { border-left: 1px solid var(--hair); }
+.subpage-light .member .name { color: var(--ink-text); }
+.subpage-light .member .portrait {
+  border: 1px solid var(--hair);
+  background:
+    repeating-linear-gradient(135deg, rgba(15,122,168,0.05) 0 6px, transparent 6px 14px),
+    linear-gradient(180deg, #eef3f9 0%, #e3eaf3 100%);
+}
+.subpage-light .member .portrait-fallback span { color: #5b7da0; }
+
+/* ---------- Articles ---------- */
+.subpage-light .article { border-bottom: 1px solid var(--hair); }
+.subpage-light .article:hover { background: linear-gradient(90deg, rgba(15,122,168,0.08) 0%, transparent 100%); }
+.subpage-light .article .title { color: var(--ink-text); }
+.subpage-light .article-thumb { border: 1px solid var(--hair); }
+
+/* ---------- Contact ---------- */
+.subpage-light .field label { color: var(--ink-faint); }
+.subpage-light .field input,
+.subpage-light .field textarea,
+.subpage-light .field select {
+  background: #fff;
+  border: 1px solid var(--hair);
+  color: var(--ink-text);
+}
+.subpage-light .field input:focus,
+.subpage-light .field textarea:focus,
+.subpage-light .field select:focus {
+  border-color: var(--pm-accent);
+  background: rgba(15, 122, 168, 0.05);
+}
+.subpage-light .contact-info { border-left: 1px solid var(--hair); }
+.subpage-light .contact-info .row { border-bottom: 1px solid var(--hair); }
+.subpage-light .contact-info .row .l { color: var(--ink-faint); }
+.subpage-light .contact-info .row .v { color: var(--ink-text); }
+.subpage-light .form-success { color: #0a4a63; background: rgba(15,122,168,0.10); border: 1px solid rgba(15,122,168,0.4); }
+
+/* ---------- MEIF sectors ---------- */
+.subpage-light .sector-block { border-top: 1px solid var(--hair); }
+.subpage-light .sector-block:last-of-type { border-bottom: 1px solid var(--hair); }
+.subpage-light .sector-block .sname { color: var(--ink-text); }
+.subpage-light .sector-block .sdesc { color: var(--ink-soft); }
+.subpage-light .sector-block .focus li { color: var(--ink-text); }
+.subpage-light .team-compact-card {
+  border: 1px solid var(--hair);
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(10,31,68,0.04);
+}
+.subpage-light .team-compact-card .sname { color: var(--ink-text); }
+.subpage-light .team-compact-card .sdesc { color: var(--ink-soft); }
+.subpage-light .team-pdf-soon { color: var(--ink-faint); border: 1px dashed rgba(10,31,68,0.2); }
+.subpage-light .meif-fund-section::before {
+  background: linear-gradient(180deg, rgba(15,122,168,0.05), rgba(43,94,168,0.05));
+}
+
+/* ---------- Image belt ---------- */
+.subpage-light .image-belt { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+.subpage-light .image-cell { border: 1px solid var(--hair); }
+
+/* ---------- Timeline ---------- */
+.subpage-light .tl-item { border-bottom: 1px solid var(--hair); }
+.subpage-light .tl-item .tt { color: var(--ink-text); }
+.subpage-light .tl-item .td { color: var(--ink-soft); }
+
+/* ---------- Buttons on light ---------- */
+.subpage-light .btn { color: var(--ink-text); border-color: var(--hair); }
+.subpage-light .btn-ghost { background: #fff; border-color: rgba(10,31,68,0.18); }
+.subpage-light .btn-ghost:hover { border-color: var(--pm-accent); background: rgba(15,122,168,0.05); }
+.subpage-light .btn-primary { color: #fff; }
+
+/* ---------- Hairline borders fed via --hair (Alumni / Presidents grids) ---------- */
+.subpage-light .hair-grid { border-top: 1px solid var(--hair); border-left: 1px solid var(--hair); }
+.subpage-light .hair-cell { border-bottom: 1px solid var(--hair); border-right: 1px solid var(--hair); }
+.subpage-light .hair-row { border-bottom: 1px solid var(--hair); }
+
+/* ============================================================
+   New page components (Gallery, Our Network, Past Speakers, Podcast)
+   These pages always render light, so they are styled here.
+   ============================================================ */
+
+/* ---------- Gallery ---------- */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 12px;
+}
+.gallery-item {
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--hair);
+  background: var(--surface-alt);
+}
+.gallery-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s cubic-bezier(.22,1,.36,1);
+}
+.gallery-item:hover img { transform: scale(1.05); }
+
+/* ---------- Our Network ---------- */
+.network-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 14px;
+}
+.network-card {
+  border: 1px solid var(--hair);
+  background: #fff;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(10,31,68,0.04);
+  transition: transform 0.3s cubic-bezier(.22,1,.36,1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.network-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(15,122,168,0.45);
+  box-shadow: 0 18px 50px -22px rgba(15,122,168,0.3);
+}
+.network-portrait {
+  width: 84px; height: 84px; margin: 0 auto 16px;
+  border-radius: 50%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #eef3f9 0%, #e3eaf3 100%);
+  border: 1px solid var(--hair);
+  font-family: var(--font-display); font-size: 30px; color: #5b7da0;
+}
+.network-portrait img { width: 100%; height: 100%; object-fit: cover; }
+.network-name { font-family: var(--font-display); font-size: 20px; color: var(--ink-text); line-height: 1.1; }
+.network-firm { font-size: 14px; color: var(--ink-soft); margin-top: 6px; }
+.network-role { font-size: 9.5px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-faint); margin-top: 8px; }
+.network-linkedin {
+  display: inline-block; margin-top: 14px; text-decoration: none;
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pm-accent);
+}
+
+/* ---------- Past Speakers ---------- */
+.speaker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 14px;
+}
+.speaker-card {
+  border: 1px solid var(--hair);
+  background: #fff;
+  padding: 28px 24px;
+  box-shadow: 0 1px 2px rgba(10,31,68,0.04);
+  transition: transform 0.3s cubic-bezier(.22,1,.36,1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.speaker-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(15,122,168,0.45);
+  box-shadow: 0 18px 50px -22px rgba(15,122,168,0.3);
+}
+.speaker-photo {
+  width: 96px; height: 96px; margin-bottom: 18px;
+  border-radius: 50%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #eef3f9 0%, #e3eaf3 100%);
+  border: 1px solid var(--hair);
+  font-family: var(--font-display); font-size: 34px; color: #5b7da0;
+}
+.speaker-photo img { width: 100%; height: 100%; object-fit: cover; }
+.speaker-name { font-family: var(--font-display); font-size: 22px; color: var(--ink-text); line-height: 1.05; }
+.speaker-role { font-size: 13px; color: var(--ink-soft); margin-top: 8px; }
+.speaker-firm { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--pm-accent-2); margin-top: 10px; }
+.speaker-event { font-size: 9.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 6px; }
+
+/* ---------- MEIF performance placeholder ---------- */
+.perf-placeholder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 14px;
+}
+.perf-card {
+  border: 1px solid var(--hair);
+  background: #fff;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 1px 2px rgba(10,31,68,0.04);
+}
+.perf-card .l { font-size: 9.5px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faint); }
+.perf-card .v { font-family: var(--font-display); font-size: 36px; color: var(--ink-text); line-height: 1; }
+
+/* ---------- WIF logo slot ---------- */
+.wif-logo-slot {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; max-width: 340px; margin-bottom: 24px;
+  padding: 22px 26px;
+  border: 1px solid var(--hair);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(10,31,68,0.06);
+}
+.wif-logo-slot img { width: 100%; height: auto; object-fit: contain; display: block; }
+
+/* ---------- Podcast ---------- */
+.podcast-embed {
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface-alt);
+}
+.podcast-embed iframe { display: block; border: 0; }
+
+@media (max-width: 640px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .network-grid, .speaker-grid { grid-template-columns: 1fr; }
+}

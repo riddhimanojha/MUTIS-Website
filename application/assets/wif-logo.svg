@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 250" role="img" aria-label="Women in Finance — MUTIS">
+  <!-- stylised double-swoosh wing mark -->
+  <g transform="translate(516,10)">
+    <path d="M2 70 C 46 14, 120 8, 168 18 C 122 32, 80 50, 48 82 C 34 64, 18 60, 2 70 Z" fill="#16294d"/>
+    <path d="M24 96 C 68 44, 138 38, 184 48 C 138 62, 98 80, 68 110 C 52 92, 40 90, 24 96 Z" fill="#c8102e"/>
+  </g>
+  <text x="380" y="160" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', 'Playfair Display', serif"
+        font-weight="700" font-size="78" letter-spacing="1"
+        textLength="600" lengthAdjust="spacingAndGlyphs" fill="#16294d">WOMEN <tspan fill="#c8102e">IN</tspan> FINANCE</text>
+  <text x="380" y="216" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', 'Playfair Display', serif"
+        font-weight="600" font-size="36" letter-spacing="14"
+        textLength="230" lengthAdjust="spacingAndGlyphs" fill="#16294d">MUTIS</text>
+</svg>
