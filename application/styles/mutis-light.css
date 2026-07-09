@@ -121,9 +121,10 @@
 }
 
 /* ---------- Committee / members ---------- */
-.subpage-light .committee-grid { border-top: 1px solid var(--hair); }
+.subpage-light .committee-grid { border-top: 1px solid var(--hair); border-left: 1px solid var(--hair); }
 .subpage-light .member { border-bottom: 1px solid var(--hair); border-right: 1px solid var(--hair); }
-.subpage-light .member:first-child { border-left: 1px solid var(--hair); }
+.subpage-light .committee-grid--feature { border: none; }
+.subpage-light .committee-grid--feature .member { border: 1px solid var(--hair); }
 .subpage-light .member .name { color: var(--ink-text); }
 .subpage-light .member .portrait {
   border: 1px solid var(--hair);
@@ -131,6 +132,7 @@
     repeating-linear-gradient(135deg, rgba(15,122,168,0.05) 0 6px, transparent 6px 14px),
     linear-gradient(180deg, #eef3f9 0%, #e3eaf3 100%);
 }
+.subpage-light .member img.portrait { background: none; }
 .subpage-light .member .portrait-fallback span { color: #5b7da0; }
 
 /* ---------- Articles ---------- */

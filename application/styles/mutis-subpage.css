@@ -325,6 +325,7 @@
   font-size: clamp(30px, 5vw, 46px); letter-spacing: 0.04em;
   color: #d0dde8; line-height: 1;
 }
+.member img.portrait { background: none; padding: 0; display: block; }
 .member .name { font-family: var(--font-display); font-size: 22px; text-transform: uppercase; letter-spacing: 0.005em; line-height: 1; }
 .member .role { font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--pm-accent-2); margin-top: 8px; }
 
@@ -332,8 +333,9 @@
 .committee-grid--feature {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 360px));
   justify-content: center;
+  border: none;
 }
-.committee-grid--feature .member { padding: 48px 22px; }
+.committee-grid--feature .member { padding: 48px 22px; border: 1px solid rgba(255,255,255,0.07); }
 .committee-grid--feature .member .portrait { width: 70%; max-width: 220px; }
 .committee-grid--feature .member .name { font-size: 28px; }
 

@@ -240,7 +240,7 @@ function WhatWeDo() {
               <span className="pm-reveal-line" key={i}>
                 <span style={{
                   display: "inline-block",
-                  color: i === 2 ? "var(--pm-accent)" : "#f0f4f8",
+                  color: i === 2 ? "var(--pm-accent)" : "#021967",
                   transform: `translateY(${t ? "0%" : "108%"})`,
                   transition: `transform 1s cubic-bezier(.22,1,.36,1) ${i * 0.12}s`,
                 }}>

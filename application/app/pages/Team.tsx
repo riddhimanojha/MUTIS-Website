@@ -15,34 +15,34 @@ type CommitteeRow = {
 };
 
 const FALLBACK_COMMITTEE: CommitteeRow[] = [
-  { id: "fallback-bhawat", name: "Bhawat", role: "Executive Committee | Co-President", initials: "B", headshot_url: null, linkedin: null, display_order: 10, created_at: "" },
+  { id: "fallback-bhawat", name: "Bhawat", role: "Executive Committee | Co-President", initials: "B", headshot_url: "/headshots/Bhawat.jpeg", linkedin: "https://www.linkedin.com/in/bhawat-bansal", display_order: 10, created_at: "" },
   { id: "fallback-alex", name: "Alex", role: "Executive Committee | Co-President", initials: "A", headshot_url: null, linkedin: null, display_order: 11, created_at: "" },
   { id: "fallback-kenneth", name: "Kenneth", role: "Executive Committee | Chair", initials: "K", headshot_url: null, linkedin: null, display_order: 12, created_at: "" },
   { id: "fallback-tanuska", name: "Tanuska", role: "Executive Committee | Chair", initials: "T", headshot_url: null, linkedin: null, display_order: 13, created_at: "" },
   { id: "fallback-anna-exec", name: "Anna", role: "Executive Committee | Chair", initials: "A", headshot_url: null, linkedin: null, display_order: 13.5, created_at: "" },
   { id: "fallback-anthony", name: "Anthony", role: "Executive Committee | Chair", initials: "A", headshot_url: null, linkedin: null, display_order: 14, created_at: "" },
-  { id: "fallback-sandra", name: "Sandra", role: "Executive Committee | Fund Manager, VP", initials: "S", headshot_url: null, linkedin: null, display_order: 15, created_at: "" },
+  { id: "fallback-sandra", name: "Sandra", role: "Executive Committee | Fund Manager, VP", initials: "S", headshot_url: "/headshots/Sandra.jpeg", linkedin: "https://www.linkedin.com/in/sandrabinil30", display_order: 15, created_at: "" },
   { id: "fallback-victoria", name: "Victoria", role: "Executive Committee | VP", initials: "V", headshot_url: null, linkedin: null, display_order: 16, created_at: "" },
-  { id: "fallback-ryusei", name: "Ryusei", role: "Executive Committee | Fund Manager", initials: "R", headshot_url: null, linkedin: null, display_order: 17, created_at: "" },
+  { id: "fallback-ryusei", name: "Ryusei", role: "Executive Committee | Fund Manager", initials: "R", headshot_url: "/headshots/Ryusei.jpeg", linkedin: "https://www.linkedin.com/in/ryuseiokada", display_order: 17, created_at: "" },
   { id: "fallback-riddhiman", name: "Riddhiman", role: "Tech Team | Co-Head", initials: "R", headshot_url: null, linkedin: null, display_order: 20, created_at: "" },
   { id: "fallback-daniel", name: "Daniel", role: "Tech Team | Co-Head", initials: "D", headshot_url: null, linkedin: null, display_order: 21, created_at: "" },
   { id: "fallback-sebastian", name: "Sebastian", role: "IBC | Co-Head", initials: "S", headshot_url: null, linkedin: null, display_order: 30, created_at: "" },
-  { id: "fallback-anass", name: "Anass", role: "IBC | Co-Head", initials: "A", headshot_url: null, linkedin: null, display_order: 31, created_at: "" },
-  { id: "fallback-tomilola", name: "Tomilola", role: "IBC | Co-Head", initials: "T", headshot_url: null, linkedin: null, display_order: 32, created_at: "" },
-  { id: "fallback-rishik", name: "Rishik", role: "Sponsorships | Co-Head", initials: "R", headshot_url: null, linkedin: null, display_order: 40, created_at: "" },
-  { id: "fallback-aditya", name: "Aditya", role: "Sponsorships | Co-Head", initials: "A", headshot_url: null, linkedin: null, display_order: 41, created_at: "" },
+  { id: "fallback-anass", name: "Anass", role: "IBC | Co-Head", initials: "A", headshot_url: "/headshots/Anass.jpeg", linkedin: null, display_order: 31, created_at: "" },
+  { id: "fallback-tomilola", name: "Tomilola", role: "IBC | Co-Head", initials: "T", headshot_url: "/headshots/Tomilola.jpeg", linkedin: null, display_order: 32, created_at: "" },
+  { id: "fallback-rishik", name: "Rishik", role: "Sponsorships | Co-Head", initials: "R", headshot_url: "/headshots/Rishik.jpeg", linkedin: "https://www.linkedin.com/in/rishik-k", display_order: 40, created_at: "" },
+  { id: "fallback-aditya", name: "Aditya", role: "Sponsorships | Co-Head", initials: "A", headshot_url: "/headshots/Aditya.jpeg", linkedin: "https://www.linkedin.com/in/aditya-jain-uom", display_order: 41, created_at: "" },
   { id: "fallback-malaika", name: "Malaika", role: "Sponsorships | Co-Head", initials: "M", headshot_url: null, linkedin: null, display_order: 42, created_at: "" },
   { id: "fallback-alleluia", name: "Alleluia", role: "b.dev | Co-Head", initials: "A", headshot_url: null, linkedin: null, display_order: 50, created_at: "" },
-  { id: "fallback-phoebe", name: "Phoebe", role: "b.dev | Co-Head", initials: "P", headshot_url: null, linkedin: null, display_order: 51, created_at: "" },
+  { id: "fallback-phoebe", name: "Phoebe", role: "b.dev | Co-Head", initials: "P", headshot_url: "/headshots/Claresta.jpeg", linkedin: "https://www.linkedin.com/in/claresta-phoebe-arifin", display_order: 51, created_at: "" },
   { id: "fallback-quinella", name: "Quinella", role: "b.dev | Co-Head", initials: "Q", headshot_url: null, linkedin: null, display_order: 52, created_at: "" },
   { id: "fallback-darryl", name: "Darryl", role: "b.dev | Co-Head", initials: "D", headshot_url: null, linkedin: null, display_order: 53, created_at: "" },
-  { id: "fallback-kashvi", name: "Kashvi", role: "b.dev | Creative Director", initials: "K", headshot_url: null, linkedin: null, display_order: 54, created_at: "" },
+  { id: "fallback-kashvi", name: "Kashvi", role: "b.dev | Creative Director", initials: "K", headshot_url: "/headshots/Kashvi.jpeg", linkedin: "https://www.linkedin.com/in/kashvi-chhabra104", display_order: 54, created_at: "" },
   { id: "fallback-mica", name: "Mica", role: "Operations | Co-Head", initials: "M", headshot_url: null, linkedin: null, display_order: 60, created_at: "" },
-  { id: "fallback-muskan", name: "Muskan", role: "Operations | Co-Head", initials: "M", headshot_url: null, linkedin: null, display_order: 61, created_at: "" },
-  { id: "fallback-anna", name: "Anna", role: "WIF | Director", initials: "A", headshot_url: null, linkedin: null, display_order: 70, created_at: "" },
+  { id: "fallback-muskan", name: "Muskan", role: "Operations | Co-Head", initials: "M", headshot_url: "/headshots/Muskan.jpeg", linkedin: null, display_order: 61, created_at: "" },
+  { id: "fallback-anna", name: "Anna", role: "WIF | Director", initials: "A", headshot_url: "/headshots/AnnaSkinner.jpeg", linkedin: null, display_order: 70, created_at: "" },
   { id: "fallback-maya", name: "Maya", role: "WIF | Co-Head", initials: "M", headshot_url: null, linkedin: null, display_order: 71, created_at: "" },
-  { id: "fallback-elsie", name: "Elsie", role: "WIF | Co-Head", initials: "E", headshot_url: null, linkedin: null, display_order: 72, created_at: "" },
-  { id: "fallback-niyati", name: "Niyati", role: "WIF | Co-Head", initials: "N", headshot_url: null, linkedin: null, display_order: 73, created_at: "" },
+  { id: "fallback-elsie", name: "Elsie", role: "WIF | Co-Head", initials: "E", headshot_url: "/headshots/Elsie.jpeg", linkedin: "https://www.linkedin.com/in/elsie-arvandita-b56b9a281", display_order: 72, created_at: "" },
+  { id: "fallback-niyati", name: "Niyati", role: "WIF | Co-Head", initials: "N", headshot_url: null, linkedin: "https://www.linkedin.com/in/niyati-singh12", display_order: 73, created_at: "" },
 ];
 
 /**
@@ -77,7 +77,7 @@ function MemberPortrait({
       alt={name}
       loading="lazy"
       decoding="async"
-      style={{ objectFit: "cover" }}
+      style={{ objectFit: "cover", objectPosition: "top center" }}
       onError={() => setFailed(true)}
     />
   );
@@ -133,7 +133,7 @@ export function Team() {
           )}
 
           {restOfCommittee.length > 0 && (
-            <div className="committee-grid committee-grid--3col" style={{ borderTop: "none" }}>
+            <div className="committee-grid committee-grid--3col" style={{ marginTop: "-1px" }}>
               {restOfCommittee.map(renderMember)}
             </div>
           )}
