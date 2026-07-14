@@ -63,6 +63,30 @@ export function Events() {
         </div>
       </section>
 
+      {/* Attendance — the per-session QR code points at /attendance */}
+      <section className="page-section" style={{ borderTop: "1px solid var(--hair)" }}>
+        <div className="inner">
+          <div className="split">
+            <div className="split-text">
+              <div className="page-eyebrow r-up"><span className="bar" />At a Session?</div>
+              <h2 className="r-up">Log your attendance</h2>
+            </div>
+            <div className="split-text r-up">
+              <p>
+                At every MUTIS session we share a QR code that links to our attendance form.
+                It takes under a minute — your name, university email, course, year, and a
+                quick rating of the event.
+              </p>
+              <div style={{ marginTop: 8 }}>
+                <Link to="/attendance" className="btn btn-primary" style={{ textDecoration: "none" }}>
+                  Log My Attendance →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="page-section" style={{ background: "var(--base)", borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
         <div className="inner">
           <div className="page-eyebrow r-up"><span className="bar" />Section 02  -  Upcoming Term</div>

@@ -52,6 +52,23 @@
       <input name="bot-field" />
     </form>
 
+    <!-- Hidden static form for the Events attendance log (QR code target). -->
+    <form name="attendance" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="course" />
+      <select name="year">
+        <option>Year 1</option>
+        <option>Year 2</option>
+        <option>Year 3</option>
+        <option>Year 4</option>
+        <option>Postgraduate</option>
+      </select>
+      <input type="text" name="usefulness" />
+      <textarea name="feedback"></textarea>
+      <input name="bot-field" />
+    </form>
+
     <!-- Hidden static form for the Sponsors page sponsorship enquiry. -->
     <form name="sponsorship" netlify netlify-honeypot="bot-field" hidden>
       <input type="text" name="company" />

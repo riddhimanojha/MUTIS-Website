@@ -11,17 +11,15 @@ type President = {
   linkedin: string | null;
 };
 
+// PENDING: confirm the year each president led, plus earlier names
+// (reaching out to Priyam for records of previous years).
 const PREVIOUS_PRESIDENTS: President[] = [
   { year: "2025–2026", name: "Alex & Bhawat", notes: "Co-Presidents", headshot: null, linkedin: null },
-  { year: "2024–2025", name: "Name TBC", notes: "", headshot: null, linkedin: null },
-  { year: "2023–2024", name: "Name TBC", notes: "", headshot: null, linkedin: null },
-  { year: "2022–2023", name: "Name TBC", notes: "", headshot: null, linkedin: null },
-  { year: "2021–2022", name: "Name TBC", notes: "", headshot: null, linkedin: null },
-  { year: "2020–2021", name: "Name TBC", notes: "", headshot: null, linkedin: null },
-  { year: "2019–2020", name: "Name TBC", notes: "", headshot: null, linkedin: null },
-  { year: "2018–2019", name: "Name TBC", notes: "", headshot: null, linkedin: null },
-  { year: "2017–2018", name: "Name TBC", notes: "", headshot: null, linkedin: null },
-  { year: "2016–2017", name: "Name TBC", notes: "", headshot: null, linkedin: null },
+  { year: "Previous", name: "Priyam", notes: "President", headshot: null, linkedin: null },
+  { year: "Previous", name: "Edgar", notes: "President", headshot: null, linkedin: null },
+  { year: "Previous", name: "Rohan", notes: "President", headshot: null, linkedin: null },
+  { year: "Previous", name: "Sanya", notes: "President", headshot: null, linkedin: null },
+  { year: "Previous", name: "Alex", notes: "President", headshot: null, linkedin: null },
   { year: "Est. 2008", name: "Founding Committee", notes: "Founding year", headshot: null, linkedin: null },
 ];
 
@@ -57,7 +55,7 @@ export function PreviousPresidents() {
 
           <div className="network-grid r-up">
             {PREVIOUS_PRESIDENTS.map((p) => (
-              <article className="network-card" key={p.year}>
+              <article className="network-card" key={`${p.year}-${p.name}`}>
                 <div className="network-portrait">
                   {p.headshot ? (
                     <img src={p.headshot} alt={p.name} loading="lazy" decoding="async" />

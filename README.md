@@ -1,6 +1,6 @@
 # MUTIS Website
 
-The official website for the **Manchester University Trading & Investment Society (MUTIS)** - one of the UK's largest student finance societies with 4,000+ members.
+The official website for the **Manchester University Trading & Investment Society (MUTIS)** - one of the UK's largest student finance societies with 1,000+ members.
 
 Built with React + TypeScript + Vite. Fully static - no backend, no database, no login. Hosted on Netlify with zero running costs.
 

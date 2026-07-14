@@ -142,6 +142,7 @@ export function Contact() {
             <div className="contact-info r-up">
               <div className="row"><div className="l">Email</div><div className="v"><a href="mailto:mutis@manchesterstudentsunion.com">mutis@<wbr />manchesterstudentsunion.com</a></div></div>
               <div className="row"><div className="l">Address</div><div className="v">Alliance Manchester Business School<br />Booth Street West, M15 6PB</div></div>
+              <div className="row"><div className="l">Students&apos; Union</div><div className="v"><a href="https://manchesterstudentsunion.com/activities/view/mutis" target="_blank" rel="noreferrer">MUTIS on the SU website</a></div></div>
               <div className="row"><div className="l">Instagram</div><div className="v"><a href="https://instagram.com/mutisfinancesoc" target="_blank" rel="noreferrer">@mutisfinancesoc</a></div></div>
               <div className="row"><div className="l">LinkedIn</div><div className="v"><a href="https://www.linkedin.com/company/manchester-university-trading-&-investment-society/" target="_blank" rel="noreferrer">MUTIS LinkedIn</a></div></div>
             </div>

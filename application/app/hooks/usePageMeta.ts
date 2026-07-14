@@ -19,7 +19,22 @@ const ROUTE_META: Record<string, Meta> = {
   "/about": {
     title: "About | MUTIS Finance Society",
     description:
-      "Who we are: a student-run finance society at the University of Manchester with 5,000+ members, a real investment fund, and a committee across events, research, and operations.",
+      "Who we are: a student-run finance society at the University of Manchester with 1,000+ members, a real investment fund, and a committee across events, research, and operations.",
+  },
+  "/network": {
+    title: "Our Network | MUTIS Finance Society",
+    description:
+      "Where MUTIS members go next: placements and destinations across investment banking, asset management, consulting, and markets.",
+  },
+  "/previous-presidents": {
+    title: "Previous Presidents | MUTIS Finance Society",
+    description:
+      "The presidents who have led MUTIS through each academic year since its founding in 2008.",
+  },
+  "/attendance": {
+    title: "Log My Attendance | MUTIS Finance Society",
+    description:
+      "At a MUTIS session? Log your attendance in under a minute and tell us how useful you found the event.",
   },
   "/team": {
     title: "Team | MUTIS Finance Society",

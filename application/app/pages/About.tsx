@@ -28,7 +28,7 @@ export function About() {
           <div className="split">
             <div className="split-text"><h2 className="r-up">What MUTIS Does</h2></div>
             <div className="split-text r-up">
-              <p><strong>MUTIS is one of the largest business and finance societies at the University of Manchester</strong>, with 4,000+ members from every faculty. We bridge the gap between academic theory and the live market.</p>
+              <p><strong>MUTIS is one of the largest business and finance societies at the University of Manchester</strong>, with 1,000+ members from every faculty. We bridge the gap between academic theory and the live market.</p>
               <p>Weekly meetings cover the building blocks  -  DCFs, LBOs, portfolio theory, macro frameworks. Workshops with sponsor banks go deeper into modelling, market structure, and the interview process itself.</p>
               <p>The MUTIS Ethical Investment Fund (MEIF) gives members hands-on responsibility for capital  -  the kind of experience that actually shows up in interviews.</p>
             </div>
@@ -93,8 +93,8 @@ export function About() {
           <Link to="/network" className="btn btn-ghost" style={{ textDecoration: "none" }}>
             Our Network →
           </Link>
-          <Link to="/alumni" className="btn btn-ghost" style={{ textDecoration: "none" }}>
-            Alumni →
+          <Link to="/network" className="btn btn-ghost" style={{ textDecoration: "none" }}>
+            Our Network →
           </Link>
         </div>
       </section>

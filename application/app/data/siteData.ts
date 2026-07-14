@@ -4,9 +4,61 @@
 
 // ---- STATISTICS (Home page) ----
 export const stats = [
-  { number: "4,000+", label: "Members" },
+  { number: "1,000+", label: "Members" },
   { number: "17", label: "Industry Partners" },
-  { number: "10+", label: "Flagship Events" },
+  { number: "5+", label: "Flagship Events" },
+];
+
+// ---- CORE VALUES (Home page, from the sponsorship deck) ----
+export const coreValues = [
+  {
+    num: "01",
+    title: "Excellence",
+    desc: "We hold our research, events, and training to a professional standard — the same bar our members will be judged against in industry.",
+  },
+  {
+    num: "02",
+    title: "Integrity",
+    desc: "Honest research, honest markets, honest work. We build reputations that outlast any single trade or event.",
+  },
+  {
+    num: "03",
+    title: "Community",
+    desc: "1,000+ members across every faculty, supported by alumni and peers who open doors for the people behind them.",
+  },
+  {
+    num: "04",
+    title: "Opportunity",
+    desc: "Direct access to the firms, mentors, and roles our members are targeting — from first-year insight to graduate offers.",
+  },
+];
+
+// ---- SUBSIDIARIES (MUTIS umbrella, from the sponsorship deck) ----
+export const subsidiaries = [
+  {
+    short: "MEIF",
+    name: "Manchester Ethical Investment Fund",
+    desc: "Our student-managed global equity fund. Coverage teams pitch, debate, and vote on live positions.",
+    to: "/meif",
+  },
+  {
+    short: "IBC",
+    name: "Investment Banking Club",
+    desc: "Deal-focused training: M&A casework, valuation, and interview preparation for IBD-track members.",
+    to: "/events",
+  },
+  {
+    short: "WIF",
+    name: "Women in Finance",
+    desc: "Championing women in the industry through our flagship Women in Finance Conference, mentorship, and speaker events.",
+    to: "/events",
+  },
+  {
+    short: "b.dev",
+    name: "Business Development",
+    desc: "The creative and commercial arm of MUTIS — brand, media, and the partnerships behind everything we ship.",
+    to: "/media",
+  },
 ];
 
 // ---- INDUSTRY EVENTS (recurring partner sessions, static) ----
@@ -60,14 +112,23 @@ const LOCAL_LOGOS = {
 
 export const sponsors = [
   {
-    tier: "Current Corporate Sponsors & Partners",
+    tier: "Gold Sponsors",
     firms: [
       { name: "UBS", logo: LOCAL_LOGOS.UBS, vacanciesUrl: "https://www.ubs.com/global/en/careers.html" },
+    ],
+  },
+  {
+    tier: "Silver Sponsors",
+    firms: [
       { name: "Houlihan Lokey", logo: LOCAL_LOGOS["Houlihan Lokey"], vacanciesUrl: "https://careers.houlihanlokey.com/" },
       { name: "Royal London", logo: LOCAL_LOGOS["Royal London"], vacanciesUrl: "https://www.royallondon.com/careers/" },
       { name: "Standard Chartered", logo: LOCAL_LOGOS["Standard Chartered"], vacanciesUrl: "https://www.sc.com/en/careers/" },
       { name: "White & Case", logo: LOCAL_LOGOS["White & Case"], vacanciesUrl: "https://www.whitecase.com/careers" },
     ],
+  },
+  {
+    tier: "Bronze Sponsors",
+    firms: [],
   },
   {
     tier: "Industry Event Partners",
@@ -91,6 +152,44 @@ export const sponsors = [
     ],
   },
 ];
+
+// ---- SPONSORSHIP PACKAGES (no prices published; enquire for details) ----
+export const sponsorPackages = [
+  {
+    tier: "Gold",
+    tagline: "Lead partner",
+    benefits: [
+      "Headline branding across all flagship events",
+      "Dedicated on-campus recruitment & insight sessions",
+      "First access to member CV book and talent pipeline",
+      "Priority speaker slots at conferences and panels",
+      "Year-round logo placement on website, decks & media",
+    ],
+  },
+  {
+    tier: "Silver",
+    tagline: "Core partner",
+    benefits: [
+      "Branding at flagship events and on the website",
+      "One on-campus workshop or insight session per term",
+      "Access to member CV book",
+      "Speaker slot at a MUTIS panel or fireside chat",
+    ],
+  },
+  {
+    tier: "Bronze",
+    tagline: "Supporting partner",
+    benefits: [
+      "Logo placement on website and event materials",
+      "Promotion of your opportunities to our members",
+      "Invitation to attend flagship events",
+    ],
+  },
+];
+
+// ---- PAST SPONSORS (previous seasons; shown at the bottom of the Sponsors page) ----
+// PENDING: populate from older Instagram posts — { name, logo, years, url }.
+export const pastSponsors: { name: string; logo: string; years: string; url: string | null }[] = [];
 
 // ---- FLAGSHIP EVENT SUPPORTERS ----
 // NOTE: Shade Tree is deliberately NOT listed under sponsorships. It is paired
