@@ -18,9 +18,8 @@ const encode = (data: Record<string, string>) =>
   Object.keys(data).map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k])).join("&");
 
 const TIER_LABEL: Record<string, string> = {
-  "Current Corporate Sponsors & Partners": "Lead",
-  "Industry Event Partners": "Events",
-  "Philanthropic & Educational Support": "Support",
+  "Gold": "Gold",
+  "Silver": "Silver",
 };
 
 const FIRM_ROLE: Record<string, string> = {
@@ -43,7 +42,51 @@ const FIRM_ROLE: Record<string, string> = {
   AmplifyME: "Simulations",
   "Shade Tree Fund": "Foundation",
   Trackr: "Edtech",
+  "Houlihan Lokey": "Advisory",
+  "Royal London": "Asset Mgmt",
+  "Standard Chartered": "Banking",
+  "White & Case": "Legal",
 };
+
+// Sponsorship packages — no pricing shown. Populate deliverables as agreed.
+const PACKAGES = [
+  {
+    tier: "Gold",
+    headline: "Title Partner",
+    deliverables: [
+      "Named title partner across all flagship events",
+      "Exclusive branded session or keynote slot",
+      "Priority recruitment access to MUTIS members",
+      "Logo placement on all MUTIS communications",
+      "Dedicated careers panel feature",
+    ],
+  },
+  {
+    tier: "Silver",
+    headline: "Event Partner",
+    deliverables: [
+      "Co-branding on one or more flagship events",
+      "Fireside chat or insight session slot",
+      "Access to MUTIS member recruitment pipeline",
+      "Logo placement on event materials",
+    ],
+  },
+  {
+    tier: "Bronze",
+    headline: "Supporting Partner",
+    deliverables: [
+      "Logo placement on MUTIS website and socials",
+      "Mention across MUTIS communications",
+      "Access to member newsletter sponsorship",
+    ],
+  },
+];
+
+// Past sponsors — populate once confirmed (name, logo path/URL, years active, optional link).
+type PastSponsor = { name: string; logo: string; years: string; url: string | null };
+const PAST_SPONSORS: PastSponsor[] = [
+  // { name: "Firm", logo: "", years: "2022–2023", url: null },
+];
 
 function initialsFromName(name: string) {
   const initials = name
@@ -132,16 +175,43 @@ export function Sponsors() {
         </div>
       </section>
 
+      {/* Sponsorship packages */}
+      <section className="page-section" style={{ borderBottom: "1px solid var(--hair)" }}>
+        <div className="inner">
+          <div className="page-eyebrow r-up"><span className="bar" />Packages</div>
+          <h2 className="r-up">Sponsorship tiers</h2>
+          <p className="lede r-up">Three partnership levels — each with tailored access to our 1,000+ members and flagship event programme. Contact us for full package details and pricing.</p>
+          <div className="r-up" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))", gap: 0, borderTop: "1px solid var(--hair)", borderLeft: "1px solid var(--hair)", marginTop: 36 }}>
+            {PACKAGES.map((pkg) => (
+              <div key={pkg.tier} style={{ borderRight: "1px solid var(--hair)", borderBottom: "1px solid var(--hair)", padding: "36px 28px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: 22, textTransform: "uppercase", letterSpacing: "0.005em" }}>{pkg.tier}</span>
+                  <span className="label">{pkg.headline}</span>
+                </div>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {pkg.deliverables.map((d) => (
+                    <li key={d} style={{ fontSize: 13, color: "var(--ink-soft)", padding: "5px 0", borderBottom: "1px solid var(--hair)", lineHeight: 1.5 }}>
+                      <span style={{ color: "var(--pm-accent)", marginRight: 8 }}>→</span>{d}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Current partners by tier */}
       <section className="page-section">
         <div className="inner">
           <div className="page-eyebrow r-up"><span className="bar" />Partners &amp; Sponsors</div>
           <h2 className="r-up">Who we work with</h2>
-          <p className="lede r-up">17 partners across investment banking, markets, wealth management, and education. Each commits to recruitment access, content, or both.</p>
+          <p className="lede r-up">Partners across investment banking, markets, wealth management, and education. Each commits to recruitment access, content, or both.</p>
 
           {sponsors.map((tier) => (
             <div className="r-up" key={tier.tier}>
               <div className="tier-head">
-                <span>{tier.tier}</span>
+                <span>{tier.tier} Sponsors</span>
                 <span className="label">{TIER_LABEL[tier.tier] ?? "Partner"}</span>
               </div>
               <div className="sponsor-grid">
@@ -160,13 +230,38 @@ export function Sponsors() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
 
-          <p className="r-up" style={{ marginTop: 40, fontSize: 14, color: "var(--ink-soft)" }}>
-            Looking for firms that supported us in previous years?{" "}
-            <Link to="/past-sponsors" style={{ color: "var(--pm-accent)", textDecoration: "underline" }}>
-              See our past sponsors →
-            </Link>
-          </p>
+      {/* Past Sponsors */}
+      <section className="page-section" style={{ borderTop: "1px solid var(--hair)" }}>
+        <div className="inner">
+          <div className="page-eyebrow r-up"><span className="bar" />Previous Partners</div>
+          <h2 className="r-up">Past sponsors</h2>
+          {PAST_SPONSORS.length === 0 ? (
+            <p className="lede r-up" style={{ color: "var(--ink-soft)" }}>
+              We&apos;re putting together a record of the firms that have supported MUTIS in previous years. Check back soon.
+            </p>
+          ) : (
+            <div className="sponsor-grid r-up">
+              {PAST_SPONSORS.map((s) => {
+                const inner = (
+                  <div>
+                    <div className="sponsor-logo-wrap">
+                      <SponsorLogo name={s.name} logo={s.logo} />
+                    </div>
+                    <div className="name">{s.name}</div>
+                    <div className="role">{s.years}</div>
+                  </div>
+                );
+                return s.url ? (
+                  <a className="sponsor-cell" key={s.name} href={s.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>{inner}</a>
+                ) : (
+                  <div className="sponsor-cell" key={s.name}>{inner}</div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
@@ -201,7 +296,7 @@ export function Sponsors() {
               <div className="page-eyebrow r-up"><span className="bar" />Become a Partner</div>
               <h2 className="r-up">Enquire about sponsorship</h2>
               <p className="lede r-up">
-                Interested in reaching 4,000+ Manchester finance students? Tell us a little about
+                Interested in reaching 1,000+ Manchester finance students? Tell us a little about
                 your firm and we&apos;ll be in touch with partnership options.
               </p>
               <form
@@ -215,7 +310,7 @@ export function Sponsors() {
               >
                 <input type="hidden" name="form-name" value="sponsorship" />
                 <p className="hidden-field">
-                  <label>Don’t fill this out if you’re human: <input name="bot-field" tabIndex={-1} autoComplete="off" /></label>
+                  <label>Don't fill this out if you're human: <input name="bot-field" tabIndex={-1} autoComplete="off" /></label>
                 </p>
                 <div className="field">
                   <label htmlFor="sp-company">Company</label>
@@ -254,7 +349,7 @@ export function Sponsors() {
 
             <div className="contact-info r-up">
               <div className="row"><div className="l">Sponsorship</div><div className="v"><a href="mailto:mutis@manchesterstudentsunion.com">mutis@<wbr />manchesterstudentsunion.com</a></div></div>
-              <div className="row"><div className="l">Reach</div><div className="v">4,000+ Members</div></div>
+              <div className="row"><div className="l">Reach</div><div className="v">1,000+ Members</div></div>
               <div className="row"><div className="l">Channels</div><div className="v">Events · Workshops · MEIF · Media</div></div>
             </div>
           </div>

@@ -17,8 +17,8 @@ import { NotFound } from "./pages/NotFound";
 import { Alumni } from "./pages/Alumni";
 import { PreviousPresidents } from "./pages/PreviousPresidents";
 import { OurNetwork } from "./pages/OurNetwork";
-import { PastSponsors } from "./pages/PastSponsors";
 import { PastSpeakers } from "./pages/PastSpeakers";
+import { Attendance } from "./pages/Attendance";
 import { Media } from "./pages/Media";
 import { Gallery } from "./pages/Gallery";
 import { Recordings } from "./pages/Recordings";
@@ -66,8 +66,8 @@ export const router = createBrowserRouter([
       { path: "alumni", Component: Alumni },
       { path: "previous-presidents", Component: PreviousPresidents },
       { path: "network", Component: OurNetwork },
-      { path: "past-sponsors", Component: PastSponsors },
       { path: "past-speakers", Component: PastSpeakers },
+      { path: "attendance", Component: Attendance },
       { path: "media", Component: Media },
       { path: "gallery", Component: Gallery },
       { path: "recordings", Component: Recordings },

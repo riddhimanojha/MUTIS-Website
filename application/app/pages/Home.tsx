@@ -121,7 +121,7 @@ function Hero() {
             transform: `translateY(${(1 - clamp(intro * 1.4 - 0.6)) * 14}px)`,
           }}
         >
-          We train Manchester students to compete for finance roles at the world&apos;s top banks, through real research, live capital, and direct access to industry. 4,000+ members across every faculty.
+          We train Manchester students to compete for finance roles at the world&apos;s top banks, through real research, live capital, and direct access to industry. 1,000+ members across every faculty.
         </p>
 
         <div
@@ -148,9 +148,9 @@ function Hero() {
         style={{ opacity: clamp(intro * 2 - 1) * fgOpacity }}
       >
         {[
-          { val: "4,000+", label: "Members" },
+          { val: "1,000+", label: "Members" },
           { val: "17", label: "Industry Partners" },
-          { val: "10+", label: "Flagship Events" },
+          { val: "5+", label: "Flagship Events" },
         ].map((s, i) => (
           <div className="pm-hero-stat" key={i}>
             <div className="pm-hero-stat-val">{s.val}</div>
@@ -166,9 +166,9 @@ function Hero() {
 // ---- Stats strip ----
 
 const STRIP_STATS = [
-  { val: "4,000+", label: "Members" },
+  { val: "1,000+", label: "Members" },
   { val: "17", label: "Industry Partners" },
-  { val: "10+", label: "Flagship Events" },
+  { val: "5+", label: "Flagship Events" },
   { val: "6", label: "Sector Teams" },
 ];
 
@@ -431,93 +431,6 @@ function SponsorsStrip() {
   );
 }
 
-// ---- MEIF ----
-
-const SECTORS = [
-  { id: "01", name: "Macro", desc: "Top-down research on rates, inflation, FX, and global growth." },
-  { id: "02", name: "Consumer", desc: "Brand durability, pricing power, and demand cycle analysis." },
-  { id: "03", name: "Financials", desc: "Banks, insurers, and diversified financials across cycles." },
-  { id: "04", name: "Industrials", desc: "Cyclicals, infrastructure, and capex-sensitive businesses." },
-  { id: "05", name: "Energy", desc: "Traditional and transition energy across commodity cycles." },
-  { id: "06", name: "TMT", desc: "Technology, media, and telecom with durable growth drivers." },
-];
-
-function MEIFSection() {
-  const [ref, inView] = useInView<HTMLElement>({ threshold: 0.2 });
-  const t = inView ? 1 : 0;
-
-  return (
-    <section className="pm-meif" ref={ref}>
-      <div className="pm-meif-inner">
-        <div className="pm-meif-left">
-          <div
-            className="pm-eyebrow"
-            style={{ opacity: t, transform: `translateY(${(1 - t) * 14}px)`, transition: "opacity 0.7s ease, transform 0.7s ease" }}
-          >
-            MEIF: Ethical Investment Fund
-          </div>
-          <h2 className="pm-meif-heading">
-            <span className="pm-reveal-line">
-              <span style={{ display: "inline-block", transform: `translateY(${t ? "0%" : "108%"})`, transition: "transform 1s cubic-bezier(.22,1,.36,1) 0.1s" }}>
-                A real fund
-              </span>
-            </span>
-            <span className="pm-reveal-line pm-meif-em">
-              <span style={{ display: "inline-block", transform: `translateY(${t ? "0%" : "108%"})`, transition: "transform 1s cubic-bezier(.22,1,.36,1) 0.22s" }}>
-                Student run
-              </span>
-            </span>
-          </h2>
-          <p
-            className="pm-meif-body"
-            style={{ opacity: t, transform: `translateY(${t ? "0px" : "20px"})`, transition: "opacity 0.9s ease 0.4s, transform 0.9s ease 0.4s" }}
-          >
-            MEIF is MUTIS&apos;s student-managed global equity fund. Coverage teams pitch,
-            debate, and vote on positions, building the judgment that buy-side
-            desks actually hire for.
-          </p>
-          <Tilt
-            to="/meif"
-            className="pm-btn pm-btn--ghost"
-            intensity={8}
-            style={{
-              textDecoration: "none",
-              opacity: t,
-              transform: `translateY(${t ? "0px" : "16px"})`,
-              transition: "opacity 0.9s ease 0.6s, transform 0.9s ease 0.6s",
-            }}
-          >
-            Explore MEIF
-            <span className="pm-btn-arrow" />
-          </Tilt>
-        </div>
-
-        <div className="pm-meif-sectors">
-          {SECTORS.map((s, i) => (
-            <div
-              key={s.id}
-              className="pm-sector tilt"
-              ref={useTilt(5).ref as React.Ref<HTMLDivElement>}
-              style={{
-                opacity: t,
-                transform: `translateX(${t ? "0px" : "50px"})`,
-                transition: `opacity 0.8s ease ${0.5 + i * 0.1}s, transform 0.8s cubic-bezier(.22,1,.36,1) ${0.5 + i * 0.1}s`,
-              }}
-            >
-              <div className="pm-sector-id">{s.id}</div>
-              <div className="pm-sector-body">
-                <div className="pm-sector-name">{s.name}</div>
-                <div className="pm-sector-desc">{s.desc}</div>
-              </div>
-              <div className="pm-sector-arrow">→</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ---- Final CTA ----
 
 function FinalCTA() {
@@ -576,7 +489,8 @@ export function Home() {
       <WhatWeDo />
       <EventsSection />
       <SponsorsStrip />
-      <MEIFSection />
+      {/* PLACEHOLDER: Subsidiary / org structure diagram — insert asset here */}
+      {/* PLACEHOLDER: Core values section — insert content here */}
       <FinalCTA />
     </>
   );

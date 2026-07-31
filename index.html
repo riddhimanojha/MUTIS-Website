@@ -61,6 +61,17 @@
       <input name="bot-field" />
     </form>
 
+    <!-- Hidden static form for the attendance logging page. -->
+    <form name="attendance" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="attendee-name" />
+      <input type="email" name="email" />
+      <input type="text" name="course" />
+      <input type="text" name="year" />
+      <input type="number" name="rating" />
+      <textarea name="comments"></textarea>
+      <input name="bot-field" />
+    </form>
+
     <script type="module" src="/application/main.tsx"></script>
   </body>
 </html>

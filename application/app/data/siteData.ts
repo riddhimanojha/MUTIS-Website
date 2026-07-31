@@ -4,9 +4,9 @@
 
 // ---- STATISTICS (Home page) ----
 export const stats = [
-  { number: "4,000+", label: "Members" },
+  { number: "1,000+", label: "Members" },
   { number: "17", label: "Industry Partners" },
-  { number: "10+", label: "Flagship Events" },
+  { number: "5+", label: "Flagship Events" },
 ];
 
 // ---- INDUSTRY EVENTS (recurring partner sessions, static) ----
@@ -60,18 +60,18 @@ const LOCAL_LOGOS = {
 
 export const sponsors = [
   {
-    tier: "Current Corporate Sponsors & Partners",
+    tier: "Gold",
     firms: [
       { name: "UBS", logo: LOCAL_LOGOS.UBS, vacanciesUrl: "https://www.ubs.com/global/en/careers.html" },
+    ],
+  },
+  {
+    tier: "Silver",
+    firms: [
       { name: "Houlihan Lokey", logo: LOCAL_LOGOS["Houlihan Lokey"], vacanciesUrl: "https://careers.houlihanlokey.com/" },
       { name: "Royal London", logo: LOCAL_LOGOS["Royal London"], vacanciesUrl: "https://www.royallondon.com/careers/" },
       { name: "Standard Chartered", logo: LOCAL_LOGOS["Standard Chartered"], vacanciesUrl: "https://www.sc.com/en/careers/" },
       { name: "White & Case", logo: LOCAL_LOGOS["White & Case"], vacanciesUrl: "https://www.whitecase.com/careers" },
-    ],
-  },
-  {
-    tier: "Industry Event Partners",
-    firms: [
       { name: "Bank of America", logo: LOCAL_LOGOS["Bank of America"], vacanciesUrl: "https://careers.bankofamerica.com/en-us" },
       { name: "Barclays", logo: LOCAL_LOGOS.Barclays, vacanciesUrl: "https://search.jobs.barclays/" },
       { name: "BNY", logo: LOCAL_LOGOS.BNY, vacanciesUrl: "https://jobs.bny.com/" },
@@ -82,11 +82,6 @@ export const sponsors = [
       { name: "Invesco", logo: LOCAL_LOGOS.Invesco, vacanciesUrl: "https://careers.invesco.com/" },
       { name: "Volcafe", logo: LOCAL_LOGOS.Volcafe, vacanciesUrl: "https://www.volcafe.com/careers/" },
       { name: "AmplifyME", logo: LOCAL_LOGOS.AmplifyME, vacanciesUrl: "https://www.amplifyme.com/careers" },
-    ],
-  },
-  {
-    tier: "Philanthropic & Educational Support",
-    firms: [
       { name: "Trackr", logo: LOCAL_LOGOS.Trackr, vacanciesUrl: "https://www.trackr.com/" },
     ],
   },

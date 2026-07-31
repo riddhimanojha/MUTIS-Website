@@ -11,7 +11,6 @@ const navLinks: NavItem[] = [
     children: [
       { to: "/previous-presidents", label: "Previous Presidents" },
       { to: "/network", label: "Our Network" },
-      { to: "/alumni", label: "Alumni" },
     ],
   },
   { to: "/team", label: "Team" },
@@ -22,11 +21,7 @@ const navLinks: NavItem[] = [
   },
   { to: "/meif", label: "MEIF" },
   { to: "/articles", label: "Articles" },
-  {
-    to: "/sponsors",
-    label: "Sponsors",
-    children: [{ to: "/past-sponsors", label: "Past Sponsors" }],
-  },
+  { to: "/sponsors", label: "Sponsors" },
   {
     to: "/media",
     label: "Media",

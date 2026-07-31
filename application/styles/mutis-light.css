@@ -125,6 +125,7 @@
 .subpage-light .member { border-bottom: 1px solid var(--hair); border-right: 1px solid var(--hair); }
 .subpage-light .committee-grid--feature { border: none; }
 .subpage-light .committee-grid--feature .member { border: 1px solid var(--hair); }
+.subpage-light .committee-grid--4col .member .portrait { width: 70%; max-width: 160px; }
 .subpage-light .member .name { color: var(--ink-text); }
 .subpage-light .member .portrait {
   border: 1px solid var(--hair);
