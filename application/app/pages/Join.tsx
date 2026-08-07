@@ -53,7 +53,7 @@ export function Join() {
             </Link>
             <a
               className="btn btn-ghost"
-              href="https://manchesterstudentsunion.com"
+              href="https://manchesterstudentsunion.com/activities/view/mutis"
               target="_blank"
               rel="noreferrer"
               style={{ textDecoration: "none" }}
