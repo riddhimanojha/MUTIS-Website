@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
-import { sponsors } from "@/app/data/siteData";
 import { useReveal } from "@/app/hooks/useReveal";
+import type { Tables } from "@/lib/database.types";
+import { supabase } from "@/lib/supabase";
 
 // Past event photos for the sponsorship showcase belt.
 const eventImageModules = import.meta.glob(
@@ -14,39 +15,22 @@ const PAST_EVENT_IMAGES = Object.entries(eventImageModules)
   .slice(0, 14);
 
 type FormState = "idle" | "submitting" | "sent" | "error";
+type SponsorRow = Tables<"sponsors">;
 const encode = (data: Record<string, string>) =>
   Object.keys(data).map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k])).join("&");
 
-const TIER_LABEL: Record<string, string> = {
-  "Gold": "Gold",
-  "Silver": "Silver",
-};
+const TIER_ORDER = ["gold", "silver", "past"] as const;
 
-const FIRM_ROLE: Record<string, string> = {
-  UBS: "Spring Insight",
-  "Rothschild & Co": "Advisory",
-  "Goldman Sachs": "Markets",
-  "Wall Street Oasis": "Education",
-  TradingView: "Tooling",
-  Career26: "Coaching",
-  "Prima Ekuiti": "Asset Mgmt",
-  "Bank of America": "IBD",
-  Barclays: "Markets",
-  BNY: "Asset Servicing",
-  "Morgan Stanley": "Markets",
-  NatWest: "Banking",
-  RBC: "Capital Markets",
-  "LGT Wealth Management": "Wealth",
-  Invesco: "Asset Mgmt",
-  Volcafe: "Commodities",
-  AmplifyME: "Simulations",
-  "Shade Tree Fund": "Foundation",
-  Trackr: "Edtech",
-  "Houlihan Lokey": "Advisory",
-  "Royal London": "Asset Mgmt",
-  "Standard Chartered": "Banking",
-  "White & Case": "Legal",
-};
+function formatTier(tier: string) {
+  return tier ? tier.charAt(0).toUpperCase() + tier.slice(1) : tier;
+}
+
+function groupSponsors(rows: SponsorRow[]) {
+  return TIER_ORDER.map((tier) => ({
+    tier,
+    firms: rows.filter((row) => row.tier === tier),
+  })).filter((group) => group.firms.length > 0);
+}
 
 // Sponsorship packages — no pricing shown. Populate deliverables as agreed.
 const PACKAGES = [
@@ -100,6 +84,7 @@ function initialsFromName(name: string) {
 
 function SponsorLogo({ name, logo }: { name: string; logo: string }) {
   const [failed, setFailed] = useState(false);
+  const logoStyle = logo.includes("barclays.svg") ? { maxWidth: "126%" } : undefined;
 
   if (!logo || failed) {
     return (
@@ -116,15 +101,73 @@ function SponsorLogo({ name, logo }: { name: string; logo: string }) {
       className="sponsor-logo"
       loading="lazy"
       decoding="async"
+      style={logoStyle}
       onError={() => setFailed(true)}
     />
   );
 }
 
+function SponsorGridSkeleton() {
+  return (
+    <div className="sponsor-grid r-up" aria-busy="true" aria-live="polite">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div className="sponsor-cell" key={index} aria-hidden="true">
+          <div>
+            <div className="sponsor-logo-wrap" style={{ background: "rgba(255,255,255,0.03)" }}>
+              <div className="sponsor-logo-fallback" style={{ opacity: 0.35 }}>--</div>
+            </div>
+            <div style={{ height: 14, width: "72%", background: "rgba(255,255,255,0.08)", margin: "18px auto 10px", borderRadius: 999 }} />
+            <div style={{ height: 10, width: "46%", background: "rgba(255,255,255,0.06)", margin: "0 auto" }} />
+          </div>
+          <div className="vac" style={{ opacity: 0.55 }}>Loading →</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function Sponsors() {
-  useReveal();
   const [status, setStatus] = useState<FormState>("idle");
   const [error, setError] = useState("");
+  const [sponsors, setSponsors] = useState<SponsorRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSponsors = async () => {
+      setIsLoading(true);
+      setLoadError("");
+
+      const { data, error } = await supabase.from("sponsors").select("*").order("display_order");
+
+      if (cancelled) {
+        return;
+      }
+
+      if (error) {
+        console.error("Failed to load sponsors", error);
+        setLoadError("We could not load the sponsor list right now. Please refresh the page.");
+        setSponsors([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setSponsors(data ?? []);
+      setIsLoading(false);
+    };
+
+    void loadSponsors();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const sponsorGroups = groupSponsors(sponsors);
+
+  useReveal([sponsorGroups.length, isLoading, loadError]);
 
   const onSponsorSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -208,28 +251,52 @@ export function Sponsors() {
           <h2 className="r-up">Who we work with</h2>
           <p className="lede r-up">Partners across investment banking, markets, wealth management, and education. Each commits to recruitment access, content, or both.</p>
 
-          {sponsors.map((tier) => (
-            <div className="r-up" key={tier.tier}>
-              <div className="tier-head">
-                <span>{tier.tier} Sponsors</span>
-                <span className="label">{TIER_LABEL[tier.tier] ?? "Partner"}</span>
-              </div>
-              <div className="sponsor-grid">
-                {tier.firms.map((firm) => (
-                  <a className="sponsor-cell" key={firm.name} href={firm.vacanciesUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
-                    <div>
-                      <div className="sponsor-logo-wrap">
-                        <SponsorLogo name={firm.name} logo={firm.logo} />
+          {isLoading ? (
+            <>
+              <p className="lede r-up" role="status">Loading sponsor partners…</p>
+              <SponsorGridSkeleton />
+            </>
+          ) : loadError ? (
+            <p className="lede r-up" role="alert" style={{ color: "var(--ink-soft)" }}>{loadError}</p>
+          ) : sponsorGroups.length === 0 ? (
+            <p className="lede r-up" role="status" style={{ color: "var(--ink-soft)" }}>
+              No sponsors are published yet.
+            </p>
+          ) : (
+            sponsorGroups.map((tier) => (
+              <div className="r-up" key={tier.tier}>
+                <div className="tier-head">
+                  <span>{formatTier(tier.tier)} Sponsors</span>
+                  <span className="label">{formatTier(tier.tier)}</span>
+                </div>
+                <div className="sponsor-grid">
+                  {tier.firms.map((firm) => {
+                    const card = (
+                      <div>
+                        <div className="sponsor-logo-wrap">
+                          <SponsorLogo name={firm.name} logo={firm.logo_url ?? ""} />
+                        </div>
+                        <div className="name">{firm.name}</div>
+                        <div className="role">{firm.sector ?? "Partner"}</div>
                       </div>
-                      <div className="name">{firm.name}</div>
-                      <div className="role">{FIRM_ROLE[firm.name] ?? "Partner"}</div>
-                    </div>
-                    <div className="vac">Open Vacancies →</div>
-                  </a>
-                ))}
+                    );
+
+                    return firm.link_url ? (
+                      <a className="sponsor-cell" key={firm.name} href={firm.link_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
+                        {card}
+                        <div className="vac">Open Vacancies →</div>
+                      </a>
+                    ) : (
+                      <div className="sponsor-cell" key={firm.name}>
+                        {card}
+                        <div className="vac">Open Vacancies →</div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
 

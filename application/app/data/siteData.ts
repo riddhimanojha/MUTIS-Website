@@ -35,27 +35,26 @@ export const industryEvents = [
 ];
 
 // ---- SPONSORS ----
-// Replace `logo` with a real URL or a path to a local file
 // Replace `vacanciesUrl` with the firm's careers page
 const LOCAL_LOGOS = {
-  UBS: new URL("../../assets/logos/UBS.jpeg", import.meta.url).href,
-  BNY: new URL("../../assets/logos/Bny.jpeg", import.meta.url).href,
-  "Houlihan Lokey": new URL("../../assets/logos/Houlihan Lokey.jpeg", import.meta.url).href,
-  "Royal London": new URL("../../assets/logos/RoyalLondon.jpeg", import.meta.url).href,
-  "Standard Chartered": new URL("../../assets/logos/StandardChartered.jpeg", import.meta.url).href,
-  "White & Case": new URL("../../assets/logos/White&Chase.jpeg", import.meta.url).href,
-  Volcafe: new URL("../../assets/logos/volcafe.svg", import.meta.url).href,
-  "Shade Tree": new URL("../../assets/logos/shade-tree.svg", import.meta.url).href,
-  // House-made wordmark logos (self-hosted, no external dependency).
-  "Bank of America": new URL("../../assets/logos/bank-of-america.svg", import.meta.url).href,
-  Barclays: new URL("../../assets/logos/barclays.svg", import.meta.url).href,
-  "Morgan Stanley": new URL("../../assets/logos/morgan-stanley.svg", import.meta.url).href,
-  NatWest: new URL("../../assets/logos/natwest.svg", import.meta.url).href,
-  RBC: new URL("../../assets/logos/rbc.svg", import.meta.url).href,
-  "LGT Wealth Management": new URL("../../assets/logos/lgt.svg", import.meta.url).href,
-  Invesco: new URL("../../assets/logos/invesco.svg", import.meta.url).href,
-  AmplifyME: new URL("../../assets/logos/amplifyme.svg", import.meta.url).href,
-  Trackr: new URL("../../assets/logos/trackr.svg", import.meta.url).href,
+  UBS: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/ubslogo.png",
+  BNY: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/bny.png",
+  "Houlihan Lokey": "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/houlihanlokey.jpeg",
+  "Royal London": "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/royallondongroup.svg",
+  "Standard Chartered": "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/standcharted.png",
+  "White & Case": "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/whiteandcase.png",
+  Volcafe: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/volcafe.png",
+  "Shade Tree": "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/shade-tree.svg",
+  // Supabase-hosted brand assets.
+  "Bank of America": "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/bofa.png",
+  Barclays: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/barclays.svg",
+  "Morgan Stanley": "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/morganstanley.png",
+  NatWest: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/natwest.png",
+  RBC: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/rbccapitalbig.png",
+  "LGT Wealth Management": "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/lgtwealth.png",
+  Invesco: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/invesco1.png",
+  AmplifyME: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/amplifyme.jpeg",
+  Trackr: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/trackrlogo.png",
 };
 
 export const sponsors = [
