@@ -29,13 +29,13 @@ export function Media() {
         <div className="inner">
           <div className="page-eyebrow r-up"><span className="bar" />Explore</div>
           <h2 className="r-up">Media channels</h2>
-          <div className="card-grid">
+          <div className="media-card-grid">
             {MEDIA_LINKS.map((m) => (
-              <Link key={m.to} to={m.to} className="dark-card r-up" style={{ textDecoration: "none", color: "inherit" }}>
-                <div className="num">{m.num}</div>
+              <Link key={m.to} to={m.to} className="media-card r-up">
+                <div className="media-card-num">{m.num}</div>
                 <h3>{m.title}</h3>
                 <p>{m.desc}</p>
-                <div className="foot"><span>Media</span><span className="more">Open →</span></div>
+                <div className="media-card-foot"><span>Media</span><span className="more">Open →</span></div>
               </Link>
             ))}
           </div>
