@@ -1,14 +1,19 @@
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import { usePodcastSettings } from "@/app/hooks/usePodcastSettings";
+import { SpotifyEmbedCard } from "@/app/components/SpotifyEmbedCard";
 
 const MEDIA_LINKS = [
   { to: "/gallery", num: "01", title: "Gallery", desc: "Photography from conferences, socials, and speaker nights across the MUTIS year." },
   { to: "/recordings", num: "02", title: "Recordings", desc: "Watch selected talks and panels on demand, published for members to catch up." },
-  { to: "/podcast", num: "03", title: "Podcast", desc: "Conversations on markets, careers, and society life — stream every episode on Spotify." },
 ];
 
+const PODCAST_INTRO = "Conversations on markets, careers, and society life — stream every episode on Spotify.";
+
 export function Media() {
-  useReveal([MEDIA_LINKS.length]);
+  const { settings, isLoading } = usePodcastSettings();
+
+  useReveal([MEDIA_LINKS.length, isLoading]);
 
   return (
     <>
@@ -39,6 +44,15 @@ export function Media() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="page-section" style={{ background: "var(--base)", borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        <div className="inner">
+          <div className="page-eyebrow r-up"><span className="bar" />Listen</div>
+          <h2 className="r-up">The MUTIS podcast</h2>
+          <p className="lede r-up" style={{ marginBottom: 32 }}>{PODCAST_INTRO}</p>
+          <SpotifyEmbedCard settings={settings} isLoading={isLoading} />
         </div>
       </section>
     </>
