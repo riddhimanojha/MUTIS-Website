@@ -1,0 +1,10 @@
+/* Admin dashboard: brand-lite utilitarian. The public site's h1-h6 rule
+   (theme.css) applies DM Serif Display everywhere, which is right for
+   cinematic hero titles but wrong for a dense dashboard. Reset it back to
+   the body typeface, scoped to the admin shell only. */
+.admin-shell h1,
+.admin-shell h2,
+.admin-shell h3,
+.admin-shell h4 {
+  font-family: var(--font-body);
+}

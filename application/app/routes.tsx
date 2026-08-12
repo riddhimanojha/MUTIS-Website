@@ -11,6 +11,7 @@ import { Team } from "./pages/Team";
 import { Events } from "./pages/Events";
 import { Sponsors } from "./pages/Sponsors";
 import { Articles } from "./pages/Articles";
+import { ArticleDetail } from "./pages/ArticleDetail";
 import { Join } from "./pages/Join";
 import { Contact } from "./pages/Contact";
 import { NotFound } from "./pages/NotFound";
@@ -22,7 +23,6 @@ import { Attendance } from "./pages/Attendance";
 import { Media } from "./pages/Media";
 import { Gallery } from "./pages/Gallery";
 import { Recordings } from "./pages/Recordings";
-import { Podcast } from "./pages/Podcast";
 
 // NOTE: We intentionally avoid wrapping <Outlet/> in a transformed motion.div.
 // The cinematic homepage relies on `position: sticky` inside `pin-wrap`, which
@@ -54,6 +54,114 @@ function Root() {
 
 export const router = createBrowserRouter([
   {
+    path: "/admin",
+    lazy: () => import("./admin/AdminRoot").then((m) => ({ Component: m.AdminRoot })),
+    children: [
+      { path: "login", lazy: () => import("./admin/pages/Login").then((m) => ({ Component: m.Login })) },
+      { path: "set-password", lazy: () => import("./admin/pages/SetPassword").then((m) => ({ Component: m.SetPassword })) },
+      { path: "__preview-dashboard", lazy: () => import("./admin/pages/Dashboard").then((m) => ({ Component: m.Dashboard })) },
+      { path: "__preview-admins", lazy: () => import("./admin/pages/ManageAdmins").then((m) => ({ Component: m.ManageAdmins })) },
+      { path: "__preview-sponsors", lazy: () => import("./admin/pages/Sponsors").then((m) => ({ Component: m.Sponsors })) },
+      { path: "__preview-committee", lazy: () => import("./admin/pages/Committee").then((m) => ({ Component: m.Committee })) },
+      { path: "__preview-events", lazy: () => import("./admin/pages/Events").then((m) => ({ Component: m.Events })) },
+      { path: "__preview-alumni", lazy: () => import("./admin/pages/Alumni").then((m) => ({ Component: m.Alumni })) },
+      { path: "__preview-presidents", lazy: () => import("./admin/pages/PreviousPresidents").then((m) => ({ Component: m.PreviousPresidents })) },
+      { path: "__preview-articles", lazy: () => import("./admin/pages/Articles").then((m) => ({ Component: m.Articles })) },
+      { path: "__preview-podcast", lazy: () => import("./admin/pages/PodcastSettings").then((m) => ({ Component: m.PodcastSettingsPage })) },
+      { path: "__preview-submissions", lazy: () => import("./admin/pages/Submissions").then((m) => ({ Component: m.Submissions })) },
+      { path: "__preview-audit-log", lazy: () => import("./admin/pages/AuditLog").then((m) => ({ Component: m.AuditLog })) },
+      { path: "__preview-gallery", lazy: () => import("./admin/pages/Gallery").then((m) => ({ Component: m.Gallery })) },
+      { path: "__preview-recordings", lazy: () => import("./admin/pages/Recordings").then((m) => ({ Component: m.Recordings })) },
+      { path: "__preview-past-speakers", lazy: () => import("./admin/pages/PastSpeakers").then((m) => ({ Component: m.PastSpeakers })) },
+      { path: "__preview-fund-managers", lazy: () => import("./admin/pages/FundManagers").then((m) => ({ Component: m.FundManagers })) },
+      { path: "__preview-site-settings", lazy: () => import("./admin/pages/SiteSettings").then((m) => ({ Component: m.SiteSettings })) },
+      { path: "__preview-home-programs", lazy: () => import("./admin/pages/HomePrograms").then((m) => ({ Component: m.HomePrograms })) },
+      { path: "__preview-sponsorship-packages", lazy: () => import("./admin/pages/SponsorshipPackages").then((m) => ({ Component: m.SponsorshipPackages })) },
+      {
+        lazy: () => import("./admin/ProtectedRoute").then((m) => ({ Component: m.ProtectedRoute })),
+        children: [
+          {
+            lazy: () => import("./admin/AdminLayout").then((m) => ({ Component: m.AdminLayout })),
+            children: [
+              {
+                index: true,
+                lazy: () => import("./admin/pages/Dashboard").then((m) => ({ Component: m.Dashboard })),
+              },
+              {
+                path: "admins",
+                lazy: () => import("./admin/pages/ManageAdmins").then((m) => ({ Component: m.ManageAdmins })),
+              },
+              {
+                path: "sponsors",
+                lazy: () => import("./admin/pages/Sponsors").then((m) => ({ Component: m.Sponsors })),
+              },
+              {
+                path: "committee",
+                lazy: () => import("./admin/pages/Committee").then((m) => ({ Component: m.Committee })),
+              },
+              {
+                path: "events",
+                lazy: () => import("./admin/pages/Events").then((m) => ({ Component: m.Events })),
+              },
+              {
+                path: "alumni",
+                lazy: () => import("./admin/pages/Alumni").then((m) => ({ Component: m.Alumni })),
+              },
+              {
+                path: "presidents",
+                lazy: () => import("./admin/pages/PreviousPresidents").then((m) => ({ Component: m.PreviousPresidents })),
+              },
+              {
+                path: "articles",
+                lazy: () => import("./admin/pages/Articles").then((m) => ({ Component: m.Articles })),
+              },
+              {
+                path: "gallery",
+                lazy: () => import("./admin/pages/Gallery").then((m) => ({ Component: m.Gallery })),
+              },
+              {
+                path: "recordings",
+                lazy: () => import("./admin/pages/Recordings").then((m) => ({ Component: m.Recordings })),
+              },
+              {
+                path: "past-speakers",
+                lazy: () => import("./admin/pages/PastSpeakers").then((m) => ({ Component: m.PastSpeakers })),
+              },
+              {
+                path: "fund-managers",
+                lazy: () => import("./admin/pages/FundManagers").then((m) => ({ Component: m.FundManagers })),
+              },
+              {
+                path: "home-programs",
+                lazy: () => import("./admin/pages/HomePrograms").then((m) => ({ Component: m.HomePrograms })),
+              },
+              {
+                path: "sponsorship-packages",
+                lazy: () => import("./admin/pages/SponsorshipPackages").then((m) => ({ Component: m.SponsorshipPackages })),
+              },
+              {
+                path: "podcast",
+                lazy: () => import("./admin/pages/PodcastSettings").then((m) => ({ Component: m.PodcastSettingsPage })),
+              },
+              {
+                path: "submissions",
+                lazy: () => import("./admin/pages/Submissions").then((m) => ({ Component: m.Submissions })),
+              },
+              {
+                path: "site-settings",
+                lazy: () => import("./admin/pages/SiteSettings").then((m) => ({ Component: m.SiteSettings })),
+              },
+              {
+                path: "audit-log",
+                lazy: () => import("./admin/pages/AuditLog").then((m) => ({ Component: m.AuditLog })),
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     path: "/",
     Component: Root,
     children: [
@@ -63,6 +171,7 @@ export const router = createBrowserRouter([
       { path: "events", Component: Events },
       { path: "sponsors", Component: Sponsors },
       { path: "articles", Component: Articles },
+      { path: "articles/:id", Component: ArticleDetail },
       { path: "alumni", Component: Alumni },
       { path: "previous-presidents", Component: PreviousPresidents },
       { path: "network", Component: OurNetwork },
@@ -71,7 +180,6 @@ export const router = createBrowserRouter([
       { path: "media", Component: Media },
       { path: "gallery", Component: Gallery },
       { path: "recordings", Component: Recordings },
-      { path: "podcast", Component: Podcast },
       { path: "join", Component: Join },
       { path: "contact", Component: Contact },
       { path: "meif", Component: MEIF },
