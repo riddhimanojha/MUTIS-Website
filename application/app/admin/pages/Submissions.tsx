@@ -81,6 +81,11 @@ export function Submissions() {
 
   const eventTitle = (id: string) => events.find((e) => e.id === id)?.title ?? "Unknown event";
 
+  const OTHER_EVENT_FILTER = "__other__";
+
+  const attendanceEventLabel = (r: Attendance) =>
+    r.event_id ? eventTitle(r.event_id) : `${r.other_event_name ?? "Unknown event"} (not listed)`;
+
   const filteredContacts = useMemo(() => {
     return contacts
       .filter((r) => statusFilter === "all" || r.status === statusFilter)
@@ -119,12 +124,17 @@ export function Submissions() {
     return attendances
       .filter((r) => statusFilter === "all" || r.status === statusFilter)
       .filter((r) => {
+        if (eventFilter === "all") return true;
+        if (eventFilter === OTHER_EVENT_FILTER) return r.event_id === null;
+        return r.event_id === eventFilter;
+      })
+      .filter((r) => {
         if (!search.trim()) return true;
         const q = search.trim().toLowerCase();
         return r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q) || r.course.toLowerCase().includes(q);
       })
       .sort((a, b) => b.created_at.localeCompare(a.created_at));
-  }, [attendances, statusFilter, search]);
+  }, [attendances, statusFilter, eventFilter, search]);
 
   const tableFor = (t: Tab) =>
     t === "contact" ? "contact_submissions" : t === "sponsorship" ? "sponsorship_enquiries" : t === "signups" ? "event_signups" : "attendance_submissions";
@@ -215,6 +225,7 @@ export function Submissions() {
   const attendanceColumns: DataTableColumn<Attendance>[] = [
     { key: "created_at", label: "Received", render: (r) => formatDateTime(r.created_at), sortValue: (r) => r.created_at },
     { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
+    { key: "event", label: "Event", render: (r) => attendanceEventLabel(r) },
     { key: "name", label: "Name", render: (r) => r.name },
     { key: "email", label: "Email", render: (r) => r.email },
     { key: "course", label: "Course", render: (r) => r.course },
@@ -261,12 +272,13 @@ export function Submissions() {
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-        {tab === "signups" && (
+        {(tab === "signups" || tab === "attendance") && (
           <select value={eventFilter} onChange={(e) => setEventFilter(e.target.value)} className="rounded-[10px] border border-input bg-input px-[12px] py-[10px] text-[13px]! text-foreground outline-hidden">
             <option value="all">All events</option>
             {events.map((ev) => (
               <option key={ev.id} value={ev.id}>{ev.title}</option>
             ))}
+            {tab === "attendance" && <option value={OTHER_EVENT_FILTER}>Other (not listed)</option>}
           </select>
         )}
       </div>
@@ -310,7 +322,10 @@ export function Submissions() {
               <DetailRow label="Company" value={detail.row.company} />
             )}
             {detail.tab === "signups" && "event_id" in detail.row && (
-              <DetailRow label="Event" value={eventTitle(detail.row.event_id)} />
+              <DetailRow label="Event" value={eventTitle((detail.row as Signup).event_id)} />
+            )}
+            {detail.tab === "attendance" && "event_id" in detail.row && (
+              <DetailRow label="Event" value={attendanceEventLabel(detail.row as Attendance)} />
             )}
             <DetailRow label="Name" value={detail.row.name} />
             <DetailRow label="Email" value={detail.row.email} />

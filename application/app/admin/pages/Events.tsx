@@ -62,6 +62,7 @@ export function Events() {
 
   const [rows, setRows] = usePageCache<EventRow[]>("admin:events:rows", []);
   const [signupCounts, setSignupCounts] = usePageCache<Map<string, number>>("admin:events:signupCounts", new Map());
+  const [attendanceCounts, setAttendanceCounts] = usePageCache<Map<string, number>>("admin:events:attendanceCounts", new Map());
   const [loading, setLoading] = useState(!hasCached("admin:events:rows"));
   const [view, setView] = usePageCache<"upcoming" | "past">("admin:events:view", "upcoming");
   const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:events:publishedFilter", "all");
@@ -75,9 +76,10 @@ export function Events() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    const [eventsRes, signupsRes] = await Promise.all([
+    const [eventsRes, signupsRes, attendanceRes] = await Promise.all([
       supabase.from("events").select("*"),
       supabase.from("event_signups").select("event_id"),
+      supabase.from("attendance_submissions").select("event_id"),
     ]);
     if (eventsRes.error) toast.error("Could not load events.");
     else setRows(eventsRes.data);
@@ -85,6 +87,14 @@ export function Events() {
       const counts = new Map<string, number>();
       for (const row of signupsRes.data) counts.set(row.event_id, (counts.get(row.event_id) ?? 0) + 1);
       setSignupCounts(counts);
+    }
+    if (!attendanceRes.error) {
+      const counts = new Map<string, number>();
+      for (const row of attendanceRes.data) {
+        if (!row.event_id) continue;
+        counts.set(row.event_id, (counts.get(row.event_id) ?? 0) + 1);
+      }
+      setAttendanceCounts(counts);
     }
     setLoading(false);
   };
@@ -192,6 +202,7 @@ export function Events() {
   };
 
   const pendingSignupCount = pendingDelete ? (signupCounts.get(pendingDelete.id) ?? 0) : 0;
+  const pendingAttendanceCount = pendingDelete ? (attendanceCounts.get(pendingDelete.id) ?? 0) : 0;
 
   const columns: DataTableColumn<EventRow>[] = [
     {
@@ -211,6 +222,7 @@ export function Events() {
     { key: "location", label: "Location", render: (r) => r.location },
     { key: "signup", label: "Signup", render: (r) => (r.signup_enabled ? <StatusBadge status="confirmed" /> : "—") },
     { key: "capacity", label: "Capacity", render: (r) => (r.capacity != null ? `${signupCounts.get(r.id) ?? 0} / ${r.capacity}` : `${signupCounts.get(r.id) ?? 0} / unlimited`) },
+    { key: "attendance", label: "Attendance", render: (r) => `${attendanceCounts.get(r.id) ?? 0}` },
     {
       key: "is_published",
       label: "Published",
@@ -364,13 +376,18 @@ export function Events() {
         open={pendingDelete !== null}
         title="Delete event?"
         description={
-          pendingSignupCount > 0
-            ? `This event has ${pendingSignupCount} signup${pendingSignupCount === 1 ? "" : "s"} — they will be deleted too. Consider unpublishing instead.`
+          pendingSignupCount > 0 || pendingAttendanceCount > 0
+            ? `This event has ${[
+                pendingSignupCount > 0 ? `${pendingSignupCount} signup${pendingSignupCount === 1 ? "" : "s"}` : null,
+                pendingAttendanceCount > 0 ? `${pendingAttendanceCount} attendance record${pendingAttendanceCount === 1 ? "" : "s"}` : null,
+              ]
+                .filter(Boolean)
+                .join(" and ")} — they will be deleted too. Consider unpublishing instead.`
             : `${pendingDelete?.title ?? ""} will be permanently deleted.`
         }
         confirmLabel={deleting ? "Deleting…" : "Delete"}
         destructive
-        requireText={pendingSignupCount > 0 ? pendingDelete?.title : undefined}
+        requireText={pendingSignupCount > 0 || pendingAttendanceCount > 0 ? pendingDelete?.title : undefined}
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
