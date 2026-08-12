@@ -9,6 +9,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { IdKeyedImageUploader } from "../components/ImageUploader";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type SpeakerRow = Database["public"]["Tables"]["past_speakers"]["Row"];
 
@@ -31,10 +32,10 @@ export function PastSpeakers() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<SpeakerRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<SpeakerRow[]>("admin:pastSpeakers:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:pastSpeakers:rows"));
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:pastSpeakers:publishedFilter", "all");
+  const [search, setSearch] = usePageCache("admin:pastSpeakers:search", "");
 
   const [editing, setEditing] = useState<SpeakerRow | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -44,7 +45,6 @@ export function PastSpeakers() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("past_speakers").select("*");
     if (error) toast.error("Could not load past speakers.");
     else setRows(data);

@@ -3,6 +3,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/lib/database.types";
 import { useToast } from "../components/Toast";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type SiteSettingsRow = Database["public"]["Tables"]["site_settings"]["Row"];
 
@@ -18,9 +19,9 @@ type FormState = {
 
 export function SiteSettings() {
   const toast = useToast();
-  const [row, setRow] = useState<SiteSettingsRow | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState<FormState | null>(null);
+  const [row, setRow] = usePageCache<SiteSettingsRow | null>("admin:siteSettings:row", null);
+  const [loading, setLoading] = useState(!hasCached("admin:siteSettings:row"));
+  const [form, setForm] = usePageCache<FormState | null>("admin:siteSettings:form", null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -35,15 +36,20 @@ export function SiteSettings() {
         if (error) toast.error("Could not load site settings.");
         else if (data) {
           setRow(data);
-          setForm({
-            member_count_label: data.member_count_label,
-            founding_year: String(data.founding_year),
-            contact_email: data.contact_email,
-            instagram_url: data.instagram_url,
-            linkedin_url: data.linkedin_url,
-            su_signup_url: data.su_signup_url,
-            weekly_meeting_info: data.weekly_meeting_info,
-          });
+          // Only populate the form on first load — a background refetch on
+          // revisit shouldn't clobber an in-progress edit the admin hasn't saved yet.
+          setForm(
+            (prev) =>
+              prev ?? {
+                member_count_label: data.member_count_label,
+                founding_year: String(data.founding_year),
+                contact_email: data.contact_email,
+                instagram_url: data.instagram_url,
+                linkedin_url: data.linkedin_url,
+                su_signup_url: data.su_signup_url,
+                weekly_meeting_info: data.weekly_meeting_info,
+              }
+          );
         }
         setLoading(false);
       });

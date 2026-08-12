@@ -13,6 +13,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { UrlColumnImageUploader } from "../components/ImageUploader";
 import { RichTextEditor } from "../components/RichTextEditor";
 import { isHtmlEmpty } from "../lib/richText";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type Article = Database["public"]["Tables"]["articles"]["Row"];
 type Status = "draft" | "published";
@@ -40,12 +41,12 @@ export function Articles() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<"all" | Status>("all");
-  const [tagFilter, setTagFilter] = useState("all");
-  const [sortBy, setSortBy] = useState<"updated" | "published">("updated");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<Article[]>("admin:articles:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:articles:rows"));
+  const [statusFilter, setStatusFilter] = usePageCache<"all" | Status>("admin:articles:statusFilter", "all");
+  const [tagFilter, setTagFilter] = usePageCache("admin:articles:tagFilter", "all");
+  const [sortBy, setSortBy] = usePageCache<"updated" | "published">("admin:articles:sortBy", "updated");
+  const [search, setSearch] = usePageCache("admin:articles:search", "");
 
   const [editing, setEditing] = useState<Article | "new" | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm(""));
@@ -54,7 +55,6 @@ export function Articles() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("articles").select("*");
     if (error) toast.error("Could not load articles.");
     else setRows(data);

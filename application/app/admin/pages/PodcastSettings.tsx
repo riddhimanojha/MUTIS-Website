@@ -5,6 +5,7 @@ import type { Database } from "@/lib/database.types";
 import { fetchSpotifyOEmbed, sanitizeSpotifyEmbedHtml } from "@/lib/spotifyEmbed";
 import { useAdminMutation } from "../useAdminMutation";
 import { useToast } from "../components/Toast";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type PodcastSettings = Database["public"]["Tables"]["podcast_settings"]["Row"];
 
@@ -16,9 +17,9 @@ export function PodcastSettingsPage() {
   const toast = useToast();
   const { updateRow } = useAdminMutation();
 
-  const [row, setRow] = useState<PodcastSettings | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [url, setUrl] = useState("");
+  const [row, setRow] = usePageCache<PodcastSettings | null>("admin:podcast:row", null);
+  const [loading, setLoading] = useState(!hasCached("admin:podcast:row"));
+  const [url, setUrl] = usePageCache<string | null>("admin:podcast:url", null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -33,7 +34,9 @@ export function PodcastSettingsPage() {
         if (error) toast.error("Could not load podcast settings.");
         else {
           setRow(data);
-          setUrl(data?.spotify_url ?? "");
+          // Only populate on first load — a background refetch on revisit
+          // shouldn't clobber an in-progress edit the admin hasn't saved yet.
+          setUrl((prev) => prev ?? (data?.spotify_url ?? ""));
         }
         setLoading(false);
       });
@@ -45,7 +48,7 @@ export function PodcastSettingsPage() {
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const trimmed = url.trim();
+    const trimmed = (url ?? "").trim();
     if (!trimmed) {
       toast.error("Enter a Spotify show or episode link.");
       return;
@@ -127,7 +130,7 @@ export function PodcastSettingsPage() {
               type="url"
               required
               placeholder="https://open.spotify.com/show/…"
-              value={url}
+              value={url ?? ""}
               onChange={(e) => setUrl(e.target.value)}
               className="w-full flex-1 rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent"
             />

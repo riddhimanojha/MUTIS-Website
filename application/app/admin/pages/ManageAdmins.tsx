@@ -5,6 +5,7 @@ import type { Database } from "@/lib/database.types";
 import { useToast } from "../components/Toast";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type AdminRow = Database["public"]["Tables"]["admin_users"]["Row"];
 
@@ -14,15 +15,14 @@ function formatDate(iso: string) {
 
 export function ManageAdmins() {
   const toast = useToast();
-  const [rows, setRows] = useState<AdminRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [rows, setRows] = usePageCache<AdminRow[]>("admin:manageAdmins:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:manageAdmins:rows"));
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<AdminRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("admin_users").select("*").order("added_at", { ascending: false });
     if (error) {
       toast.error("Could not load admins.");

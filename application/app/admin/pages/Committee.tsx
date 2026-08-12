@@ -11,6 +11,7 @@ import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { IdKeyedImageUploader } from "../components/ImageUploader";
 import { useIsMobile } from "../components/useIsMobile";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type Member = Database["public"]["Tables"]["committee_members"]["Row"];
 
@@ -36,10 +37,10 @@ export function Committee() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<"all" | "active" | "inactive">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<Member[]>("admin:committee:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:committee:rows"));
+  const [activeFilter, setActiveFilter] = usePageCache<"all" | "active" | "inactive">("admin:committee:activeFilter", "all");
+  const [search, setSearch] = usePageCache("admin:committee:search", "");
 
   const [editing, setEditing] = useState<Member | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -49,7 +50,6 @@ export function Committee() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("committee_members").select("*");
     if (error) toast.error("Could not load committee members.");
     else setRows(data);

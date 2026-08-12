@@ -9,6 +9,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { IdKeyedImageUploader } from "../components/ImageUploader";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type PresidentRow = Database["public"]["Tables"]["presidents"]["Row"];
 
@@ -32,10 +33,10 @@ export function PreviousPresidents() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<PresidentRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<PresidentRow[]>("admin:presidents:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:presidents:rows"));
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:presidents:publishedFilter", "all");
+  const [search, setSearch] = usePageCache("admin:presidents:search", "");
 
   const [editing, setEditing] = useState<PresidentRow | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -45,7 +46,6 @@ export function PreviousPresidents() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("presidents").select("*");
     if (error) toast.error("Could not load presidents.");
     else setRows(data);

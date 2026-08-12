@@ -6,6 +6,7 @@ import { useToast } from "../components/Toast";
 import { Drawer } from "../components/Drawer";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { StatusBadge } from "../components/StatusBadge";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type LogRow = Database["public"]["Tables"]["audit_log"]["Row"];
 
@@ -15,11 +16,11 @@ function formatDateTime(iso: string) {
 
 export function AuditLog() {
   const toast = useToast();
-  const [rows, setRows] = useState<LogRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tableFilter, setTableFilter] = useState("all");
-  const [actionFilter, setActionFilter] = useState<"all" | "insert" | "update" | "delete">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<LogRow[]>("admin:auditLog:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:auditLog:rows"));
+  const [tableFilter, setTableFilter] = usePageCache("admin:auditLog:tableFilter", "all");
+  const [actionFilter, setActionFilter] = usePageCache<"all" | "insert" | "update" | "delete">("admin:auditLog:actionFilter", "all");
+  const [search, setSearch] = usePageCache("admin:auditLog:search", "");
   const [detail, setDetail] = useState<LogRow | null>(null);
 
   useEffect(() => {

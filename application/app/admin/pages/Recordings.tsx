@@ -8,6 +8,7 @@ import { Drawer } from "../components/Drawer";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type RecordingRow = Database["public"]["Tables"]["recordings"]["Row"];
 
@@ -25,10 +26,10 @@ export function Recordings() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<RecordingRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<RecordingRow[]>("admin:recordings:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:recordings:rows"));
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:recordings:publishedFilter", "all");
+  const [search, setSearch] = usePageCache("admin:recordings:search", "");
 
   const [editing, setEditing] = useState<RecordingRow | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -37,7 +38,6 @@ export function Recordings() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("recordings").select("*");
     if (error) toast.error("Could not load recordings.");
     else setRows(data);

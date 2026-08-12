@@ -9,6 +9,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { IdKeyedImageUploader } from "../components/ImageUploader";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type FundManagerRow = Database["public"]["Tables"]["fund_managers"]["Row"];
 
@@ -31,10 +32,10 @@ export function FundManagers() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<FundManagerRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<FundManagerRow[]>("admin:fundManagers:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:fundManagers:rows"));
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:fundManagers:publishedFilter", "all");
+  const [search, setSearch] = usePageCache("admin:fundManagers:search", "");
 
   const [editing, setEditing] = useState<FundManagerRow | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -44,7 +45,6 @@ export function FundManagers() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("fund_managers").select("*");
     if (error) toast.error("Could not load fund managers.");
     else setRows(data);

@@ -12,6 +12,7 @@ import { PublishToggle, StatusBadge } from "../components/StatusBadge";
 import { UrlColumnImageUploader } from "../components/ImageUploader";
 import { RichTextEditor } from "../components/RichTextEditor";
 import { isHtmlEmpty } from "../lib/richText";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 
@@ -59,13 +60,13 @@ export function Events() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<EventRow[]>([]);
-  const [signupCounts, setSignupCounts] = useState<Map<string, number>>(new Map());
-  const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"upcoming" | "past">("upcoming");
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
-  const [signupFilter, setSignupFilter] = useState<"all" | "enabled" | "disabled">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<EventRow[]>("admin:events:rows", []);
+  const [signupCounts, setSignupCounts] = usePageCache<Map<string, number>>("admin:events:signupCounts", new Map());
+  const [loading, setLoading] = useState(!hasCached("admin:events:rows"));
+  const [view, setView] = usePageCache<"upcoming" | "past">("admin:events:view", "upcoming");
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:events:publishedFilter", "all");
+  const [signupFilter, setSignupFilter] = usePageCache<"all" | "enabled" | "disabled">("admin:events:signupFilter", "all");
+  const [search, setSearch] = usePageCache("admin:events:search", "");
 
   const [editing, setEditing] = useState<EventRow | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -74,7 +75,6 @@ export function Events() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const [eventsRes, signupsRes] = await Promise.all([
       supabase.from("events").select("*"),
       supabase.from("event_signups").select("event_id"),

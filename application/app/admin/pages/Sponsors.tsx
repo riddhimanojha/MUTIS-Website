@@ -11,6 +11,7 @@ import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { UrlColumnImageUploader } from "../components/ImageUploader";
 import { useIsMobile } from "../components/useIsMobile";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type Sponsor = Database["public"]["Tables"]["sponsors"]["Row"];
 type Tier = "gold" | "silver" | "past";
@@ -40,11 +41,11 @@ export function Sponsors() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<Sponsor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tierFilter, setTierFilter] = useState<"all" | Tier>("all");
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<Sponsor[]>("admin:sponsors:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:sponsors:rows"));
+  const [tierFilter, setTierFilter] = usePageCache<"all" | Tier>("admin:sponsors:tierFilter", "all");
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:sponsors:publishedFilter", "all");
+  const [search, setSearch] = usePageCache("admin:sponsors:search", "");
 
   const [editing, setEditing] = useState<Sponsor | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -53,7 +54,6 @@ export function Sponsors() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("sponsors").select("*");
     if (error) toast.error("Could not load sponsors.");
     else setRows(data);

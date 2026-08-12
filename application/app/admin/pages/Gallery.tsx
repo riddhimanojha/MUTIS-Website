@@ -11,6 +11,7 @@ import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { UrlColumnImageUploader } from "../components/ImageUploader";
 import { useIsMobile } from "../components/useIsMobile";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type GalleryImage = Database["public"]["Tables"]["gallery_images"]["Row"];
 
@@ -26,9 +27,9 @@ export function Gallery() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
+  const [rows, setRows] = usePageCache<GalleryImage[]>("admin:gallery:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:gallery:rows"));
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:gallery:publishedFilter", "all");
 
   const [editing, setEditing] = useState<GalleryImage | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -37,7 +38,6 @@ export function Gallery() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("gallery_images").select("*").order("display_order");
     if (error) toast.error("Could not load gallery images.");
     else setRows(data);

@@ -7,6 +7,7 @@ import { Drawer } from "../components/Drawer";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { StatusBadge } from "../components/StatusBadge";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type Contact = Database["public"]["Tables"]["contact_submissions"]["Row"];
 type Sponsorship = Database["public"]["Tables"]["sponsorship_enquiries"]["Row"];
@@ -33,25 +34,24 @@ const TABS: { key: Tab; label: string }[] = [
 
 export function Submissions() {
   const toast = useToast();
-  const [tab, setTab] = useState<Tab>("contact");
+  const [tab, setTab] = usePageCache<Tab>("admin:submissions:tab", "contact");
 
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [sponsorships, setSponsorships] = useState<Sponsorship[]>([]);
-  const [signups, setSignups] = useState<Signup[]>([]);
-  const [attendances, setAttendances] = useState<Attendance[]>([]);
-  const [events, setEvents] = useState<EventRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [contacts, setContacts] = usePageCache<Contact[]>("admin:submissions:contacts", []);
+  const [sponsorships, setSponsorships] = usePageCache<Sponsorship[]>("admin:submissions:sponsorships", []);
+  const [signups, setSignups] = usePageCache<Signup[]>("admin:submissions:signups", []);
+  const [attendances, setAttendances] = usePageCache<Attendance[]>("admin:submissions:attendances", []);
+  const [events, setEvents] = usePageCache<EventRow[]>("admin:submissions:events", []);
+  const [loading, setLoading] = useState(!hasCached("admin:submissions:contacts"));
 
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [eventFilter, setEventFilter] = useState("all");
+  const [search, setSearch] = usePageCache("admin:submissions:search", "");
+  const [statusFilter, setStatusFilter] = usePageCache("admin:submissions:statusFilter", "all");
+  const [eventFilter, setEventFilter] = usePageCache("admin:submissions:eventFilter", "all");
 
   const [detail, setDetail] = useState<{ tab: Tab; row: Contact | Sponsorship | Signup | Attendance } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ tab: Tab; row: Contact | Sponsorship | Signup | Attendance } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchAll = async () => {
-    setLoading(true);
     const [c, s, sg, ev, a] = await Promise.all([
       supabase.from("contact_submissions").select("*"),
       supabase.from("sponsorship_enquiries").select("*"),

@@ -9,6 +9,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { IdKeyedImageUploader } from "../components/ImageUploader";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type AlumniRow = Database["public"]["Tables"]["alumni"]["Row"];
 
@@ -43,11 +44,11 @@ export function Alumni() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<AlumniRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
-  const [consentFilter, setConsentFilter] = useState<"all" | "confirmed" | "unconfirmed">("all");
-  const [search, setSearch] = useState("");
+  const [rows, setRows] = usePageCache<AlumniRow[]>("admin:alumni:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:alumni:rows"));
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:alumni:publishedFilter", "all");
+  const [consentFilter, setConsentFilter] = usePageCache<"all" | "confirmed" | "unconfirmed">("admin:alumni:consentFilter", "all");
+  const [search, setSearch] = usePageCache("admin:alumni:search", "");
 
   const [editing, setEditing] = useState<AlumniRow | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -57,7 +58,6 @@ export function Alumni() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("alumni").select("*");
     if (error) toast.error("Could not load alumni.");
     else setRows(data);

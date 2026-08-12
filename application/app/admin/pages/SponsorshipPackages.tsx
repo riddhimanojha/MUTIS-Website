@@ -10,6 +10,7 @@ import { ReorderableList } from "../components/ReorderableList";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { useIsMobile } from "../components/useIsMobile";
+import { usePageCache, hasCached } from "../usePageCache";
 
 type PackageRow = Database["public"]["Tables"]["sponsorship_packages"]["Row"];
 
@@ -28,9 +29,9 @@ export function SponsorshipPackages() {
   const toast = useToast();
   const { insertRow, updateRow, deleteRow } = useAdminMutation();
 
-  const [rows, setRows] = useState<PackageRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [publishedFilter, setPublishedFilter] = useState<"all" | "published" | "unpublished">("all");
+  const [rows, setRows] = usePageCache<PackageRow[]>("admin:sponsorshipPackages:rows", []);
+  const [loading, setLoading] = useState(!hasCached("admin:sponsorshipPackages:rows"));
+  const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:sponsorshipPackages:publishedFilter", "all");
 
   const [editing, setEditing] = useState<PackageRow | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
@@ -39,7 +40,6 @@ export function SponsorshipPackages() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    setLoading(true);
     const { data, error } = await supabase.from("sponsorship_packages").select("*").order("display_order");
     if (error) toast.error("Could not load sponsorship packages.");
     else setRows(data);
