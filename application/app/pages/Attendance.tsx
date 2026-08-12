@@ -1,10 +1,14 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
 import { useSiteSettings } from "@/app/hooks/useSiteSettings";
+import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
 type Status = "idle" | "submitting" | "sent" | "error";
+type EventRow = Tables<"events">;
+
+const OTHER_EVENT = "__other__";
 
 export function Attendance() {
   useReveal();
@@ -12,6 +16,27 @@ export function Attendance() {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [rating, setRating] = useState(5);
+  const [events, setEvents] = useState<EventRow[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("events")
+      .select("*")
+      .eq("is_published", true)
+      .order("starts_at", { ascending: false })
+      .then(({ data, error: fetchError }) => {
+        if (cancelled) return;
+        if (fetchError) console.error("Failed to load events", fetchError);
+        setEvents(data ?? []);
+        setEventsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,6 +47,10 @@ export function Attendance() {
       return;
     }
 
+    const eventId = (form.elements.namedItem("event") as HTMLSelectElement).value;
+    const otherEventName = eventId === OTHER_EVENT
+      ? (form.elements.namedItem("other-event") as HTMLInputElement).value.trim()
+      : "";
     const name = (form.elements.namedItem("attendee-name") as HTMLInputElement).value.trim();
     const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
     const course = (form.elements.namedItem("course") as HTMLInputElement).value.trim();
@@ -29,8 +58,12 @@ export function Attendance() {
     const ratingVal = (form.elements.namedItem("rating") as HTMLInputElement).value;
     const comments = (form.elements.namedItem("comments") as HTMLTextAreaElement).value.trim();
 
-    if (!name || !email || !course || !year) {
-      setError("Please fill in your name, email, course, and year of study.");
+    if (!eventId || (eventId === OTHER_EVENT && !otherEventName) || !name || !email || !course || !year) {
+      setError(
+        eventId === OTHER_EVENT
+          ? "Please tell us which event you attended, and fill in your name, email, course, and year of study."
+          : "Please select the event you attended and fill in your name, email, course, and year of study."
+      );
       setStatus("error");
       return;
     }
@@ -39,6 +72,8 @@ export function Attendance() {
     setError("");
 
     const { error: insertError } = await supabase.from("attendance_submissions").insert({
+      event_id: eventId === OTHER_EVENT ? null : eventId,
+      other_event_name: eventId === OTHER_EVENT ? otherEventName : null,
       name,
       email,
       course,
@@ -59,6 +94,7 @@ export function Attendance() {
     setStatus("sent");
     form.reset();
     setRating(5);
+    setSelectedEvent("");
   };
 
   return (
@@ -114,6 +150,40 @@ export function Attendance() {
                       <input name="bot-field" tabIndex={-1} autoComplete="off" />
                     </label>
                   </p>
+
+                  <div className="field">
+                    <label htmlFor="att-event">Which event did you attend? *</label>
+                    <select
+                      id="att-event"
+                      name="event"
+                      value={selectedEvent}
+                      onChange={(e) => setSelectedEvent(e.target.value)}
+                      required
+                    >
+                      <option value="" disabled>
+                        {eventsLoading ? "Loading events…" : "Select an event…"}
+                      </option>
+                      {events.map((ev) => (
+                        <option key={ev.id} value={ev.id}>
+                          {ev.title} — {new Date(ev.starts_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </option>
+                      ))}
+                      <option value={OTHER_EVENT}>Other (not listed here)</option>
+                    </select>
+                  </div>
+
+                  {selectedEvent === OTHER_EVENT && (
+                    <div className="field">
+                      <label htmlFor="att-other-event">Event name *</label>
+                      <input
+                        id="att-other-event"
+                        name="other-event"
+                        type="text"
+                        placeholder="Tell us the name of the event"
+                        required
+                      />
+                    </div>
+                  )}
 
                   <div className="field">
                     <label htmlFor="att-name">Full name *</label>
