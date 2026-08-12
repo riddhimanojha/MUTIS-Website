@@ -1,8 +1,10 @@
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import { useSiteSettings } from "@/app/hooks/useSiteSettings";
 
 export function Join() {
   useReveal();
+  const { settings } = useSiteSettings();
   return (
     <>
       <section className="page-hero">
@@ -33,7 +35,7 @@ export function Join() {
               <div className="n">02</div>
               <div>
                 <div className="t">Come to a weekly meeting</div>
-                <div className="d">Tuesdays at Alliance MBS  -  no prep needed. We cover market events, technical concepts, and live deal discussions.</div>
+                <div className="d">{settings.weekly_meeting_info}  -  no prep needed. We cover market events, technical concepts, and live deal discussions.</div>
               </div>
               <div className="arrow">→</div>
             </div>
@@ -53,7 +55,7 @@ export function Join() {
             </Link>
             <a
               className="btn btn-ghost"
-              href="https://manchesterstudentsunion.com/activities/view/mutis"
+              href={settings.su_signup_url}
               target="_blank"
               rel="noreferrer"
               style={{ textDecoration: "none" }}
