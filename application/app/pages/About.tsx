@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
 import { useSiteSettings } from "@/app/hooks/useSiteSettings";
+import { CoreValues } from "@/app/components/CoreValues";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
@@ -111,6 +112,8 @@ export function About() {
           </div>
         </div>
       </section>
+
+      <CoreValues />
 
       <section className="page-section" style={{ borderTop: "1px solid var(--hair)" }}>
         <div className="inner">
