@@ -7,6 +7,7 @@
 @import './mutis-scroll.css';
 @import './mutis-subpage.css';
 @import './mutis-light.css';
+@import './mutis-admin.css';
 
 @layer utilities {
   .scrollbar-hide {

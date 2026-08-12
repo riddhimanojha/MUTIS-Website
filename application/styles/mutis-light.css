@@ -87,6 +87,7 @@
   color: var(--ink-faint);
 }
 .subpage-light .dark-card .foot .more { color: var(--ink-text); }
+.subpage-light .dark-card .foot .more:hover { color: var(--pm-accent-2); }
 
 /* ---------- Media page cards ---------- */
 .subpage-light .media-card {
@@ -149,9 +150,6 @@
 .subpage-light .member .portrait-fallback span { color: #5b7da0; }
 
 /* ---------- Articles ---------- */
-.subpage-light .article { border-bottom: 1px solid var(--hair); }
-.subpage-light .article:hover { background: linear-gradient(90deg, rgba(15,122,168,0.08) 0%, transparent 100%); }
-.subpage-light .article .title { color: var(--ink-text); }
 .subpage-light .article-thumb { border: 1px solid var(--hair); }
 
 /* ---------- Contact ---------- */

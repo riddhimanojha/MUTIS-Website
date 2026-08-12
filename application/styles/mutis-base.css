@@ -20,7 +20,14 @@
   --font-body: 'Manrope', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* Layered (not left bare) so Tailwind's utilities layer — used directly in
+   application/app/admin/** — can still override this reset. Every other
+   rule in this file stays unlayered and keeps winning via normal
+   specificity, same as before; only this one always-wins-by-default reset
+   changes. */
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+}
 html { scroll-behavior: smooth; }
 body {
   font-family: var(--font-body);
