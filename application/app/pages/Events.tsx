@@ -8,6 +8,12 @@ import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 import { Modal } from "@/app/components/Modal";
 
+const FLAGSHIP = [
+  { num: "E.01", title: "Women in Finance Conference", term: "Autumn Term", desc: "A flagship day bringing senior women from across investment banking, asset management, and markets onto campus.", foot: "Manchester" },
+  { num: "E.02", title: "UK Student Finance Summit", term: "Spring Term", desc: "The largest cross-university gathering of finance students in the UK, hosted by MUTIS in partnership with leading firms.", foot: "Manchester" },
+  { num: "E.03", title: "M&A Challenge", term: "Year-round", desc: "A live deal simulation run across the year, judged by working bankers from sponsor firms.", foot: "Manchester" },
+];
+
 const eventImageModules = import.meta.glob(
   "../../assets/events/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG,WEBP,AVIF}",
   { eager: true, import: "default" },
@@ -125,8 +131,6 @@ export function Events() {
   const [loadError, setLoadError] = useState("");
   const [modalEvent, setModalEvent] = useState<EventRow | null>(null);
 
-  const [flagshipEvents, setFlagshipEvents] = useState<EventRow[]>([]);
-
   useEffect(() => {
     let cancelled = false;
 
@@ -137,36 +141,26 @@ export function Events() {
       // Hide events more than 24h past their scheduled start — a read-time filter,
       // not a cron job. Always sorted chronologically; there's no user-facing sort control.
       const expiryCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      const [upcoming, flagship] = await Promise.all([
-        supabase
-          .from("events")
-          .select("*")
-          .eq("is_published", true)
-          .gt("starts_at", expiryCutoff)
-          .order("starts_at", { ascending: true }),
-        supabase
-          .from("events")
-          .select("*")
-          .eq("is_published", true)
-          .contains("tags", ["flagship"])
-          .order("starts_at", { ascending: true }),
-      ]);
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("is_published", true)
+        .gt("starts_at", expiryCutoff)
+        .order("starts_at", { ascending: true });
 
       if (cancelled) {
         return;
       }
 
-      if (upcoming.error || flagship.error) {
-        console.error("Failed to load events", upcoming.error ?? flagship.error);
+      if (error) {
+        console.error("Failed to load events", error);
         setLoadError("We could not load upcoming events right now. Please refresh the page.");
         setEvents([]);
-        setFlagshipEvents([]);
         setIsLoading(false);
         return;
       }
 
-      setEvents(upcoming.data ?? []);
-      setFlagshipEvents(flagship.data ?? []);
+      setEvents(data ?? []);
       setIsLoading(false);
     };
 
@@ -177,7 +171,7 @@ export function Events() {
     };
   }, []);
 
-  useReveal([flagshipEvents.length, events.length, isLoading, loadError]);
+  useReveal([FLAGSHIP.length, events.length, isLoading, loadError]);
 
   return (
     <>
@@ -208,23 +202,17 @@ export function Events() {
               .
             </p>
           )}
-          {isLoading ? (
-            <p className="lede r-up" role="status">Loading…</p>
-          ) : flagshipEvents.length === 0 ? (
-            <p className="lede r-up">Flagship events for this year are being finalised — check back soon.</p>
-          ) : (
-            <div className="card-grid">
-              {flagshipEvents.map((e, i) => (
-                <div className="dark-card r-up" key={e.id}>
-                  <div className="num">{`E.${String(i + 1).padStart(2, "0")}`}</div>
-                  <h3>{e.title}</h3>
-                  <div className="meta">{formatEventDate(e.starts_at)}</div>
-                  <p className="excerpt">{htmlToExcerpt(e.description)}</p>
-                  <div className="foot"><span>{e.location}</span></div>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="card-grid">
+            {FLAGSHIP.map((e) => (
+              <div className="dark-card r-up" key={e.num}>
+                <div className="num">{e.num}</div>
+                <h3>{e.title}</h3>
+                <div className="meta">{e.term}</div>
+                <p className="excerpt">{e.desc}</p>
+                <div className="foot"><span>{e.foot}</span></div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

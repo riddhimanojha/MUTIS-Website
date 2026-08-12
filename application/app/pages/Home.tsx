@@ -8,11 +8,9 @@ import {
 import { Link } from "react-router";
 import { useTilt } from "../hooks/useTilt";
 import { useSiteSettings } from "../hooks/useSiteSettings";
-import { htmlToExcerpt } from "../lib/htmlExcerpt";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
-type EventRow = Tables<"events">;
 type SponsorRow = Tables<"sponsors">;
 type HomeProgramRow = Tables<"home_programs">;
 
@@ -290,29 +288,33 @@ function WhatWeDo() {
 
 // ---- Events ----
 
+const EVENTS = [
+  {
+    id: "E.01",
+    term: "Autumn Term",
+    title: "Women in Finance Conference",
+    desc: "A flagship day bringing senior women from across investment banking, asset management, and markets onto campus.",
+    location: "Manchester · Hybrid",
+  },
+  {
+    id: "E.02",
+    term: "Spring Term",
+    title: "UK Student Finance Summit",
+    desc: "The largest cross-university gathering of finance students in the UK, hosted by MUTIS in partnership with leading firms.",
+    location: "Alliance MBS",
+  },
+  {
+    id: "E.03",
+    term: "Year-round",
+    title: "M&A Challenge",
+    desc: "A live deal simulation run across the year, judged by working bankers from our partner firms.",
+    location: "Manchester",
+  },
+];
+
 function EventsSection() {
   const [ref, inView] = useInView<HTMLElement>({ threshold: 0.1 });
   const t = inView ? 1 : 0;
-  const [flagshipEvents, setFlagshipEvents] = useState<EventRow[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    supabase
-      .from("events")
-      .select("*")
-      .eq("is_published", true)
-      .contains("tags", ["flagship"])
-      .order("starts_at", { ascending: true })
-      .limit(3)
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (error) console.error("Failed to load flagship events", error);
-        setFlagshipEvents(data ?? []);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   return (
     <section className="pm-events" ref={ref}>
@@ -338,7 +340,7 @@ function EventsSection() {
         </div>
 
         <div className="pm-events-grid">
-          {flagshipEvents.map((ev, i) => (
+          {EVENTS.map((ev, i) => (
             <EventCard key={ev.id} ev={ev} index={i} inView={t} />
           ))}
         </div>
@@ -357,11 +359,9 @@ function EventsSection() {
   );
 }
 
-function EventCard({ ev, index, inView }: { ev: EventRow; index: number; inView: number }) {
+function EventCard({ ev, index, inView }: { ev: typeof EVENTS[0]; index: number; inView: number }) {
   const tilt = useTilt(8);
   const delay = 0.3 + index * 0.18;
-  const eventNum = `E.${String(index + 1).padStart(2, "0")}`;
-  const eventDate = new Date(ev.starts_at).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
   return (
     <div
       style={{
@@ -377,12 +377,12 @@ function EventCard({ ev, index, inView }: { ev: EventRow; index: number; inView:
         onMouseLeave={tilt.onMouseLeave}
       >
         <div className="pm-event-top">
-          <span className="pm-event-term">{eventDate}</span>
-          <span className="pm-event-id">{eventNum}</span>
+          <span className="pm-event-term">{ev.term}</span>
+          <span className="pm-event-id">{ev.id}</span>
         </div>
         <div className="pm-event-body">
           <h3 className="pm-event-title">{ev.title}</h3>
-          <p className="pm-event-desc">{htmlToExcerpt(ev.description, 140)}</p>
+          <p className="pm-event-desc">{ev.desc}</p>
         </div>
         <div className="pm-event-foot">
           <span className="pm-event-location">{ev.location}</span>
@@ -513,7 +513,6 @@ export function Home() {
       <EventsSection />
       <SponsorsStrip />
       {/* PLACEHOLDER: Subsidiary / org structure diagram — insert asset here */}
-      {/* PLACEHOLDER: Core values section — insert content here */}
       <FinalCTA />
     </>
   );
