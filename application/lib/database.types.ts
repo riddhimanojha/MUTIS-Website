@@ -131,8 +131,10 @@ export type Database = {
           course: string
           created_at: string
           email: string
+          event_id: string | null
           id: string
           name: string
+          other_event_name: string | null
           rating: number
           status: string
           year: string
@@ -142,8 +144,10 @@ export type Database = {
           course: string
           created_at?: string
           email: string
+          event_id?: string | null
           id?: string
           name: string
+          other_event_name?: string | null
           rating: number
           status?: string
           year: string
@@ -153,13 +157,23 @@ export type Database = {
           course?: string
           created_at?: string
           email?: string
+          event_id?: string | null
           id?: string
           name?: string
+          other_event_name?: string | null
           rating?: number
           status?: string
           year?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "attendance_submissions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_log: {
         Row: {
