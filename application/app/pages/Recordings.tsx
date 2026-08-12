@@ -1,24 +1,57 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import { useSiteSettings } from "@/app/hooks/useSiteSettings";
+import type { Tables } from "@/lib/database.types";
+import { supabase } from "@/lib/supabase";
 
-/**
- * Recorded / uploaded events. Add entries as recordings are published. Each item
- * may point to a hosted video (YouTube, Vimeo, etc.) via `url`. Until recordings
- * are available the page shows an honest "coming soon" state.
- */
-type Recording = {
-  id: string;
-  title: string;
-  speaker: string;
-  when: string;
-  url: string | null;
-};
+type RecordingRow = Tables<"recordings">;
 
-// PENDING: populate with real recorded events (title, speaker, date, video URL).
-const RECORDINGS: Recording[] = [];
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "long" });
+}
 
 export function Recordings() {
-  useReveal([RECORDINGS.length]);
+  const { settings } = useSiteSettings();
+  const [recordings, setRecordings] = useState<RecordingRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadRecordings = async () => {
+      setIsLoading(true);
+      setLoadError("");
+
+      const { data, error } = await supabase
+        .from("recordings")
+        .select("*")
+        .eq("is_published", true)
+        .order("event_date", { ascending: false });
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to load recordings", error);
+        setLoadError("We could not load this page right now. Please refresh the page.");
+        setRecordings([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setRecordings(data ?? []);
+      setIsLoading(false);
+    };
+
+    void loadRecordings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useReveal([recordings.length, isLoading, loadError]);
 
   return (
     <>
@@ -43,29 +76,42 @@ export function Recordings() {
           <div className="page-eyebrow r-up"><span className="bar" />Recorded Events</div>
           <h2 className="r-up">Talks &amp; panels</h2>
 
-          {RECORDINGS.length === 0 ? (
+          {isLoading ? (
+            <p className="lede r-up" role="status">Loading…</p>
+          ) : loadError ? (
+            <p className="lede r-up" role="alert" style={{ color: "var(--ink-soft)" }}>{loadError}</p>
+          ) : recordings.length === 0 ? (
             <p className="lede r-up">
               Recordings of recent talks and panels will be published here soon. Follow us on{" "}
-              <a href="https://instagram.com/mutisfinancesoc" target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>Instagram</a>{" "}
+              <a href={settings.instagram_url} target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>Instagram</a>{" "}
               for announcements.
             </p>
           ) : (
             <div className="card-grid">
-              {RECORDINGS.map((r) => (
-                <a
-                  key={r.id}
-                  className="dark-card r-up"
-                  href={r.url ?? undefined}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <div className="num">▶ Watch</div>
-                  <h3>{r.title}</h3>
-                  <div className="meta"><span>{r.speaker}</span><span>·</span><span>{r.when}</span></div>
-                  <div className="foot"><span>Recording</span><span className="more">Play →</span></div>
-                </a>
-              ))}
+              {recordings.map((r) =>
+                r.recording_url ? (
+                  <a
+                    key={r.id}
+                    className="dark-card r-up"
+                    href={r.recording_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <div className="num">▶ Watch</div>
+                    <h3>{r.title}</h3>
+                    <div className="meta"><span>{r.speaker ?? "MUTIS"}</span><span>·</span><span>{formatDate(r.event_date)}</span></div>
+                    <div className="foot"><span>Recording</span><span className="more">Play →</span></div>
+                  </a>
+                ) : (
+                  <div key={r.id} className="dark-card r-up">
+                    <div className="num">▶ Watch</div>
+                    <h3>{r.title}</h3>
+                    <div className="meta"><span>{r.speaker ?? "MUTIS"}</span><span>·</span><span>{formatDate(r.event_date)}</span></div>
+                    <div className="foot"><span>Recording</span></div>
+                  </div>
+                )
+              )}
             </div>
           )}
         </div>

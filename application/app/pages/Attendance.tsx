@@ -1,16 +1,14 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import { useSiteSettings } from "@/app/hooks/useSiteSettings";
+import { supabase } from "@/lib/supabase";
 
 type Status = "idle" | "submitting" | "sent" | "error";
 
-const encode = (data: Record<string, string>) =>
-  Object.keys(data)
-    .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k]))
-    .join("&");
-
 export function Attendance() {
   useReveal();
+  const { settings } = useSiteSettings();
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const [rating, setRating] = useState(5);
@@ -40,32 +38,27 @@ export function Attendance() {
     setStatus("submitting");
     setError("");
 
-    const data: Record<string, string> = {
-      "form-name": "attendance",
-      "attendee-name": name,
+    const { error: insertError } = await supabase.from("attendance_submissions").insert({
+      name,
       email,
       course,
       year,
-      rating: ratingVal,
-      comments,
-    };
+      rating: Number(ratingVal),
+      comments: comments || null,
+    });
 
-    try {
-      const res = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encode(data),
-      });
-      if (!res.ok) throw new Error(String(res.status));
-      setStatus("sent");
-      form.reset();
-      setRating(5);
-    } catch {
+    if (insertError) {
+      console.error("Failed to submit attendance", insertError);
       setError(
-        "Something went wrong. Please try again or email us at mutis@manchesterstudentsunion.com."
+        `Something went wrong. Please try again or email us at ${settings.contact_email}.`
       );
       setStatus("error");
+      return;
     }
+
+    setStatus("sent");
+    form.reset();
+    setRating(5);
   };
 
   return (
@@ -112,13 +105,9 @@ export function Attendance() {
                 <form
                   className="contact-form r-up"
                   name="attendance"
-                  method="POST"
-                  data-netlify="true"
-                  data-netlify-honeypot="bot-field"
                   onSubmit={onSubmit}
                   noValidate
                 >
-                  <input type="hidden" name="form-name" value="attendance" />
                   <p className="hidden-field">
                     <label>
                       Don't fill this out if you're human:{" "}
@@ -236,15 +225,15 @@ export function Attendance() {
               <div className="row">
                 <div className="l">Questions</div>
                 <div className="v">
-                  <a href="mailto:mutis@manchesterstudentsunion.com">
-                    mutis@<wbr />manchesterstudentsunion.com
+                  <a href={`mailto:${settings.contact_email}`}>
+                    {settings.contact_email}
                   </a>
                 </div>
               </div>
               <div className="row">
                 <div className="l">Instagram</div>
                 <div className="v">
-                  <a href="https://instagram.com/mutisfinancesoc" target="_blank" rel="noreferrer">
+                  <a href={settings.instagram_url} target="_blank" rel="noreferrer">
                     @mutisfinancesoc
                   </a>
                 </div>

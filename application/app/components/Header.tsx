@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { Instagram, Linkedin } from "lucide-react";
+import { useSiteSettings } from "@/app/hooks/useSiteSettings";
 
 type NavItem = { to: string; label: string; children?: { to: string; label: string }[] };
 
@@ -28,23 +29,9 @@ const navLinks: NavItem[] = [
     children: [
       { to: "/gallery", label: "Gallery" },
       { to: "/recordings", label: "Recordings" },
-      { to: "/podcast", label: "Podcast" },
     ],
   },
   { to: "/contact", label: "Contact" },
-];
-
-const SOCIALS = [
-  {
-    label: "MUTIS on Instagram",
-    href: "https://instagram.com/mutisfinancesoc",
-    Icon: Instagram,
-  },
-  {
-    label: "MUTIS on LinkedIn",
-    href: "https://www.linkedin.com/company/manchester-university-trading-&-investment-society/",
-    Icon: Linkedin,
-  },
 ];
 
 export function Header() {
@@ -53,6 +40,12 @@ export function Header() {
   const { pathname } = useLocation();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const { settings } = useSiteSettings();
+
+  const SOCIALS = [
+    { label: "MUTIS on Instagram", href: settings.instagram_url, Icon: Instagram },
+    { label: "MUTIS on LinkedIn", href: settings.linkedin_url, Icon: Linkedin },
+  ];
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 60);

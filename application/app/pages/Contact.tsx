@@ -1,16 +1,14 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import { useSiteSettings } from "@/app/hooks/useSiteSettings";
+import { supabase } from "@/lib/supabase";
 
 type Status = "idle" | "submitting" | "sent" | "error";
 
-const encode = (data: Record<string, string>) =>
-  Object.keys(data)
-    .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k]))
-    .join("&");
-
 export function Contact() {
   useReveal();
+  const { settings } = useSiteSettings();
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string>("");
 
@@ -25,7 +23,6 @@ export function Contact() {
     }
 
     const data = {
-      "form-name": "contact",
       name: (form.elements.namedItem("name") as HTMLInputElement).value.trim(),
       email: (form.elements.namedItem("email") as HTMLInputElement).value.trim(),
       reason: (form.elements.namedItem("reason") as HTMLSelectElement).value,
@@ -41,21 +38,19 @@ export function Contact() {
     setStatus("submitting");
     setError("");
 
-    try {
-      const res = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: encode(data),
-      });
-      if (!res.ok) throw new Error(`Request failed (${res.status})`);
-      setStatus("sent");
-      form.reset();
-    } catch {
+    const { error: insertError } = await supabase.from("contact_submissions").insert(data);
+
+    if (insertError) {
+      console.error("Failed to submit contact message", insertError);
       setError(
-        "Something went wrong sending your message. Please email us directly at mutis@manchesterstudentsunion.com."
+        `Something went wrong sending your message. Please email us directly at ${settings.contact_email}.`
       );
       setStatus("error");
+      return;
     }
+
+    setStatus("sent");
+    form.reset();
   };
 
   return (
@@ -82,13 +77,9 @@ export function Contact() {
               <form
                 className="contact-form r-up"
                 name="contact"
-                method="POST"
-                data-netlify="true"
-                data-netlify-honeypot="bot-field"
                 onSubmit={onSubmit}
                 noValidate
               >
-                <input type="hidden" name="form-name" value="contact" />
                 <p className="hidden-field">
                   <label>
                     Don’t fill this out if you’re human: <input name="bot-field" tabIndex={-1} autoComplete="off" />
@@ -140,11 +131,11 @@ export function Contact() {
             </div>
 
             <div className="contact-info r-up">
-              <div className="row"><div className="l">Email</div><div className="v"><a href="mailto:mutis@manchesterstudentsunion.com">mutis@<wbr />manchesterstudentsunion.com</a></div></div>
+              <div className="row"><div className="l">Email</div><div className="v"><a href={`mailto:${settings.contact_email}`}>{settings.contact_email}</a></div></div>
               <div className="row"><div className="l">Address</div><div className="v">Alliance Manchester Business School<br />Booth Street West, M15 6PB</div></div>
-              <div className="row"><div className="l">Instagram</div><div className="v"><a href="https://instagram.com/mutisfinancesoc" target="_blank" rel="noreferrer">@mutisfinancesoc</a></div></div>
-              <div className="row"><div className="l">LinkedIn</div><div className="v"><a href="https://www.linkedin.com/company/manchester-university-trading-&-investment-society/" target="_blank" rel="noreferrer">MUTIS LinkedIn</a></div></div>
-              <div className="row"><div className="l">Students' Union</div><div className="v"><a href="#su-link-tbc" target="_blank" rel="noreferrer">Manchester Students' Union</a></div></div>
+              <div className="row"><div className="l">Instagram</div><div className="v"><a href={settings.instagram_url} target="_blank" rel="noreferrer">@mutisfinancesoc</a></div></div>
+              <div className="row"><div className="l">LinkedIn</div><div className="v"><a href={settings.linkedin_url} target="_blank" rel="noreferrer">MUTIS LinkedIn</a></div></div>
+              <div className="row"><div className="l">Students' Union</div><div className="v"><a href={settings.su_signup_url} target="_blank" rel="noreferrer">Manchester Students' Union</a></div></div>
             </div>
           </div>
         </div>

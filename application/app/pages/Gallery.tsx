@@ -1,22 +1,51 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import type { Tables } from "@/lib/database.types";
+import { supabase } from "@/lib/supabase";
 
-// Gallery is intentionally empty for now (photos to be added later).
-// To enable auto-loading from assets/events, uncomment the glob below and
-// set GALLERY_IMAGES to its result.
-//
-// const galleryModules = import.meta.glob(
-//   "../../assets/events/*.{jpg,jpeg,png,webp,avif,JPG,JPEG,PNG,WEBP,AVIF}",
-//   { eager: true, import: "default" },
-// ) as Record<string, string>;
-// const GALLERY_IMAGES = Object.entries(galleryModules)
-//   .sort(([a], [b]) => a.localeCompare(b))
-//   .map(([, src]) => src);
-
-const GALLERY_IMAGES: string[] = [];
+type GalleryImageRow = Tables<"gallery_images">;
 
 export function Gallery() {
-  useReveal([GALLERY_IMAGES.length]);
+  const [images, setImages] = useState<GalleryImageRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadImages = async () => {
+      setIsLoading(true);
+      setLoadError("");
+
+      const { data, error } = await supabase
+        .from("gallery_images")
+        .select("*")
+        .eq("is_published", true)
+        .order("display_order");
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to load gallery images", error);
+        setLoadError("We could not load this page right now. Please refresh the page.");
+        setImages([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setImages(data ?? []);
+      setIsLoading(false);
+    };
+
+    void loadImages();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useReveal([images.length, isLoading, loadError]);
 
   return (
     <>
@@ -41,17 +70,21 @@ export function Gallery() {
           <div className="page-eyebrow r-up"><span className="bar" />Photo Gallery</div>
           <h2 className="r-up">Event photography</h2>
 
-          {GALLERY_IMAGES.length === 0 ? (
+          {isLoading ? (
+            <p className="lede r-up" role="status">Loading…</p>
+          ) : loadError ? (
+            <p className="lede r-up" role="alert" style={{ color: "var(--ink-soft)" }}>{loadError}</p>
+          ) : images.length === 0 ? (
             <p className="lede r-up">
               Coming soon — we&apos;ll be adding event photos here shortly.
             </p>
           ) : (
             <div className="gallery-grid r-up">
-              {GALLERY_IMAGES.map((src, i) => (
-                <figure className="gallery-item" key={src + i}>
+              {images.map((img) => (
+                <figure className="gallery-item" key={img.id}>
                   <img
-                    src={src}
-                    alt="MUTIS event photo"
+                    src={img.image_url}
+                    alt={img.caption ?? "MUTIS event photo"}
                     loading="lazy"
                     decoding="async"
                   />

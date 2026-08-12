@@ -1,20 +1,19 @@
+import { useSiteSettings } from "@/app/hooks/useSiteSettings";
+
 export function Footer() {
   const year = new Date().getFullYear();
+  const { settings } = useSiteSettings();
   return (
     <footer className="footer">
       <div>© {year} MUTIS · University of Manchester</div>
       <div className="links">
-        <a href="https://instagram.com/mutisfinancesoc" target="_blank" rel="noreferrer">
+        <a href={settings.instagram_url} target="_blank" rel="noreferrer">
           Instagram
         </a>
-        <a
-          href="https://www.linkedin.com/company/manchester-university-trading-&-investment-society/"
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a href={settings.linkedin_url} target="_blank" rel="noreferrer">
           LinkedIn
         </a>
-        <a href="mailto:mutis@manchesterstudentsunion.com">Email</a>
+        <a href={`mailto:${settings.contact_email}`}>Email</a>
       </div>
     </footer>
   );

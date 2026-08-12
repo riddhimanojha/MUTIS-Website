@@ -6,6 +6,11 @@ import { supabase } from "@/lib/supabase";
 
 type CommitteeRow = Tables<"committee_members">;
 
+function committeePhotoUrl(id: string, updatedAt: string) {
+  const url = supabase.storage.from("committee_photos").getPublicUrl(`${id}.jpeg`).data.publicUrl;
+  return `${url}?v=${new Date(updatedAt).getTime()}`;
+}
+
 function CommitteeGridSkeleton() {
   return (
     <div className="committee-grid committee-grid--4col" style={{ marginTop: 44 }} aria-busy="true" aria-live="polite">
@@ -100,7 +105,7 @@ export function Team() {
   const renderMember = (m: CommitteeRow) => {
     const inner = (
       <>
-        <MemberPortrait name={m.name} initials={null} headshotUrl={m.headshot_url} />
+        <MemberPortrait name={m.name} initials={null} headshotUrl={committeePhotoUrl(m.id, m.updated_at)} />
         <div className="name">{m.name}</div>
         <div className="role">{m.role}</div>
       </>

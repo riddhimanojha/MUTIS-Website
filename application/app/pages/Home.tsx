@@ -1,11 +1,20 @@
 import {
+  useEffect,
   useRef,
+  useState,
   type CSSProperties,
   type ReactNode,
 } from "react";
 import { Link } from "react-router";
 import { useTilt } from "../hooks/useTilt";
-import { sponsors } from "../data/siteData";
+import { useSiteSettings } from "../hooks/useSiteSettings";
+import { htmlToExcerpt } from "../lib/htmlExcerpt";
+import type { Tables } from "@/lib/database.types";
+import { supabase } from "@/lib/supabase";
+
+type EventRow = Tables<"events">;
+type SponsorRow = Tables<"sponsors">;
+type HomeProgramRow = Tables<"home_programs">;
 
 // ---- Utilities ----
 
@@ -70,6 +79,7 @@ function Hero() {
   // Scroll/intro animation removed by request — hero renders fully static.
   const intro = 1;
   const fgOpacity = 1;
+  const { settings } = useSiteSettings();
 
   return (
     <section className="pm-hero">
@@ -84,7 +94,7 @@ function Hero() {
           className="pm-hero-eyebrow"
           style={{ opacity: clamp(intro * 1.6 - 0.2), transform: `translateY(${(1 - clamp(intro * 1.6 - 0.2)) * 14}px)` }}
         >
-          University of Manchester &nbsp;·&nbsp; Est. 2008
+          University of Manchester &nbsp;·&nbsp; Est. {settings.founding_year}
         </div>
 
         <div className="pm-hero-masthead">
@@ -121,7 +131,7 @@ function Hero() {
             transform: `translateY(${(1 - clamp(intro * 1.4 - 0.6)) * 14}px)`,
           }}
         >
-          We train Manchester students to compete for finance roles at the world&apos;s top banks, through real research, live capital, and direct access to industry. 1,000+ members across every faculty.
+          We train Manchester students to compete for finance roles at the world&apos;s top banks, through real research, live capital, and direct access to industry. {settings.member_count_label} members across every faculty.
         </p>
 
         <div
@@ -148,7 +158,7 @@ function Hero() {
         style={{ opacity: clamp(intro * 2 - 1) * fgOpacity }}
       >
         {[
-          { val: "1,000+", label: "Members" },
+          { val: settings.member_count_label, label: "Members" },
           { val: "17", label: "Industry Partners" },
           { val: "5+", label: "Flagship Events" },
         ].map((s, i) => (
@@ -165,19 +175,19 @@ function Hero() {
 
 // ---- Stats strip ----
 
-const STRIP_STATS = [
-  { val: "1,000+", label: "Members" },
-  { val: "17", label: "Industry Partners" },
-  { val: "5+", label: "Flagship Events" },
-  { val: "6", label: "Sector Teams" },
-];
-
 function StatsStrip() {
   const [ref, inView] = useInView<HTMLElement>({ threshold: 0.4 });
+  const { settings } = useSiteSettings();
+  const stripStats = [
+    { val: settings.member_count_label, label: "Members" },
+    { val: "17", label: "Industry Partners" },
+    { val: "5+", label: "Flagship Events" },
+    { val: "6", label: "Sector Teams" },
+  ];
   return (
     <section className="pm-stats-strip" ref={ref}>
       <div className="pm-stats-inner">
-        {STRIP_STATS.map((s, i) => (
+        {stripStats.map((s, i) => (
           <div
             className="pm-stat"
             key={s.label}
@@ -198,32 +208,27 @@ function StatsStrip() {
 
 // ---- What We Do ----
 
-const PROGRAMS = [
-  {
-    num: "01",
-    title: "Technical Education",
-    desc: "Weekly sessions on DCF, LBO modelling, portfolio construction, and market microstructure, taught by members and industry practitioners.",
-  },
-  {
-    num: "02",
-    title: "Trading Competitions",
-    desc: "Live simulations and M&A challenges run in partnership with AmplifyME × Morgan Stanley. Market judgment tested under real pressure.",
-  },
-  {
-    num: "03",
-    title: "Industry Access",
-    desc: "Termly fireside chats, insight days, and recruitment sessions with Rothschild & Co, UBS, Houlihan Lokey, and other partner firms.",
-  },
-  {
-    num: "04",
-    title: "MEIF: Student Fund",
-    desc: "MUTIS's student-managed global equity fund. Coverage teams pitch and vote on positions, building the judgment buy-side desks hire for.",
-  },
-];
-
 function WhatWeDo() {
   const [ref, inView] = useInView<HTMLElement>({ threshold: 0.15 });
   const t = inView ? 1 : 0;
+  const [programs, setPrograms] = useState<HomeProgramRow[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("home_programs")
+      .select("*")
+      .eq("is_published", true)
+      .order("display_order")
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) console.error("Failed to load home programs", error);
+        setPrograms(data ?? []);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="pm-about" ref={ref}>
@@ -260,20 +265,20 @@ function WhatWeDo() {
         </div>
 
         <div className="pm-programs">
-          {PROGRAMS.map((p, i) => (
+          {programs.map((p, i) => (
             <div
               className="pm-program"
-              key={p.num}
+              key={p.id}
               style={{
                 opacity: t,
                 transform: `translateY(${t ? "0px" : "24px"})`,
                 transition: `opacity 0.8s ease ${0.3 + i * 0.1}s, transform 0.8s cubic-bezier(.22,1,.36,1) ${0.3 + i * 0.1}s`,
               }}
             >
-              <div className="pm-program-num">{p.num}</div>
+              <div className="pm-program-num">{String(i + 1).padStart(2, "0")}</div>
               <div className="pm-program-body">
                 <div className="pm-program-title">{p.title}</div>
-                <div className="pm-program-desc">{p.desc}</div>
+                <div className="pm-program-desc">{p.description}</div>
               </div>
             </div>
           ))}
@@ -285,33 +290,29 @@ function WhatWeDo() {
 
 // ---- Events ----
 
-const EVENTS = [
-  {
-    id: "E.01",
-    term: "Autumn Term",
-    title: "Women in Finance Conference",
-    desc: "A flagship day bringing senior women from across investment banking, asset management, and markets onto campus.",
-    location: "Manchester · Hybrid",
-  },
-  {
-    id: "E.02",
-    term: "Spring Term",
-    title: "UK Student Finance Summit",
-    desc: "The largest cross-university gathering of finance students in the UK, hosted by MUTIS in partnership with leading firms.",
-    location: "Alliance MBS",
-  },
-  {
-    id: "E.03",
-    term: "Year-round",
-    title: "M&A Challenge",
-    desc: "A live deal simulation run across the year, judged by working bankers from our partner firms.",
-    location: "Manchester",
-  },
-];
-
 function EventsSection() {
   const [ref, inView] = useInView<HTMLElement>({ threshold: 0.1 });
   const t = inView ? 1 : 0;
+  const [flagshipEvents, setFlagshipEvents] = useState<EventRow[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("events")
+      .select("*")
+      .eq("is_published", true)
+      .contains("tags", ["flagship"])
+      .order("starts_at", { ascending: true })
+      .limit(3)
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) console.error("Failed to load flagship events", error);
+        setFlagshipEvents(data ?? []);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="pm-events" ref={ref}>
@@ -337,7 +338,7 @@ function EventsSection() {
         </div>
 
         <div className="pm-events-grid">
-          {EVENTS.map((ev, i) => (
+          {flagshipEvents.map((ev, i) => (
             <EventCard key={ev.id} ev={ev} index={i} inView={t} />
           ))}
         </div>
@@ -356,9 +357,11 @@ function EventsSection() {
   );
 }
 
-function EventCard({ ev, index, inView }: { ev: typeof EVENTS[0]; index: number; inView: number }) {
+function EventCard({ ev, index, inView }: { ev: EventRow; index: number; inView: number }) {
   const tilt = useTilt(8);
   const delay = 0.3 + index * 0.18;
+  const eventNum = `E.${String(index + 1).padStart(2, "0")}`;
+  const eventDate = new Date(ev.starts_at).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
   return (
     <div
       style={{
@@ -374,12 +377,12 @@ function EventCard({ ev, index, inView }: { ev: typeof EVENTS[0]; index: number;
         onMouseLeave={tilt.onMouseLeave}
       >
         <div className="pm-event-top">
-          <span className="pm-event-term">{ev.term}</span>
-          <span className="pm-event-id">{ev.id}</span>
+          <span className="pm-event-term">{eventDate}</span>
+          <span className="pm-event-id">{eventNum}</span>
         </div>
         <div className="pm-event-body">
           <h3 className="pm-event-title">{ev.title}</h3>
-          <p className="pm-event-desc">{ev.desc}</p>
+          <p className="pm-event-desc">{htmlToExcerpt(ev.description, 140)}</p>
         </div>
         <div className="pm-event-foot">
           <span className="pm-event-location">{ev.location}</span>
@@ -394,20 +397,40 @@ function EventCard({ ev, index, inView }: { ev: typeof EVENTS[0]; index: number;
 
 // ---- Sponsors Strip ----
 
-const ALL_LOGOS = sponsors.flatMap((tier) => tier.firms);
-
 function SponsorsStrip() {
+  const [logos, setLogos] = useState<SponsorRow[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("sponsors")
+      .select("*")
+      .eq("is_published", true)
+      .neq("tier", "past")
+      .order("display_order")
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) console.error("Failed to load sponsor logos", error);
+        setLogos((data ?? []).filter((s) => s.logo_url));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (logos.length === 0) return null;
+
   return (
     <div className="pm-sponsors">
       <div className="pm-sponsors-label">Our Partners &amp; Sponsors</div>
       <div className="pm-sponsors-track-wrap" aria-label="Partner and sponsor logos">
         <div className="pm-sponsors-track">
-          {[...ALL_LOGOS, ...ALL_LOGOS].map((firm, i) => {
-            const isDupe = i >= ALL_LOGOS.length;
+          {[...logos, ...logos].map((firm, i) => {
+            const isDupe = i >= logos.length;
             return (
               <a
-                key={firm.name + i}
-                href={firm.vacanciesUrl}
+                key={firm.id + i}
+                href={firm.link_url ?? undefined}
                 target="_blank"
                 rel="noreferrer"
                 className="pm-sponsor-logo-wrap"
@@ -416,7 +439,7 @@ function SponsorsStrip() {
                 tabIndex={isDupe ? -1 : undefined}
               >
                 <img
-                  src={firm.logo}
+                  src={firm.logo_url ?? undefined}
                   alt={isDupe ? "" : firm.name}
                   className="pm-sponsor-logo"
                   loading="lazy"

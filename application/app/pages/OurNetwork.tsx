@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import type { Tables } from "@/lib/database.types";
+import { supabase } from "@/lib/supabase";
 
 // Company destinations — shown as logo bubbles. Replace text with <img> once logo assets are available.
 const DESTINATION_GROUPS = [
@@ -18,38 +20,85 @@ const DESTINATION_GROUPS = [
   },
 ];
 
-type NetworkMember = {
-  id: string;
-  name: string;
-  firm: string;
-  role: string;
-  cohort: string;
-  location: string;
-  linkedin: string | null;
-  headshot: string | null;
-};
+type AlumniRow = Tables<"alumni">;
 
-// Populate once member data is confirmed. Do not publish names without consent.
-const NETWORK_MEMBERS: NetworkMember[] = [
-  // { id: "1", name: "Full Name", firm: "Goldman Sachs", role: "Summer Analyst", cohort: "2024", location: "London", linkedin: null, headshot: null },
-];
+function alumniPhotoUrl(id: string) {
+  return supabase.storage.from("alumni_photos").getPublicUrl(`${id}.jpeg`).data.publicUrl;
+}
+
+function NetworkPortrait({ name, id }: { name: string; id: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return <span aria-hidden="true">{name.charAt(0)}</span>;
+  }
+
+  return (
+    <img
+      src={alumniPhotoUrl(id)}
+      alt={name}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 function distinct(arr: string[]): string[] {
   return Array.from(new Set(arr)).sort();
 }
 
 export function OurNetwork() {
-  useReveal([NETWORK_MEMBERS.length]);
+  const [members, setMembers] = useState<AlumniRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadAlumni = async () => {
+      setIsLoading(true);
+      setLoadError("");
+
+      const { data, error } = await supabase
+        .from("alumni")
+        .select("*")
+        .eq("is_published", true)
+        .order("cohort", { ascending: false })
+        .order("name");
+
+      if (cancelled) {
+        return;
+      }
+
+      if (error) {
+        console.error("Failed to load alumni", error);
+        setLoadError("We could not load the network directory right now. Please refresh the page.");
+        setMembers([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setMembers(data ?? []);
+      setIsLoading(false);
+    };
+
+    void loadAlumni();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [filterRole, setFilterRole]       = useState("");
   const [filterFirm, setFilterFirm]       = useState("");
   const [filterLocation, setFilterLocation] = useState("");
 
-  const roles     = distinct(NETWORK_MEMBERS.map((m) => m.role));
-  const firms     = distinct(NETWORK_MEMBERS.map((m) => m.firm));
-  const locations = distinct(NETWORK_MEMBERS.map((m) => m.location));
+  const roles     = distinct(members.map((m) => m.role));
+  const firms     = distinct(members.map((m) => m.firm));
+  const locations = distinct(members.map((m) => m.location).filter((l): l is string => Boolean(l)));
 
-  const filtered = NETWORK_MEMBERS.filter((m) => {
+  const filtered = members.filter((m) => {
     if (filterRole     && m.role     !== filterRole)     return false;
     if (filterFirm     && m.firm     !== filterFirm)     return false;
     if (filterLocation && m.location !== filterLocation) return false;
@@ -57,6 +106,8 @@ export function OurNetwork() {
   });
 
   const hasFilters = filterRole || filterFirm || filterLocation;
+
+  useReveal([members.length, isLoading, loadError]);
 
   return (
     <>
@@ -176,7 +227,11 @@ export function OurNetwork() {
             )}
           </div>
 
-          {NETWORK_MEMBERS.length === 0 ? (
+          {isLoading ? (
+            <p className="lede r-up" role="status">Loading network directory…</p>
+          ) : loadError ? (
+            <p className="lede r-up" role="alert" style={{ color: "var(--ink-soft)" }}>{loadError}</p>
+          ) : members.length === 0 ? (
             <p className="lede r-up">
               We&apos;re building out our network directory. If you&apos;re a former member
               who secured a placement and would like to be featured,{" "}
@@ -197,11 +252,7 @@ export function OurNetwork() {
               {filtered.map((m) => (
                 <article className="network-card" key={m.id}>
                   <div className="network-portrait">
-                    {m.headshot ? (
-                      <img src={m.headshot} alt={m.name} loading="lazy" decoding="async" />
-                    ) : (
-                      <span aria-hidden="true">{m.name.charAt(0)}</span>
-                    )}
+                    <NetworkPortrait name={m.name} id={m.id} />
                   </div>
                   <div className="network-name">{m.name}</div>
                   <div className="network-firm">{m.firm}</div>
@@ -209,8 +260,8 @@ export function OurNetwork() {
                   {m.location && (
                     <div style={{ fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--ink-soft)", marginTop: 4 }}>{m.location}</div>
                   )}
-                  {m.linkedin && (
-                    <a className="network-linkedin" href={m.linkedin} target="_blank" rel="noreferrer">
+                  {m.linkedin_url && (
+                    <a className="network-linkedin" href={m.linkedin_url} target="_blank" rel="noreferrer">
                       LinkedIn →
                     </a>
                   )}

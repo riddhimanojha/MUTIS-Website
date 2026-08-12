@@ -1,15 +1,59 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { meifTeams } from "@/app/data/siteData";
 import { useReveal } from "@/app/hooks/useReveal";
+import type { Tables } from "@/lib/database.types";
+import { supabase } from "@/lib/supabase";
 
-// PENDING: confirm previous fund managers (name, years, optional LinkedIn/headshot).
-type FundManager = { name: string; years: string; linkedin: string | null; headshot: string | null };
-const PREVIOUS_FUND_MANAGERS: FundManager[] = [
-  // { name: "Name", years: "2024–2025", linkedin: null, headshot: null },
-];
+type FundManagerRow = Tables<"fund_managers">;
+
+function fundManagerPhotoUrl(id: string) {
+  return supabase.storage.from("fund_manager_photos").getPublicUrl(`${id}.jpeg`).data.publicUrl;
+}
+
+function FundManagerPortrait({ name, id }: { name: string; id: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return <span aria-hidden="true">{name.charAt(0)}</span>;
+  }
+
+  return (
+    <img
+      src={fundManagerPhotoUrl(id)}
+      alt={name}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 export function MEIF() {
-  useReveal([meifTeams.length]);
+  const [fundManagers, setFundManagers] = useState<FundManagerRow[]>([]);
+  const [managersLoading, setManagersLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    supabase
+      .from("fund_managers")
+      .select("*")
+      .eq("is_published", true)
+      .order("start_year", { ascending: false })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) console.error("Failed to load fund managers", error);
+        setFundManagers(data ?? []);
+        setManagersLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useReveal([meifTeams.length, fundManagers.length, managersLoading]);
 
   return (
     <>
@@ -89,26 +133,23 @@ export function MEIF() {
           <div className="page-eyebrow r-up"><span className="bar" />Section 04  -  Leadership</div>
           <h2 className="r-up">Previous Fund Managers</h2>
           <p className="lede r-up">The students who have led the MUTIS Ethical Investment Fund.</p>
-          {PREVIOUS_FUND_MANAGERS.length === 0 ? (
+          {managersLoading ? (
+            <p className="lede r-up" role="status">Loading…</p>
+          ) : fundManagers.length === 0 ? (
             <p className="lede r-up">
-              {/* PENDING: add confirmed previous fund managers (name + years). */}
               We&apos;re compiling a record of past fund managers. Check back soon.
             </p>
           ) : (
           <div className="network-grid r-up">
-            {PREVIOUS_FUND_MANAGERS.map((m) => (
-              <article className="network-card" key={m.name + m.years}>
+            {fundManagers.map((m) => (
+              <article className="network-card" key={m.id}>
                 <div className="network-portrait">
-                  {m.headshot ? (
-                    <img src={m.headshot} alt={m.name} loading="lazy" decoding="async" />
-                  ) : (
-                    <span aria-hidden="true">{m.name.charAt(0)}</span>
-                  )}
+                  <FundManagerPortrait name={m.name} id={m.id} />
                 </div>
                 <div className="network-name">{m.name}</div>
-                <div className="network-role">{m.years}</div>
-                {m.linkedin && (
-                  <a className="network-linkedin" href={m.linkedin} target="_blank" rel="noreferrer">LinkedIn →</a>
+                <div className="network-role">{m.year_label}</div>
+                {m.linkedin_url && (
+                  <a className="network-linkedin" href={m.linkedin_url} target="_blank" rel="noreferrer">LinkedIn →</a>
                 )}
               </article>
             ))}

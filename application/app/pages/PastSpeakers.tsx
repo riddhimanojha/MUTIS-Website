@@ -1,28 +1,73 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import type { Tables } from "@/lib/database.types";
+import { supabase } from "@/lib/supabase";
 
-/**
- * Past Speakers — to be populated from the MUTIS Instagram archive plus a manual
- * cross-check. The card layout below is drop-in ready.
- *
- * PENDING: real speaker name, firm, role, event, and (optionally) a photo.
- * Do not fabricate names — fill from confirmed sources only.
- */
-type Speaker = {
-  id: string;
-  name: string;
-  firm: string;
-  role: string;
-  event: string;
-  photo: string | null;
-};
+type SpeakerRow = Tables<"past_speakers">;
 
-const PAST_SPEAKERS: Speaker[] = [
-  // { id: "1", name: "Speaker Name", firm: "Firm", role: "Managing Director", event: "Fireside Chat 2024", photo: null },
-];
+function speakerPhotoUrl(id: string) {
+  return supabase.storage.from("speaker_photos").getPublicUrl(`${id}.jpeg`).data.publicUrl;
+}
+
+function SpeakerPhoto({ name, id }: { name: string; id: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return <span aria-hidden="true">{name.charAt(0)}</span>;
+  }
+
+  return (
+    <img
+      src={speakerPhotoUrl(id)}
+      alt={name}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 export function PastSpeakers() {
-  useReveal([PAST_SPEAKERS.length]);
+  const [speakers, setSpeakers] = useState<SpeakerRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSpeakers = async () => {
+      setIsLoading(true);
+      setLoadError("");
+
+      const { data, error } = await supabase
+        .from("past_speakers")
+        .select("*")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false });
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to load past speakers", error);
+        setLoadError("We could not load this page right now. Please refresh the page.");
+        setSpeakers([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setSpeakers(data ?? []);
+      setIsLoading(false);
+    };
+
+    void loadSpeakers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useReveal([speakers.length, isLoading, loadError]);
 
   return (
     <>
@@ -49,22 +94,21 @@ export function PastSpeakers() {
           <div className="page-eyebrow r-up"><span className="bar" />Speaker Archive</div>
           <h2 className="r-up">Previous speakers</h2>
 
-          {PAST_SPEAKERS.length === 0 ? (
+          {isLoading ? (
+            <p className="lede r-up" role="status">Loading…</p>
+          ) : loadError ? (
+            <p className="lede r-up" role="alert" style={{ color: "var(--ink-soft)" }}>{loadError}</p>
+          ) : speakers.length === 0 ? (
             <p className="lede r-up">
-              {/* PENDING: extract speaker list from Instagram archive + manual cross-check. */}
               We&apos;re compiling our archive of past speakers from previous events.
               Check back soon.
             </p>
           ) : (
             <div className="speaker-grid r-up">
-              {PAST_SPEAKERS.map((s) => (
+              {speakers.map((s) => (
                 <article className="speaker-card" key={s.id}>
                   <div className="speaker-photo">
-                    {s.photo ? (
-                      <img src={s.photo} alt={s.name} loading="lazy" decoding="async" />
-                    ) : (
-                      <span aria-hidden="true">{s.name.charAt(0)}</span>
-                    )}
+                    <SpeakerPhoto name={s.name} id={s.id} />
                   </div>
                   <div className="speaker-name">{s.name}</div>
                   <div className="speaker-role">{s.role}</div>
