@@ -1,27 +1,58 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
+import type { Tables } from "@/lib/database.types";
+import { supabase } from "@/lib/supabase";
 
-/**
- * Published member research. This is the CMS-ready data shape — add real
- * entries here (or wire to a data source) as they are published. Each item
- * may optionally link to a hosted PDF via `pdf`. Until real research is
- * published, the page shows an honest "coming soon" state rather than
- * fabricated authors or articles.
- */
-type Article = {
-  id: string;
-  tag: string;
-  title: string;
-  author: string;
-  when: string;
-  image: string;
-  pdf: string | null;
-};
+type ArticleRow = Tables<"articles">;
 
-const ARTICLES: Article[] = [];
+const formatDate = (isoString: string | null) =>
+  isoString
+    ? new Date(isoString).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    : "";
 
 export function Articles() {
-  useReveal([ARTICLES.length]);
+  const [articles, setArticles] = useState<ArticleRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadArticles = async () => {
+      setIsLoading(true);
+      setLoadError("");
+
+      const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+
+      if (cancelled) {
+        return;
+      }
+
+      if (error) {
+        console.error("Failed to load articles", error);
+        setLoadError("We could not load articles right now. Please refresh the page.");
+        setArticles([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setArticles(data ?? []);
+      setIsLoading(false);
+    };
+
+    void loadArticles();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useReveal([articles.length, isLoading, loadError]);
 
   return (
     <>
@@ -41,7 +72,11 @@ export function Articles() {
           <div className="page-eyebrow r-up"><span className="bar" />Section 01  -  Latest</div>
           <h2 className="r-up">Member research & commentary</h2>
 
-          {ARTICLES.length === 0 ? (
+          {isLoading ? (
+            <p className="lede r-up" role="status">Loading articles…</p>
+          ) : loadError ? (
+            <p className="lede r-up" role="alert" style={{ color: "var(--ink-soft)" }}>{loadError}</p>
+          ) : articles.length === 0 ? (
             <p className="lede r-up">
               Our analysts and MEIF coverage teams are preparing the first published notes of the year.
               Research will appear here soon  -  follow us on{" "}
@@ -49,22 +84,18 @@ export function Articles() {
               or <Link to="/contact" style={{ color: "var(--accent)" }}>get in touch</Link> to be notified.
             </p>
           ) : (
-            <div className="article-grid-2">
-              {ARTICLES.map((r) => {
-                const inner = (
-                  <>
-                    <img src={r.image} alt={r.title} className="article-thumb" loading="lazy" decoding="async" />
-                    <div className="tag">{r.tag}</div>
-                    <div className="title">{r.title}<span className="author">{r.author}</span></div>
-                    <div className="when">{r.when}</div>
-                  </>
-                );
-                return r.pdf ? (
-                  <a key={r.id} className="article r-up" href={r.pdf} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>{inner}</a>
-                ) : (
-                  <div key={r.id} className="article r-up">{inner}</div>
-                );
-              })}
+            <div className="card-grid">
+              {articles.map((a) => (
+                <Link key={a.id} className="dark-card r-up" to={`/articles/${a.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                  {a.cover_image_url && (
+                    <img src={a.cover_image_url} alt={a.title} className="article-thumb" loading="lazy" decoding="async" />
+                  )}
+                  <div className="num">{a.tag}</div>
+                  <h3>{a.title}</h3>
+                  <div className="meta"><span>{a.author_name}</span><span>·</span><span>{formatDate(a.published_at)}</span></div>
+                  <div className="foot"><span>Member Research</span><span className="more">Read more →</span></div>
+                </Link>
+              ))}
             </div>
           )}
         </div>
