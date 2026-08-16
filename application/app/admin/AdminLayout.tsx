@@ -23,6 +23,7 @@ import {
   Menu,
   X,
   FileText,
+  Plug,
 } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 
@@ -64,6 +65,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Settings",
     items: [
       { label: "Site Settings", icon: Settings, path: "/admin/site-settings" },
+      { label: "Integrations", icon: Plug, path: "/admin/integrations" },
       { label: "Podcast", icon: Podcast, path: "/admin/podcast" },
       { label: "Manage Admins", icon: ShieldCheck, path: "/admin/admins" },
       { label: "Audit Log", icon: ScrollText, path: "/admin/audit-log" },

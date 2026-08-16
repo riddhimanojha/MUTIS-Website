@@ -77,6 +77,7 @@ export const router = createBrowserRouter([
       { path: "__preview-site-settings", lazy: () => import("./admin/pages/SiteSettings").then((m) => ({ Component: m.SiteSettings })) },
       { path: "__preview-home-programs", lazy: () => import("./admin/pages/HomePrograms").then((m) => ({ Component: m.HomePrograms })) },
       { path: "__preview-sponsorship-packages", lazy: () => import("./admin/pages/SponsorshipPackages").then((m) => ({ Component: m.SponsorshipPackages })) },
+      { path: "__preview-integrations", lazy: () => import("./admin/pages/Integrations").then((m) => ({ Component: m.Integrations })) },
       { path: "__preview-documents", lazy: () => import("./admin/pages/Documents").then((m) => ({ Component: m.Documents })) },
       {
         lazy: () => import("./admin/ProtectedRoute").then((m) => ({ Component: m.ProtectedRoute })),
@@ -155,6 +156,10 @@ export const router = createBrowserRouter([
               {
                 path: "site-settings",
                 lazy: () => import("./admin/pages/SiteSettings").then((m) => ({ Component: m.SiteSettings })),
+              },
+              {
+                path: "integrations",
+                lazy: () => import("./admin/pages/Integrations").then((m) => ({ Component: m.Integrations })),
               },
               {
                 path: "audit-log",
