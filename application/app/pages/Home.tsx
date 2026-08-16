@@ -8,6 +8,7 @@ import {
 import { Link } from "react-router";
 import { useTilt } from "../hooks/useTilt";
 import { useSiteSettings } from "../hooks/useSiteSettings";
+import { UpcomingEventBanner } from "../components/UpcomingEventBanner";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
@@ -514,6 +515,7 @@ export function Home() {
       <SponsorsStrip />
       {/* PLACEHOLDER: Subsidiary / org structure diagram — insert asset here */}
       <FinalCTA />
+      <UpcomingEventBanner />
     </>
   );
 }
