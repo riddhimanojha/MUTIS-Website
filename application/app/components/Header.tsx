@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import { Instagram, Linkedin } from "lucide-react";
+import { Instagram, Linkedin, X } from "lucide-react";
 import { useSiteSettings } from "@/app/hooks/useSiteSettings";
 
 type NavItem = { to: string; label: string; children?: { to: string; label: string }[] };
@@ -153,6 +153,18 @@ export function Header() {
         aria-label="Site navigation"
         aria-hidden={!menuOpen}
       >
+        <div className="pm-mobile-nav-topbar">
+          <span className="pm-mobile-nav-topbar-label">Menu</span>
+          <button
+            type="button"
+            className="pm-mobile-nav-close"
+            aria-label="Close menu"
+            onClick={() => setMenuOpen(false)}
+          >
+            <X size={18} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+        </div>
+
         <div className="pm-mobile-nav-links">
           {navLinks.map((link) => (
             <div key={link.to}>
