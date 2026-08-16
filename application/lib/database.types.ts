@@ -274,6 +274,101 @@ export type Database = {
         }
         Relationships: []
       }
+      documents: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          file_size_bytes: number | null
+          id: string
+          is_published: boolean
+          storage_path: string
+          team_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          is_published?: boolean
+          storage_path: string
+          team_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          file_size_bytes?: number | null
+          id?: string
+          is_published?: boolean
+          storage_path?: string
+          team_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      etoro_portfolio_cache: {
+        Row: {
+          account_totals: Json | null
+          fetched_at: string | null
+          holdings: Json
+          id: boolean
+          sync_error: string | null
+          sync_status: string
+        }
+        Insert: {
+          account_totals?: Json | null
+          fetched_at?: string | null
+          holdings?: Json
+          id?: boolean
+          sync_error?: string | null
+          sync_status?: string
+        }
+        Update: {
+          account_totals?: Json | null
+          fetched_at?: string | null
+          holdings?: Json
+          id?: boolean
+          sync_error?: string | null
+          sync_status?: string
+        }
+        Relationships: []
+      }
+      etoro_settings: {
+        Row: {
+          id: boolean
+          is_configured: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: boolean
+          is_configured?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: boolean
+          is_configured?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etoro_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       event_signups: {
         Row: {
           created_at: string
@@ -675,6 +770,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sponsorship_enquiries: {
+        Row: {
+          company: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       sponsorship_packages: {
         Row: {
           created_at: string
@@ -708,41 +833,16 @@ export type Database = {
         }
         Relationships: []
       }
-      sponsorship_enquiries: {
-        Row: {
-          company: string
-          created_at: string
-          email: string
-          id: string
-          message: string
-          name: string
-          status: string
-        }
-        Insert: {
-          company: string
-          created_at?: string
-          email: string
-          id?: string
-          message: string
-          name: string
-          status?: string
-        }
-        Update: {
-          company?: string
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string
-          name?: string
-          status?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      etoro_get_secret: { Args: { secret_name: string }; Returns: string }
+      etoro_set_secret: {
+        Args: { secret_name: string; secret_value: string }
+        Returns: undefined
+      }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
