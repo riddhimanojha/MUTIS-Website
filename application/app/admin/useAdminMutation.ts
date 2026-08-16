@@ -17,7 +17,8 @@ export type ContentTable =
   | "past_speakers"
   | "fund_managers"
   | "home_programs"
-  | "sponsorship_packages";
+  | "sponsorship_packages"
+  | "documents";
 
 type Row<T extends ContentTable> = Database["public"]["Tables"][T]["Row"];
 type Insert<T extends ContentTable> = Database["public"]["Tables"][T]["Insert"];

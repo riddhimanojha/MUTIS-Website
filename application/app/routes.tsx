@@ -77,6 +77,7 @@ export const router = createBrowserRouter([
       { path: "__preview-site-settings", lazy: () => import("./admin/pages/SiteSettings").then((m) => ({ Component: m.SiteSettings })) },
       { path: "__preview-home-programs", lazy: () => import("./admin/pages/HomePrograms").then((m) => ({ Component: m.HomePrograms })) },
       { path: "__preview-sponsorship-packages", lazy: () => import("./admin/pages/SponsorshipPackages").then((m) => ({ Component: m.SponsorshipPackages })) },
+      { path: "__preview-documents", lazy: () => import("./admin/pages/Documents").then((m) => ({ Component: m.Documents })) },
       {
         lazy: () => import("./admin/ProtectedRoute").then((m) => ({ Component: m.ProtectedRoute })),
         children: [
@@ -138,6 +139,10 @@ export const router = createBrowserRouter([
               {
                 path: "sponsorship-packages",
                 lazy: () => import("./admin/pages/SponsorshipPackages").then((m) => ({ Component: m.SponsorshipPackages })),
+              },
+              {
+                path: "documents",
+                lazy: () => import("./admin/pages/Documents").then((m) => ({ Component: m.Documents })),
               },
               {
                 path: "podcast",

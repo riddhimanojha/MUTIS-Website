@@ -22,6 +22,7 @@ import {
   LogOut,
   Menu,
   X,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "./AuthProvider";
 
@@ -46,6 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "Alumni", icon: Network, path: "/admin/alumni" },
       { label: "Presidents", icon: Award, path: "/admin/presidents" },
       { label: "Fund Managers", icon: TrendingUp, path: "/admin/fund-managers" },
+      { label: "Documents", icon: FileText, path: "/admin/documents" },
       { label: "Articles", icon: Newspaper, path: "/admin/articles" },
       { label: "Past Speakers", icon: Mic2, path: "/admin/past-speakers" },
       { label: "Gallery", icon: Images, path: "/admin/gallery" },
