@@ -137,9 +137,9 @@ export function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
+      <aside className="hidden w-60 shrink-0 overflow-y-auto border-r border-sidebar-border bg-sidebar lg:block">
         <SidebarContent onNavigate={() => {}} />
       </aside>
 
@@ -164,8 +164,8 @@ export function AdminLayout() {
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border bg-background px-5 py-4 lg:px-8">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="flex shrink-0 items-center justify-between border-b border-border bg-background px-5 py-4 lg:px-8">
           <button
             onClick={() => setMobileOpen(true)}
             className="rounded-lg p-1.5 text-foreground/70 hover:bg-white/5 lg:hidden"
@@ -186,7 +186,7 @@ export function AdminLayout() {
           </div>
         </header>
 
-        <main className="flex-1">
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>
