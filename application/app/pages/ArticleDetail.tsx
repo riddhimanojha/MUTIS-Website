@@ -4,6 +4,7 @@ import DOMPurify from "dompurify";
 import { useReveal } from "@/app/hooks/useReveal";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
+import { DocumentViewer } from "@/app/components/DocumentViewer";
 
 type ArticleRow = Tables<"articles">;
 
@@ -127,16 +128,9 @@ export function ArticleDetail() {
           )}
 
           {article.pdf_url && (
-            <a
-              href={article.pdf_url}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-primary r-up"
-              style={{ textDecoration: "none", display: "inline-flex", marginTop: article.body_html ? 40 : 0 }}
-            >
-              Read the full PDF
-              <span className="arrow" />
-            </a>
+            <div className="r-up" style={{ marginTop: article.body_html ? 40 : 0 }}>
+              <DocumentViewer url={article.pdf_url} title={article.title} />
+            </div>
           )}
 
           <div style={{ marginTop: 48, paddingTop: 24, borderTop: "1px solid var(--hair)" }}>

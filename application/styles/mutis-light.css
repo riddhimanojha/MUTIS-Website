@@ -357,6 +357,20 @@
 .perf-card .l { font-size: 9.5px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faint); }
 .perf-card .v { font-family: var(--font-display); font-size: 36px; color: var(--ink-text); line-height: 1; }
 
+/* ---------- Document viewer ---------- */
+.document-viewer { display: flex; flex-direction: column; gap: 14px; }
+.document-viewer-frame {
+  width: 100%;
+  border: 1px solid var(--hair);
+  background: var(--surface-alt);
+}
+.document-viewer-fallback {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; padding: 24px; text-align: center;
+  color: var(--ink-soft); font-size: 14px;
+}
+.document-viewer-download { align-self: flex-start; gap: 8px; display: inline-flex; align-items: center; }
+
 /* ---------- WIF logo slot ---------- */
 .wif-logo-slot {
   display: flex; align-items: center; justify-content: center;
