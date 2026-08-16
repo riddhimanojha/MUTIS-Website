@@ -188,6 +188,16 @@
 .subpage-light .team-compact-card .sname { color: var(--ink-text); }
 .subpage-light .team-compact-card .sdesc { color: var(--ink-soft); }
 .subpage-light .team-pdf-soon { color: var(--ink-faint); border: 1px dashed rgba(10,31,68,0.2); }
+.subpage-light .team-pdfs button {
+  display: inline-flex; align-items: center; text-decoration: none; cursor: pointer;
+  color: var(--ink-text);
+  border: 1px solid var(--hair);
+  background: #fff;
+  padding: 6px 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  font-family: var(--font-body);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.subpage-light .team-pdfs button:hover { border-color: var(--pm-accent); color: var(--pm-accent-2); }
 .subpage-light .meif-fund-section::before {
   background: linear-gradient(180deg, rgba(15,122,168,0.05), rgba(43,94,168,0.05));
 }
@@ -370,6 +380,29 @@
   color: var(--ink-soft); font-size: 14px;
 }
 .document-viewer-download { align-self: flex-start; gap: 8px; display: inline-flex; align-items: center; }
+
+/* ---------- MEIF live holdings table ---------- */
+.meif-holdings-table { margin-top: 20px; border: 1px solid var(--hair); background: #fff; overflow-x: auto; }
+.meif-holdings-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--hair-soft);
+  font-size: 13px;
+  color: var(--ink-soft);
+  min-width: 560px;
+}
+.meif-holdings-row:last-child { border-bottom: none; }
+.meif-holdings-head {
+  font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-faint); background: var(--surface-alt);
+}
+.meif-holdings-name { display: flex; align-items: center; gap: 10px; color: var(--ink-text); font-weight: 500; }
+.meif-holdings-name img { width: 20px; height: 20px; border-radius: 50%; object-fit: contain; flex-shrink: 0; }
+@media (max-width: 480px) {
+  .meif-holdings-table { margin-left: -16px; margin-right: -16px; border-left: none; border-right: none; }
+}
 
 /* ---------- WIF logo slot ---------- */
 .wif-logo-slot {

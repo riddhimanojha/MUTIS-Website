@@ -1,11 +1,53 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { FileText } from "lucide-react";
 import { meifTeams } from "@/app/data/siteData";
 import { useReveal } from "@/app/hooks/useReveal";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
+import { Modal } from "@/app/components/Modal";
+import { DocumentViewer } from "@/app/components/DocumentViewer";
 
 type FundManagerRow = Tables<"fund_managers">;
+type DocumentRow = Tables<"documents">;
+
+function documentUrl(path: string) {
+  return supabase.storage.from("documents").getPublicUrl(path).data.publicUrl;
+}
+
+type EtoroHolding = {
+  instrumentId: number;
+  name: string | null;
+  symbol: string | null;
+  logoUrl: string | null;
+  netUnits: unknown;
+  exposure: unknown;
+  avgOpenPrice: unknown;
+  unrealizedPnl: unknown;
+};
+
+type EtoroPortfolioResponse = {
+  configured?: boolean;
+  sync_status?: string;
+  sync_error?: string | null;
+  fetched_at?: string | null;
+  account_totals?: Record<string, unknown> | null;
+  holdings?: EtoroHolding[];
+  error?: string;
+};
+
+function pick(obj: Record<string, unknown> | null | undefined, keys: string[]): unknown {
+  if (!obj) return undefined;
+  for (const key of keys) {
+    if (obj[key] !== undefined && obj[key] !== null) return obj[key];
+  }
+  return undefined;
+}
+
+function formatNumber(value: unknown): string {
+  const n = Number(value);
+  return Number.isFinite(n) ? n.toLocaleString("en-GB", { maximumFractionDigits: 2 }) : "—";
+}
 
 function fundManagerPhotoUrl(id: string) {
   return supabase.storage.from("fund_manager_photos").getPublicUrl(`${id}.jpeg`).data.publicUrl;
@@ -32,9 +74,24 @@ function FundManagerPortrait({ name, id }: { name: string; id: string }) {
 export function MEIF() {
   const [fundManagers, setFundManagers] = useState<FundManagerRow[]>([]);
   const [managersLoading, setManagersLoading] = useState(true);
+  const [portfolio, setPortfolio] = useState<EtoroPortfolioResponse | null>(null);
+  const [portfolioLoading, setPortfolioLoading] = useState(true);
+  const [coverageNotes, setCoverageNotes] = useState<DocumentRow[]>([]);
+  const [openDocument, setOpenDocument] = useState<DocumentRow | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+
+    supabase
+      .from("documents")
+      .select("*")
+      .eq("is_published", true)
+      .eq("category", "meif_coverage")
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) console.error("Failed to load coverage notes", error);
+        setCoverageNotes(data ?? []);
+      });
 
     supabase
       .from("fund_managers")
@@ -48,12 +105,24 @@ export function MEIF() {
         setManagersLoading(false);
       });
 
+    supabase.functions
+      .invoke<EtoroPortfolioResponse>("etoro-portfolio")
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) console.error("Failed to load eToro portfolio", error);
+        setPortfolio(data ?? null);
+        setPortfolioLoading(false);
+      });
+
     return () => {
       cancelled = true;
     };
   }, []);
 
-  useReveal([meifTeams.length, fundManagers.length, managersLoading]);
+  useReveal([meifTeams.length, fundManagers.length, managersLoading, portfolioLoading]);
+
+  const holdings = portfolio?.holdings ?? [];
+  const accountTotals = portfolio?.account_totals ?? null;
 
   return (
     <>
@@ -97,7 +166,18 @@ export function MEIF() {
                   <ul>{s.focus.map((f) => <li key={f}>{f}</li>)}</ul>
                 </div>
                 <div className="team-pdfs">
-                  <span className="team-pdf-soon">Coverage notes: coming soon</span>
+                  {(() => {
+                    const notes = coverageNotes.filter((d) => d.team_id === s.id);
+                    if (notes.length === 0) {
+                      return <span className="team-pdf-soon">Coverage notes: coming soon</span>;
+                    }
+                    return notes.map((doc) => (
+                      <button key={doc.id} type="button" onClick={() => setOpenDocument(doc)}>
+                        <FileText size={11} strokeWidth={1.8} style={{ marginRight: 6 }} aria-hidden="true" />
+                        {doc.title}
+                      </button>
+                    ));
+                  })()}
                 </div>
               </article>
             ))}
@@ -105,25 +185,72 @@ export function MEIF() {
         </div>
       </section>
 
-      {/* Investments & performance — PENDING live data source (see Sandra).
-          A ~£20/month market-data tool/plugin can feed holdings + returns here;
-          options to be proposed before integrating. Until then this is a clearly
-          marked placeholder rather than fabricated figures. */}
       <section className="page-section">
         <div className="inner">
           <div className="page-eyebrow r-up"><span className="bar" />Section 03  -  Portfolio</div>
           <h2 className="r-up">Investments &amp; performance</h2>
-          <p className="lede r-up">
-            {/* PENDING: wire up holdings + performance from the chosen data source. */}
-            A live view of the fund&apos;s holdings and performance is coming soon. We&apos;re
-            evaluating a data source so members can track positions and returns here.
-          </p>
-          <div className="perf-placeholder r-up" aria-hidden="true">
-            <div className="perf-card"><span className="l">Holdings</span><span className="v">—</span></div>
-            <div className="perf-card"><span className="l">YTD Return</span><span className="v">—</span></div>
-            <div className="perf-card"><span className="l">NAV</span><span className="v">—</span></div>
-            <div className="perf-card"><span className="l">Benchmark</span><span className="v">—</span></div>
-          </div>
+
+          {portfolioLoading ? (
+            <p className="lede r-up" role="status">Loading live portfolio…</p>
+          ) : !portfolio?.configured ? (
+            <>
+              <p className="lede r-up">
+                A live view of the fund&apos;s holdings and performance is coming soon. We&apos;re
+                evaluating a data source so members can track positions and returns here.
+              </p>
+              <div className="perf-placeholder r-up" aria-hidden="true">
+                <div className="perf-card"><span className="l">Holdings</span><span className="v">—</span></div>
+                <div className="perf-card"><span className="l">Unrealised P&amp;L</span><span className="v">—</span></div>
+                <div className="perf-card"><span className="l">Portfolio Value</span><span className="v">—</span></div>
+                <div className="perf-card"><span className="l">Available Cash</span><span className="v">—</span></div>
+              </div>
+            </>
+          ) : (
+            <>
+              {portfolio.sync_status === "error" && (
+                <p className="form-status form-error r-up" role="alert">
+                  Couldn&apos;t refresh live data from eToro just now
+                  {holdings.length > 0 ? " — showing the last successful snapshot below." : "."}
+                </p>
+              )}
+              <p className="lede r-up">
+                {portfolio.fetched_at
+                  ? `As of ${new Date(portfolio.fetched_at).toLocaleString("en-GB")}.`
+                  : "Waiting on the first sync from eToro."}
+              </p>
+
+              <div className="perf-placeholder r-up">
+                <div className="perf-card"><span className="l">Holdings</span><span className="v">{holdings.length}</span></div>
+                <div className="perf-card"><span className="l">Unrealised P&amp;L</span><span className="v">{formatNumber(pick(accountTotals, ["unrealizedProfit", "unrealizedPnl", "unrealisedPnl", "totalUnrealizedPnl"]))}</span></div>
+                <div className="perf-card"><span className="l">Portfolio Value</span><span className="v">{formatNumber(pick(accountTotals, ["totalValue", "portfolioValue", "equity", "netValue"]))}</span></div>
+                <div className="perf-card"><span className="l">Available Cash</span><span className="v">{formatNumber(pick(accountTotals, ["availableCash", "cash", "freeCash"]))}</span></div>
+              </div>
+
+              {holdings.length > 0 && (
+                <div className="meif-holdings-table r-up">
+                  <div className="meif-holdings-row meif-holdings-head" aria-hidden="true">
+                    <span>Instrument</span>
+                    <span>Net Units</span>
+                    <span>Exposure</span>
+                    <span>Avg Open Price</span>
+                    <span>Unrealised P&amp;L</span>
+                  </div>
+                  {holdings.map((h) => (
+                    <div className="meif-holdings-row" key={h.instrumentId}>
+                      <span className="meif-holdings-name">
+                        {h.logoUrl && <img src={h.logoUrl} alt="" loading="lazy" />}
+                        {h.name ?? h.symbol ?? `Instrument #${h.instrumentId}`}
+                      </span>
+                      <span>{formatNumber(h.netUnits)}</span>
+                      <span>{formatNumber(h.exposure)}</span>
+                      <span>{formatNumber(h.avgOpenPrice)}</span>
+                      <span>{formatNumber(h.unrealizedPnl)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </section>
 
@@ -157,6 +284,15 @@ export function MEIF() {
           )}
         </div>
       </section>
+
+      <Modal open={openDocument !== null} onClose={() => setOpenDocument(null)} labelledBy="coverage-note-title">
+        {openDocument && (
+          <div className="modal-body">
+            <h3 id="coverage-note-title">{openDocument.title}</h3>
+            <DocumentViewer url={documentUrl(openDocument.storage_path)} title={openDocument.title} height={480} />
+          </div>
+        )}
+      </Modal>
     </>
   );
 }
