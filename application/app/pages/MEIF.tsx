@@ -12,7 +12,7 @@ type FundManagerRow = Tables<"fund_managers">;
 type DocumentRow = Tables<"documents">;
 
 function documentUrl(path: string) {
-  return supabase.storage.from("documents").getPublicUrl(path).data.publicUrl;
+  return supabase.storage.from("meif_files").getPublicUrl(path).data.publicUrl;
 }
 
 type EtoroHolding = {

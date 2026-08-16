@@ -9,7 +9,10 @@ import { Drawer } from "../components/Drawer";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
+import { PdfUploader, type PdfUploadResult } from "../components/PdfUploader";
 import { usePageCache, hasCached } from "../usePageCache";
+
+const BUCKET = "meif_files";
 
 type DocumentRow = Database["public"]["Tables"]["documents"]["Row"];
 type Category = "general" | "meif_coverage";
@@ -31,7 +34,7 @@ const EMPTY_FORM: FormState = {
 };
 
 function documentUrl(path: string) {
-  return supabase.storage.from("documents").getPublicUrl(path).data.publicUrl;
+  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
 function formatBytes(bytes: number | null) {
@@ -50,7 +53,7 @@ export function Documents() {
 
   const [editing, setEditing] = useState<DocumentRow | "new" | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [file, setFile] = useState<File | null>(null);
+  const [pdfResult, setPdfResult] = useState<PdfUploadResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<DocumentRow | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -77,7 +80,7 @@ export function Documents() {
 
   const openCreate = () => {
     setForm(EMPTY_FORM);
-    setFile(null);
+    setPdfResult(null);
     setEditing("new");
   };
 
@@ -89,54 +92,26 @@ export function Documents() {
       team_id: row.team_id ?? meifTeams[0]?.id ?? "",
       is_published: row.is_published,
     });
-    setFile(null);
+    setPdfResult({ path: row.storage_path, fileSizeBytes: row.file_size_bytes ?? 0 });
     setEditing(row);
-  };
-
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = e.target.files?.[0] ?? null;
-    e.target.value = "";
-    if (picked && picked.type !== "application/pdf") {
-      toast.error("Please choose a PDF file.");
-      return;
-    }
-    setFile(picked);
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!form.title.trim()) return;
-    if (editing === "new" && !file) {
-      toast.error("Choose a PDF to upload.");
+    if (!pdfResult) {
+      toast.error("Upload a PDF first.");
       return;
     }
     setSaving(true);
     try {
-      let storagePath = editing !== "new" && editing ? editing.storage_path : "";
-      let fileSizeBytes = editing !== "new" && editing ? editing.file_size_bytes : null;
-
-      if (file) {
-        const path = `${crypto.randomUUID()}.pdf`;
-        const { error: uploadError } = await supabase.storage
-          .from("documents")
-          .upload(path, file, { contentType: "application/pdf" });
-        if (uploadError) throw uploadError;
-
-        // Replacing an existing file: drop the old object now that the new one is up.
-        if (editing !== "new" && editing?.storage_path) {
-          await supabase.storage.from("documents").remove([editing.storage_path]);
-        }
-        storagePath = path;
-        fileSizeBytes = file.size;
-      }
-
       const values = {
         title: form.title.trim(),
         description: form.description.trim() || null,
         category: form.category,
         team_id: form.category === "meif_coverage" ? form.team_id : null,
-        storage_path: storagePath,
-        file_size_bytes: fileSizeBytes,
+        storage_path: pdfResult.path,
+        file_size_bytes: pdfResult.fileSizeBytes,
         is_published: form.is_published,
       };
 
@@ -163,7 +138,7 @@ export function Documents() {
     setDeleting(true);
     try {
       await deleteRow("documents", pendingDelete.id, pendingDelete);
-      await supabase.storage.from("documents").remove([pendingDelete.storage_path]);
+      await supabase.storage.from(BUCKET).remove([pendingDelete.storage_path]);
       toast.success(`${pendingDelete.title} deleted.`);
       setRows((prev) => prev.filter((r) => r.id !== pendingDelete.id));
       setPendingDelete(null);
@@ -289,13 +264,12 @@ export function Documents() {
             </Field>
           )}
 
-          <Field label={editing === "new" ? "PDF file" : "Replace PDF file"} required={editing === "new"}>
-            <input type="file" accept="application/pdf" onChange={onFileChange} className="w-full text-[13px]! text-foreground" />
-            {editing !== "new" && editing && !file && (
-              <p className="mt-[6px] text-[12px] text-muted-foreground">
-                Current file: {formatBytes(editing.file_size_bytes)}. Choose a new file to replace it.
-              </p>
-            )}
+          <Field label="PDF file" required>
+            <PdfUploader
+              currentPath={editing !== "new" && editing ? editing.storage_path : null}
+              currentFileSizeBytes={editing !== "new" && editing ? editing.file_size_bytes : null}
+              onChange={setPdfResult}
+            />
           </Field>
 
           <div className="flex items-center justify-between rounded-[12px] border border-border px-[16px] py-[14px]">
