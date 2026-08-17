@@ -19,7 +19,7 @@ type FormState = "idle" | "submitting" | "sent" | "error";
 type SponsorRow = Tables<"sponsors">;
 type PackageRow = Tables<"sponsorship_packages">;
 
-const TIER_ORDER = ["gold", "silver", "past"] as const;
+const TIER_ORDER = ["gold", "silver"] as const;
 
 function formatTier(tier: string) {
   return tier ? tier.charAt(0).toUpperCase() + tier.slice(1) : tier;
@@ -31,12 +31,6 @@ function groupSponsors(rows: SponsorRow[]) {
     firms: rows.filter((row) => row.tier === tier),
   })).filter((group) => group.firms.length > 0);
 }
-
-// Past sponsors — populate once confirmed (name, logo path/URL, years active, optional link).
-type PastSponsor = { name: string; logo: string; years: string; url: string | null };
-const PAST_SPONSORS: PastSponsor[] = [
-  // { name: "Firm", logo: "", years: "2022–2023", url: null },
-];
 
 function initialsFromName(name: string) {
   const initials = name
@@ -70,6 +64,30 @@ function SponsorLogo({ name, logo }: { name: string; logo: string }) {
       style={logoStyle}
       onError={() => setFailed(true)}
     />
+  );
+}
+
+function SponsorCard({ firm }: { firm: SponsorRow }) {
+  const card = (
+    <div>
+      <div className="sponsor-logo-wrap">
+        <SponsorLogo name={firm.name} logo={firm.logo_url ?? ""} />
+      </div>
+      <div className="name">{firm.name}</div>
+      <div className="role">{firm.sector ?? "Partner"}</div>
+    </div>
+  );
+
+  return firm.link_url ? (
+    <a className="sponsor-cell" href={firm.link_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
+      {card}
+      <div className="vac">Open Vacancies →</div>
+    </a>
+  ) : (
+    <div className="sponsor-cell">
+      {card}
+      <div className="vac">Open Vacancies →</div>
+    </div>
   );
 }
 
@@ -108,7 +126,11 @@ export function Sponsors() {
       setIsLoading(true);
       setLoadError("");
 
-      const { data, error } = await supabase.from("sponsors").select("*").order("display_order");
+      const { data, error } = await supabase
+        .from("sponsors")
+        .select("*")
+        .eq("is_published", true)
+        .order("display_order");
 
       if (cancelled) {
         return;
@@ -150,8 +172,9 @@ export function Sponsors() {
   }, []);
 
   const sponsorGroups = groupSponsors(sponsors);
+  const pastSponsors = sponsors.filter((row) => row.tier === "past");
 
-  useReveal([sponsorGroups.length, isLoading, loadError]);
+  useReveal([sponsorGroups.length, pastSponsors.length, isLoading, loadError]);
 
   const onSponsorSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -252,29 +275,9 @@ export function Sponsors() {
                   <span className="label">{formatTier(tier.tier)}</span>
                 </div>
                 <div className="sponsor-grid">
-                  {tier.firms.map((firm) => {
-                    const card = (
-                      <div>
-                        <div className="sponsor-logo-wrap">
-                          <SponsorLogo name={firm.name} logo={firm.logo_url ?? ""} />
-                        </div>
-                        <div className="name">{firm.name}</div>
-                        <div className="role">{firm.sector ?? "Partner"}</div>
-                      </div>
-                    );
-
-                    return firm.link_url ? (
-                      <a className="sponsor-cell" key={firm.name} href={firm.link_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
-                        {card}
-                        <div className="vac">Open Vacancies →</div>
-                      </a>
-                    ) : (
-                      <div className="sponsor-cell" key={firm.name}>
-                        {card}
-                        <div className="vac">Open Vacancies →</div>
-                      </div>
-                    );
-                  })}
+                  {tier.firms.map((firm) => (
+                    <SponsorCard key={firm.id} firm={firm} />
+                  ))}
                 </div>
               </div>
             ))
@@ -287,28 +290,15 @@ export function Sponsors() {
         <div className="inner">
           <div className="page-eyebrow r-up"><span className="bar" />Previous Partners</div>
           <h2 className="r-up">Past sponsors</h2>
-          {PAST_SPONSORS.length === 0 ? (
+          {pastSponsors.length === 0 ? (
             <p className="lede r-up" style={{ color: "var(--ink-soft)" }}>
               We&apos;re putting together a record of the firms that have supported MUTIS in previous years. Check back soon.
             </p>
           ) : (
             <div className="sponsor-grid r-up">
-              {PAST_SPONSORS.map((s) => {
-                const inner = (
-                  <div>
-                    <div className="sponsor-logo-wrap">
-                      <SponsorLogo name={s.name} logo={s.logo} />
-                    </div>
-                    <div className="name">{s.name}</div>
-                    <div className="role">{s.years}</div>
-                  </div>
-                );
-                return s.url ? (
-                  <a className="sponsor-cell" key={s.name} href={s.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>{inner}</a>
-                ) : (
-                  <div className="sponsor-cell" key={s.name}>{inner}</div>
-                );
-              })}
+              {pastSponsors.map((firm) => (
+                <SponsorCard key={firm.id} firm={firm} />
+              ))}
             </div>
           )}
         </div>
