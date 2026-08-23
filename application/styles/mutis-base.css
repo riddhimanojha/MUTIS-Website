@@ -152,7 +152,6 @@ img { display: block; max-width: 100%; }
   width: 34px; height: 34px;
   color: rgba(240, 244, 248, 0.62);
   border: 1px solid rgba(240, 244, 248, 0.16);
-  border-radius: 50%;
   transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 .pm-nav-social:hover {
@@ -371,6 +370,8 @@ img { display: block; max-width: 100%; }
   color: #f0f4f8;
   text-shadow: 0 6px 48px rgba(0,0,0,0.6);
   word-break: break-word;
+  padding: 0.18em 0;
+  margin: -0.18em 0;
 }
 
 .pm-hero-rule {
@@ -558,7 +559,14 @@ img { display: block; max-width: 100%; }
    Reveal line utility (overflow clip for stagger)
    ========================================================== */
 
-.pm-reveal-line { display: block; overflow: hidden; }
+.pm-reveal-line {
+  display: block; overflow: hidden;
+  /* DM Serif Display overshoots the tight sub-1 line-height above/below;
+     pad the clip box so ascenders/descenders aren't cut, then pull the
+     padding back out via margin so spacing stays unchanged. */
+  padding: 0.18em 0;
+  margin: -0.18em 0;
+}
 
 /* ==========================================================
    Footer
