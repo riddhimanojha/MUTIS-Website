@@ -700,6 +700,7 @@ select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   .pm-nav-logo { width: 140px; height: 46px; }
   .pm-hero-content { padding-inline: 24px; }
   .pm-hero-body { max-width: 100%; }
+  .pm-hero-stats { display: none; }
 }
 @media (min-width: 1101px) {
   .pm-mobile-nav, .pm-nav-overlay { display: none; }
@@ -708,7 +709,6 @@ select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 @media (max-width: 900px) {
   .pm-hero { padding-top: 96px; padding-bottom: 60px; }
   .pm-hero-content { padding: 0 28px; }
-  .pm-hero-stats { display: none; }
   .pm-hero-eyebrow { letter-spacing: 0.3em; font-size: 9px; margin-bottom: 22px; }
   .pm-hero-rule { margin: 16px 0 14px; }
   .pm-hero-body { font-size: 15px; max-width: 100%; margin-bottom: 36px; }
