@@ -1,9 +1,10 @@
 import { createBrowserRouter, Outlet, ScrollRestoration, useLocation } from "react-router";
 import { useTiltOnSelectors } from "./hooks/useTilt";
-import { usePageMeta } from "./hooks/usePageMeta";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { BackToTop } from "./components/BackToTop";
+import { PageMeta } from "./components/PageMeta";
+import { OrganizationJsonLd } from "./components/OrganizationJsonLd";
 import { Home } from "./pages/Home";
 import { MEIF } from "./pages/MEIF";
 import { About } from "./pages/About";
@@ -32,13 +33,16 @@ function Root() {
   // Re-wire selector-based tilt whenever the route changes so any newly
   // rendered static markup gets the same hover behaviour as page-shell.js.
   useTiltOnSelectors([pathname]);
-  // Apply per-route SEO metadata (title, description, Open Graph, canonical).
-  usePageMeta(pathname);
   // The home page keeps the dark cinematic theme; all interior pages render on a
   // clean light surface (see mutis-light.css, scoped under .subpage-light).
   const isHome = pathname === "/";
   return (
     <>
+      {/* Per-route SEO metadata (title, description, Open Graph, canonical).
+          Pages with dynamic content (e.g. ArticleDetail) render their own
+          nested <PageMeta override={...}> that takes precedence. */}
+      <PageMeta pathname={pathname} />
+      <OrganizationJsonLd />
       <div className="grain" aria-hidden="true" />
       <a href="#main-content" className="skip-link">Skip to content</a>
       <Header />

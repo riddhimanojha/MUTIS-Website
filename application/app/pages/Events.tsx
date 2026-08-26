@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
+import { Helmet } from "react-helmet-async";
 import DOMPurify from "dompurify";
 import { useReveal } from "@/app/hooks/useReveal";
 import { flagshipSupporters } from "@/app/data/siteData";
 import { htmlToExcerpt } from "@/app/lib/htmlExcerpt";
+import { SITE_URL } from "@/app/hooks/usePageMeta";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 import { Modal } from "@/app/components/Modal";
@@ -173,8 +175,38 @@ export function Events() {
 
   useReveal([FLAGSHIP.length, events.length, isLoading, loadError]);
 
+  // Event JSON-LD, built live from the same Supabase query above — not
+  // hardcoded. There's no per-event detail route (events only open in the
+  // modal below), so `url` points at this listing page for every entry;
+  // see SEO-AUDIT.md 3.1 for that limitation.
+  const eventsJsonLd =
+    events.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@graph": events.map((ev) => ({
+            "@type": "Event",
+            name: ev.title,
+            startDate: ev.starts_at,
+            endDate: ev.ends_at ?? undefined,
+            eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+            location: {
+              "@type": "Place",
+              name: ev.location,
+            },
+            description: htmlToExcerpt(ev.description, 300),
+            image: ev.cover_image_url ?? undefined,
+            url: `${SITE_URL}/events`,
+          })),
+        }
+      : null;
+
   return (
     <>
+      {eventsJsonLd && (
+        <Helmet>
+          <script type="application/ld+json">{JSON.stringify(eventsJsonLd)}</script>
+        </Helmet>
+      )}
       <section className="page-hero page-hero-events">
         <div className="page-hero-inner">
           <div>
@@ -231,7 +263,15 @@ export function Events() {
               {events.map((ev) => (
                 <div className="dark-card r-up" key={ev.id}>
                   {ev.cover_image_url && (
-                    <img src={ev.cover_image_url} alt="" className="article-thumb" loading="lazy" decoding="async" />
+                    <img
+                      src={ev.cover_image_url}
+                      alt={ev.title}
+                      className="article-thumb"
+                      width={400}
+                      height={225}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   )}
                   <h3>{ev.title}</h3>
                   <div className="meta"><span>{formatEventDate(ev.starts_at)}</span><span>·</span><span>{ev.location}</span></div>
@@ -290,7 +330,7 @@ export function Events() {
         {modalEvent && (
           <>
             {modalEvent.cover_image_url && (
-              <img src={modalEvent.cover_image_url} alt="" className="modal-cover" />
+              <img src={modalEvent.cover_image_url} alt={modalEvent.title} className="modal-cover" width={400} height={225} />
             )}
             <div className="modal-body">
               <h3 id="event-modal-title">{modalEvent.title}</h3>
