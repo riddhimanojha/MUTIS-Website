@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+    let initialResolved = false;
 
     supabase.auth.getSession().then(async ({ data }) => {
       if (cancelled) return;
@@ -40,24 +41,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const admin = await checkIsAdmin(data.session.user.id);
         if (!cancelled) setIsAdmin(admin);
       }
-      if (!cancelled) setIsLoading(false);
+      if (!cancelled) {
+        setIsLoading(false);
+        initialResolved = true;
+      }
     });
 
+    // Supabase's SDK fires this on far more than sign-in/sign-out — it also
+    // silently re-fires on background token refresh and on tab-visibility
+    // re-validation. Only a genuine identity change (sign-in, sign-out, or
+    // switching accounts) should gate rendering; a same-user re-fire must
+    // just refresh the session reference, or every idle tab-refocus would
+    // unmount the whole admin tree (and any in-progress form with it).
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (cancelled) return;
-      setSession(nextSession);
-      setIsLoading(true);
-      if (nextSession) {
-        checkIsAdmin(nextSession.user.id).then((admin) => {
-          if (!cancelled) {
-            setIsAdmin(admin);
+      setSession((prevSession) => {
+        const identityChanged = (prevSession?.user.id ?? null) !== (nextSession?.user.id ?? null);
+        if (identityChanged && initialResolved) {
+          setIsLoading(true);
+          if (nextSession) {
+            checkIsAdmin(nextSession.user.id).then((admin) => {
+              if (!cancelled) {
+                setIsAdmin(admin);
+                setIsLoading(false);
+              }
+            });
+          } else {
+            setIsAdmin(false);
             setIsLoading(false);
           }
-        });
-      } else {
-        setIsAdmin(false);
-        setIsLoading(false);
-      }
+        }
+        return nextSession;
+      });
     });
 
     return () => {

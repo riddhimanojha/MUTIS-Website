@@ -11,7 +11,7 @@ import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { UrlColumnImageUploader } from "../components/ImageUploader";
 import { useIsMobile } from "../components/useIsMobile";
-import { usePageCache, hasCached } from "../usePageCache";
+import { usePageCache, hasCached, useDrawerFormCache } from "../usePageCache";
 
 type Sponsor = Database["public"]["Tables"]["sponsors"]["Row"];
 type Tier = "gold" | "silver" | "past";
@@ -47,10 +47,9 @@ export function Sponsors() {
   const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:sponsors:publishedFilter", "all");
   const [search, setSearch] = usePageCache("admin:sponsors:search", "");
 
-  const [editing, setEditing] = useState<Sponsor | "new" | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const { editing, setEditing, form, setForm, pendingDelete, setPendingDelete, closeDrawer, discardConfirmProps } =
+    useDrawerFormCache<Sponsor, FormState>("sponsors", EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<Sponsor | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
@@ -379,7 +378,7 @@ export function Sponsors() {
         )}
       </div>
 
-      <Drawer open={editing !== null} title={editing === "new" ? "Add sponsor" : "Edit sponsor"} onClose={() => setEditing(null)}>
+      <Drawer open={editing !== null} title={editing === "new" ? "Add sponsor" : "Edit sponsor"} onClose={closeDrawer}>
         <form onSubmit={onSubmit} className="flex flex-col gap-[20px]">
           <Field label="Name" required>
             <input
@@ -460,7 +459,7 @@ export function Sponsors() {
           <div className="mt-[8px] flex justify-end gap-[8px]">
             <button
               type="button"
-              onClick={() => setEditing(null)}
+              onClick={closeDrawer}
               className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5"
             >
               Cancel
@@ -485,6 +484,8 @@ export function Sponsors() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      <ConfirmDialog {...discardConfirmProps} />
     </div>
   );
 }

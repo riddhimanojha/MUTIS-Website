@@ -13,7 +13,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { UrlColumnImageUploader } from "../components/ImageUploader";
 import { RichTextEditor } from "../components/RichTextEditor";
 import { isHtmlEmpty } from "../lib/richText";
-import { usePageCache, hasCached } from "../usePageCache";
+import { usePageCache, hasCached, useDrawerFormCache } from "../usePageCache";
 
 type Article = Database["public"]["Tables"]["articles"]["Row"];
 type Status = "draft" | "published";
@@ -48,10 +48,9 @@ export function Articles() {
   const [sortBy, setSortBy] = usePageCache<"updated" | "published">("admin:articles:sortBy", "updated");
   const [search, setSearch] = usePageCache("admin:articles:search", "");
 
-  const [editing, setEditing] = useState<Article | "new" | null>(null);
-  const [form, setForm] = useState<FormState>(emptyForm(""));
+  const { editing, setEditing, form, setForm, pendingDelete, setPendingDelete, closeDrawer, discardConfirmProps } =
+    useDrawerFormCache<Article, FormState>("articles", emptyForm(""));
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<Article | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
@@ -240,7 +239,7 @@ export function Articles() {
         )}
       </div>
 
-      <Modal open={editing !== null} title={editing === "new" ? "Add article" : "Edit article"} onClose={() => setEditing(null)} widthClass="max-w-[720px]">
+      <Modal open={editing !== null} title={editing === "new" ? "Add article" : "Edit article"} onClose={closeDrawer} widthClass="max-w-[720px]">
         <form onSubmit={onSubmit} className="flex flex-col gap-[20px]">
           <Field label="Title" required>
             <input type="text" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
@@ -287,7 +286,7 @@ export function Articles() {
           </Field>
 
           <div className="mt-[8px] flex justify-end gap-[8px]">
-            <button type="button" onClick={() => setEditing(null)} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
+            <button type="button" onClick={closeDrawer} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
               Cancel
             </button>
             <button type="submit" disabled={saving} className="rounded-[10px] bg-primary px-[16px] py-[10px] text-[13px]! font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60">
@@ -306,6 +305,8 @@ export function Articles() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      <ConfirmDialog {...discardConfirmProps} />
     </div>
   );
 }

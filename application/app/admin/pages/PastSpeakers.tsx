@@ -9,7 +9,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { IdKeyedImageUploader } from "../components/ImageUploader";
-import { usePageCache, hasCached } from "../usePageCache";
+import { usePageCache, hasCached, useDrawerFormCache } from "../usePageCache";
 
 type SpeakerRow = Database["public"]["Tables"]["past_speakers"]["Row"];
 
@@ -37,11 +37,10 @@ export function PastSpeakers() {
   const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:pastSpeakers:publishedFilter", "all");
   const [search, setSearch] = usePageCache("admin:pastSpeakers:search", "");
 
-  const [editing, setEditing] = useState<SpeakerRow | "new" | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const { editing, setEditing, form, setForm, pendingDelete, setPendingDelete, closeDrawer, discardConfirmProps } =
+    useDrawerFormCache<SpeakerRow, FormState>("pastSpeakers", EMPTY_FORM);
   const [photoVersion, setPhotoVersion] = useState(0);
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<SpeakerRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
@@ -209,7 +208,7 @@ export function PastSpeakers() {
         )}
       </div>
 
-      <Drawer open={editing !== null} title={editing === "new" ? "Add speaker" : "Edit speaker"} onClose={() => setEditing(null)}>
+      <Drawer open={editing !== null} title={editing === "new" ? "Add speaker" : "Edit speaker"} onClose={closeDrawer}>
         <form onSubmit={onSubmit} className="flex flex-col gap-[20px]">
           <Field label="Name" required>
             <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
@@ -238,7 +237,7 @@ export function PastSpeakers() {
           </Field>
 
           <div className="mt-[8px] flex justify-end gap-[8px]">
-            <button type="button" onClick={() => setEditing(null)} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
+            <button type="button" onClick={closeDrawer} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
               {editing !== "new" ? "Close" : "Cancel"}
             </button>
             <button type="submit" disabled={saving} className="rounded-[10px] bg-primary px-[16px] py-[10px] text-[13px]! font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60">
@@ -257,6 +256,8 @@ export function PastSpeakers() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      <ConfirmDialog {...discardConfirmProps} />
     </div>
   );
 }
