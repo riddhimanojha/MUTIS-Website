@@ -10,7 +10,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { PdfUploader, type PdfUploadResult } from "../components/PdfUploader";
-import { usePageCache, hasCached } from "../usePageCache";
+import { usePageCache, hasCached, useDrawerFormCache } from "../usePageCache";
 
 const BUCKET = "meif_files";
 
@@ -51,11 +51,10 @@ export function Documents() {
   const [loading, setLoading] = useState(!hasCached("admin:documents:rows"));
   const [search, setSearch] = usePageCache("admin:documents:search", "");
 
-  const [editing, setEditing] = useState<DocumentRow | "new" | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const { editing, setEditing, form, setForm, pendingDelete, setPendingDelete, closeDrawer, discardConfirmProps } =
+    useDrawerFormCache<DocumentRow, FormState>("documents", EMPTY_FORM);
   const [pdfResult, setPdfResult] = useState<PdfUploadResult | null>(null);
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<DocumentRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
@@ -237,7 +236,7 @@ export function Documents() {
         )}
       </div>
 
-      <Drawer open={editing !== null} title={editing === "new" ? "Add document" : "Edit document"} onClose={() => setEditing(null)}>
+      <Drawer open={editing !== null} title={editing === "new" ? "Add document" : "Edit document"} onClose={closeDrawer}>
         <form onSubmit={onSubmit} className="flex flex-col gap-[20px]">
           <Field label="Title" required>
             <input type="text" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
@@ -278,7 +277,7 @@ export function Documents() {
           </div>
 
           <div className="mt-[8px] flex justify-end gap-[8px]">
-            <button type="button" onClick={() => setEditing(null)} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
+            <button type="button" onClick={closeDrawer} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
               Cancel
             </button>
             <button type="submit" disabled={saving} className="rounded-[10px] bg-primary px-[16px] py-[10px] text-[13px]! font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60">
@@ -297,6 +296,8 @@ export function Documents() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      <ConfirmDialog {...discardConfirmProps} />
     </div>
   );
 }

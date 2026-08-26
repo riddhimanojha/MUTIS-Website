@@ -11,7 +11,7 @@ import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { UrlColumnImageUploader } from "../components/ImageUploader";
 import { useIsMobile } from "../components/useIsMobile";
-import { usePageCache, hasCached } from "../usePageCache";
+import { usePageCache, hasCached, useDrawerFormCache } from "../usePageCache";
 
 type GalleryImage = Database["public"]["Tables"]["gallery_images"]["Row"];
 
@@ -31,10 +31,9 @@ export function Gallery() {
   const [loading, setLoading] = useState(!hasCached("admin:gallery:rows"));
   const [publishedFilter, setPublishedFilter] = usePageCache<"all" | "published" | "unpublished">("admin:gallery:publishedFilter", "all");
 
-  const [editing, setEditing] = useState<GalleryImage | "new" | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const { editing, setEditing, form, setForm, pendingDelete, setPendingDelete, closeDrawer, discardConfirmProps } =
+    useDrawerFormCache<GalleryImage, FormState>("gallery", EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<GalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
@@ -257,7 +256,7 @@ export function Gallery() {
         )}
       </div>
 
-      <Drawer open={editing !== null} title={editing === "new" ? "Add photo" : "Edit photo"} onClose={() => setEditing(null)}>
+      <Drawer open={editing !== null} title={editing === "new" ? "Add photo" : "Edit photo"} onClose={closeDrawer}>
         <form onSubmit={onSubmit} className="flex flex-col gap-[20px]">
           <Field label="Photo" required>
             <div className="flex flex-col gap-[12px]">
@@ -292,7 +291,7 @@ export function Gallery() {
           </div>
 
           <div className="mt-[8px] flex justify-end gap-[8px]">
-            <button type="button" onClick={() => setEditing(null)} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
+            <button type="button" onClick={closeDrawer} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
               Cancel
             </button>
             <button type="submit" disabled={saving} className="rounded-[10px] bg-primary px-[16px] py-[10px] text-[13px]! font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60">
@@ -311,6 +310,8 @@ export function Gallery() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      <ConfirmDialog {...discardConfirmProps} />
     </div>
   );
 }

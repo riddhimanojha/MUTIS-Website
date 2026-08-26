@@ -12,7 +12,7 @@ import { PublishToggle, StatusBadge } from "../components/StatusBadge";
 import { UrlColumnImageUploader } from "../components/ImageUploader";
 import { RichTextEditor } from "../components/RichTextEditor";
 import { isHtmlEmpty } from "../lib/richText";
-import { usePageCache, hasCached } from "../usePageCache";
+import { usePageCache, hasCached, useDrawerFormCache } from "../usePageCache";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 
@@ -69,10 +69,9 @@ export function Events() {
   const [signupFilter, setSignupFilter] = usePageCache<"all" | "enabled" | "disabled">("admin:events:signupFilter", "all");
   const [search, setSearch] = usePageCache("admin:events:search", "");
 
-  const [editing, setEditing] = useState<EventRow | "new" | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const { editing, setEditing, form, setForm, pendingDelete, setPendingDelete, closeDrawer, discardConfirmProps } =
+    useDrawerFormCache<EventRow, FormState>("events", EMPTY_FORM);
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<EventRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
@@ -308,7 +307,7 @@ export function Events() {
         )}
       </div>
 
-      <Modal open={editing !== null} title={editing === "new" ? "Add event" : "Edit event"} onClose={() => setEditing(null)} widthClass="max-w-[640px]">
+      <Modal open={editing !== null} title={editing === "new" ? "Add event" : "Edit event"} onClose={closeDrawer} widthClass="max-w-[640px]">
         <form onSubmit={onSubmit} className="flex flex-col gap-[20px]">
           <Field label="Title" required>
             <input type="text" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
@@ -362,7 +361,7 @@ export function Events() {
           </div>
 
           <div className="mt-[8px] flex justify-end gap-[8px]">
-            <button type="button" onClick={() => setEditing(null)} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
+            <button type="button" onClick={closeDrawer} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
               Cancel
             </button>
             <button type="submit" disabled={saving} className="rounded-[10px] bg-primary px-[16px] py-[10px] text-[13px]! font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60">
@@ -391,6 +390,8 @@ export function Events() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      <ConfirmDialog {...discardConfirmProps} />
     </div>
   );
 }

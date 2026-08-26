@@ -9,7 +9,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
 import { PublishToggle } from "../components/StatusBadge";
 import { IdKeyedImageUploader } from "../components/ImageUploader";
-import { usePageCache, hasCached } from "../usePageCache";
+import { usePageCache, hasCached, useDrawerFormCache } from "../usePageCache";
 
 type AlumniRow = Database["public"]["Tables"]["alumni"]["Row"];
 
@@ -50,11 +50,10 @@ export function Alumni() {
   const [consentFilter, setConsentFilter] = usePageCache<"all" | "confirmed" | "unconfirmed">("admin:alumni:consentFilter", "all");
   const [search, setSearch] = usePageCache("admin:alumni:search", "");
 
-  const [editing, setEditing] = useState<AlumniRow | "new" | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const { editing, setEditing, form, setForm, pendingDelete, setPendingDelete, closeDrawer, discardConfirmProps } =
+    useDrawerFormCache<AlumniRow, FormState>("alumni", EMPTY_FORM);
   const [photoVersion, setPhotoVersion] = useState(0);
   const [saving, setSaving] = useState(false);
-  const [pendingDelete, setPendingDelete] = useState<AlumniRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
@@ -252,7 +251,7 @@ export function Alumni() {
         )}
       </div>
 
-      <Drawer open={editing !== null} title={editing === "new" ? "Add alumnus" : "Edit alumnus"} onClose={() => setEditing(null)}>
+      <Drawer open={editing !== null} title={editing === "new" ? "Add alumnus" : "Edit alumnus"} onClose={closeDrawer}>
         <form onSubmit={onSubmit} className="flex flex-col gap-[20px]">
           <Field label="Name" required>
             <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
@@ -297,7 +296,7 @@ export function Alumni() {
           </Field>
 
           <div className="mt-[8px] flex justify-end gap-[8px]">
-            <button type="button" onClick={() => setEditing(null)} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
+            <button type="button" onClick={closeDrawer} className="rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5">
               {editing !== "new" ? "Close" : "Cancel"}
             </button>
             <button type="submit" disabled={saving} className="rounded-[10px] bg-primary px-[16px] py-[10px] text-[13px]! font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60">
@@ -316,6 +315,8 @@ export function Alumni() {
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}
       />
+
+      <ConfirmDialog {...discardConfirmProps} />
     </div>
   );
 }
