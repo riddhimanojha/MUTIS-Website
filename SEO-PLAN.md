@@ -30,7 +30,7 @@ Admin routes (`/admin/*`) are explicitly left unoptimized and excluded from the 
 5. **Design a real Open Graph image** (1200×630) to replace the square logo currently used as the social-share fallback image.
 6. **Confirm `public/headshots/*` legacy status** — are these files still referenced anywhere, or safe to delete/replace? (See audit 5.4.)
 7. **Decide on SSR/prerendering investment** — the single highest-leverage remaining SEO fix is moving off pure CSR (via prerendering or a framework migration). This is a multi-week engineering decision, not something to fold into a sweep like this one.
-8. **Review the unauthenticated `/admin/__preview-*` routes** — an access-control question surfaced during this audit (not itself an SEO issue, but adjacent: these routes are technically public and crawlable). Worth a look independent of SEO.
+8. ~~Review the unauthenticated `/admin/__preview-*` routes~~ — **resolved**: deleted outright rather than left for review, since there was no legitimate reason for them to be unauthenticated. See `SEO-CHANGELOG.md`.
 9. **Confirm the deploy target** — both `netlify.toml` and a `vercel.json` exist; confirm which is actually live so the other can be removed or documented as intentional.
 10. **Update `supabase/functions/admin-add-by-email/index.ts`'s `SITE_URL`** to the corrected domain and redeploy the Edge Function (left out of this sweep since it requires a function redeploy, not just a site rebuild).
 11. **Periodic manual link check**: sponsor logos, committee LinkedIn URLs, and document/PDF links are all Supabase-driven content, not code — a broken link there is a content problem best caught via the admin panel, not a codebase audit.

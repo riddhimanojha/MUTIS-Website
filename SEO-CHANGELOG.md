@@ -38,6 +38,10 @@ A related merge-order subtlety: `react-helmet-async` only overrides a same-typed
 - `application/app/pages/Events.tsx`: the upcoming-event card thumbnail and the event-details modal's cover image now use `alt={ev.title}` instead of `alt=""` (they're the event's own content image, not decorative), and both got explicit `width`/`height` attributes matching their CSS `aspect-ratio: 16/9`. (Audit 5.2, 5.3)
 - `index.html`: added `<link rel="preconnect">` for `fonts.googleapis.com` and `fonts.gstatic.com`, ahead of `fonts.css`'s render-blocking `@import` of 8 Google Font families. (Audit 5.5)
 
+## Access control
+
+- Deleted the 20 `/admin/__preview-*` routes from `application/app/routes.tsx`. These were direct, unauthenticated children of `/admin` rendering the exact same admin CRUD pages (Dashboard, Sponsors, Committee, Events, Articles, Documents, Site Settings, etc.) as the real `/admin/*` tree, but with no `ProtectedRoute` wrapper — anyone with the URL could reach live admin panel pages without signing in. Flagged in `SEO-AUDIT.md`/`SEO-PLAN.md` as an access-control issue adjacent to (not caused by) the SEO work, then removed on request. `/admin/login` and `/admin/set-password` are untouched; the authenticated tree under `ProtectedRoute`/`AdminLayout` is untouched.
+
 ## Documentation
 
 - Updated `SEO.md` (the repo's existing implementation reference, distinct from the three audit/plan/changelog docs) to describe the new `react-helmet-async`-based architecture, the domain, and the tag-duplication gotcha documented above, instead of the old hand-rolled hook it previously described.
@@ -64,7 +68,7 @@ Everything below needs the site owner — credentials, DNS, content decisions, o
 4. Design a real 1200×630 Open Graph image to replace the square logo currently used as the social-share fallback.
 5. Confirm whether `public/headshots/*` is still referenced anywhere or safe to delete/replace (one file, `Anthony.jpeg`, is a 1.8MB outlier).
 6. Decide whether to invest in SSR/prerendering — the single highest-leverage remaining SEO fix, but a multi-week engineering decision outside this sweep's scope.
-7. Review the unauthenticated `/admin/__preview-*` routes found during this audit (an access-control question, not itself an SEO issue).
+7. ~~Review the unauthenticated `/admin/__preview-*` routes found during this audit~~ — **done**: these 20 routes rendered admin CRUD pages with no `ProtectedRoute` check at all, so they've been deleted from `application/app/routes.tsx` outright rather than just flagged. This was an access-control issue, not strictly an SEO one, but it was surfaced by this audit and directly addressed by `robots.txt`'s new `Disallow: /admin` — there's no longer anything unauthenticated left under `/admin` for that disallow to be a fig leaf for.
 8. Confirm the actual deploy target — both `netlify.toml` and `vercel.json` exist in the repo.
 9. Update `supabase/functions/admin-add-by-email/index.ts`'s `SITE_URL` to the corrected domain and redeploy that Edge Function.
 10. Periodically spot-check sponsor/committee/document links via the admin panel — they're Supabase-driven content, not code, so a broken link there wouldn't show up in a codebase audit.

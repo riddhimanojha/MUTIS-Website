@@ -81,7 +81,7 @@ Allow: /
 
 Sitemap: https://mutis.co.uk/sitemap.xml
 ```
-No `Disallow` at all. The `/admin/*` tree includes both the authenticated admin dashboard and a set of **unauthenticated** `/admin/__preview-*` routes (`routes.tsx` lines 62–81) that render the same admin components with no session check — those are technically crawlable and indexable today. (The `__preview-*` routes are an access-control question in their own right, separate from SEO — flagged for the owner in Manual Steps, not something this sweep touches.)
+No `Disallow` at all. The `/admin/*` tree included both the authenticated admin dashboard and a set of **unauthenticated** `/admin/__preview-*` routes (`routes.tsx` lines 62–81 at the time of this audit) that rendered the same admin components with no session check — those were technically crawlable and indexable. (The `__preview-*` routes were an access-control question in their own right, separate from SEO — since resolved by deleting them outright, see `SEO-CHANGELOG.md`.)
 - **Fixed this sweep:** `Disallow: /admin` added; `Sitemap:` line corrected to the right domain.
 
 ### 4.2 `sitemap.xml` is static and stale — Critical — code fix
