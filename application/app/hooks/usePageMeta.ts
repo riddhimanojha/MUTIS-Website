@@ -1,17 +1,28 @@
-import { useEffect } from "react";
-
 const SITE_NAME = "MUTIS Finance Society";
-const SITE_URL = "https://mutis.co.uk";
-const DEFAULT_DESCRIPTION =
+export const SITE_URL = "https://www.mutisfinancesociety.com";
+export const DEFAULT_DESCRIPTION =
   "MUTIS is the University of Manchester's largest trading and investment society: events, the student-run Ethical Investment Fund (MEIF), member research, and industry partnerships.";
+export const DEFAULT_IMAGE = `${SITE_URL}/mutislogo.jpg`;
 
-type Meta = { title: string; description: string };
+export type Meta = {
+  title: string;
+  description: string;
+  /** Absolute image URL for og:image/twitter:image. Defaults to DEFAULT_IMAGE. */
+  image?: string;
+  /** True for pages that should never be indexed (e.g. a redirect stub). */
+  noindex?: boolean;
+  /** Overrides the canonical path (defaults to the current pathname). */
+  canonicalPath?: string;
+  /** Omits the canonical tag entirely — only for genuine 404s, where no correct target exists. */
+  noCanonical?: boolean;
+};
 
 /**
- * Per-route SEO metadata. Keys are pathnames. The title is the full
- * <title>; descriptions feed the meta description and Open Graph tags.
+ * Per-route SEO metadata. Keys are pathnames. Consumed by <PageMeta> in
+ * routes.tsx. Dynamic routes (e.g. /articles/:id) render their own
+ * page-specific <Helmet> instead, which overrides these defaults.
  */
-const ROUTE_META: Record<string, Meta> = {
+export const ROUTE_META: Record<string, Meta> = {
   "/": {
     title: "MUTIS Finance Society",
     description: DEFAULT_DESCRIPTION,
@@ -56,49 +67,80 @@ const ROUTE_META: Record<string, Meta> = {
     description:
       "Get in touch with MUTIS: membership, partnerships and sponsorship, MEIF applications, or press enquiries.",
   },
+  "/previous-presidents": {
+    title: "Previous Presidents | MUTIS Finance Society",
+    description:
+      "The presidents who have led MUTIS through each academic year since its founding, and the leadership that has shaped the society.",
+  },
+  "/network": {
+    title: "Our Network | MUTIS Finance Society",
+    description:
+      "Past MUTIS members now working across investment banking, markets, asset management, and consulting — and the placements that got them there.",
+  },
+  "/past-speakers": {
+    title: "Past Speakers | MUTIS Finance Society",
+    description:
+      "Senior professionals from across banking, markets, and asset management who have shared their insight with MUTIS members.",
+  },
+  "/media": {
+    title: "Media | MUTIS Finance Society",
+    description:
+      "Photos, recordings, and our podcast — everything from the MUTIS year in one place.",
+  },
+  "/gallery": {
+    title: "Gallery | MUTIS Finance Society",
+    description:
+      "Conferences, socials, simulations, and speaker nights — a look back at the people and events that make up the society.",
+  },
+  "/recordings": {
+    title: "Recordings | MUTIS Finance Society",
+    description:
+      "Missed a talk or panel? Recordings of selected MUTIS events, published for members to catch up in their own time.",
+  },
+  // Client-side redirect stub (see SEO-AUDIT.md 2.5) — points crawlers at the
+  // real destination instead of letting them index an empty transitional page.
+  "/alumni": {
+    title: "Our Network | MUTIS Finance Society",
+    description:
+      "Past MUTIS members now working across investment banking, markets, asset management, and consulting — and the placements that got them there.",
+    noindex: true,
+    canonicalPath: "/network",
+  },
+  // Unlisted, QR-code-only utility page for logging in-person attendance —
+  // no search intent to serve, so it's excluded from indexing and the sitemap.
+  "/attendance": {
+    title: "Log Attendance | MUTIS Finance Society",
+    description: "Log your attendance at a MUTIS event.",
+    noindex: true,
+  },
 };
 
-function setMetaTag(attr: "name" | "property", key: string, content: string) {
-  let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
-  if (!el) {
-    el = document.createElement("meta");
-    el.setAttribute(attr, key);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("content", content);
-}
-
-function setCanonical(href: string) {
-  let el = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-  if (!el) {
-    el = document.createElement("link");
-    el.setAttribute("rel", "canonical");
-    document.head.appendChild(el);
-  }
-  el.setAttribute("href", href);
-}
+export const NOT_FOUND_META: Meta = {
+  title: `Page not found | ${SITE_NAME}`,
+  description: DEFAULT_DESCRIPTION,
+  noindex: true,
+  noCanonical: true,
+};
 
 /**
- * Applies dynamic <title>, meta description, canonical URL, and Open Graph /
- * Twitter tags for the current route. Falls back to the site defaults for
- * unknown paths (e.g. 404).
+ * Fallback shown for the /articles/:id path while ArticleDetail's own
+ * <PageMeta override={...}> loads (or if it never mounts one at all).
+ * noCanonical because react-helmet-async only overrides a tag a nested
+ * Helmet actually re-renders — if this fallback asserted a canonical for
+ * the raw dynamic path, an error/loading state that omits its own canonical
+ * wouldn't be able to suppress it (there'd be nothing to override it with).
  */
-export function usePageMeta(pathname: string) {
-  useEffect(() => {
-    const meta = ROUTE_META[pathname] ?? {
-      title: `Page not found | ${SITE_NAME}`,
-      description: DEFAULT_DESCRIPTION,
-    };
-    const url = SITE_URL + (pathname === "/" ? "" : pathname);
+export const ARTICLE_LOADING_META: Meta = {
+  ...ROUTE_META["/articles"],
+  noCanonical: true,
+};
 
-    document.title = meta.title;
-    setMetaTag("name", "description", meta.description);
-    setCanonical(url);
-
-    setMetaTag("property", "og:title", meta.title);
-    setMetaTag("property", "og:description", meta.description);
-    setMetaTag("property", "og:url", url);
-    setMetaTag("name", "twitter:title", meta.title);
-    setMetaTag("name", "twitter:description", meta.description);
-  }, [pathname]);
+export function resolveRouteMeta(pathname: string): Meta {
+  if (pathname in ROUTE_META) {
+    return ROUTE_META[pathname];
+  }
+  if (pathname.startsWith("/articles/")) {
+    return ARTICLE_LOADING_META;
+  }
+  return NOT_FOUND_META;
 }

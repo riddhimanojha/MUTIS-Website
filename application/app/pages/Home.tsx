@@ -96,7 +96,7 @@ function Hero() {
           University of Manchester &nbsp;·&nbsp; Est. {settings.founding_year}
         </div>
 
-        <div className="pm-hero-masthead">
+        <h1 className="pm-hero-masthead">
           {["MUTIS"].map((word, i) => (
             <span className="pm-hero-title-line" key={i}>
               <span style={{
@@ -121,7 +121,7 @@ function Hero() {
           >
             Finance Society
           </div>
-        </div>
+        </h1>
 
         <p
           className="pm-hero-body"

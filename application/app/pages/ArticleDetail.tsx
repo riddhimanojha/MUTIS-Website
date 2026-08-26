@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import DOMPurify from "dompurify";
 import { useReveal } from "@/app/hooks/useReveal";
+import { htmlToExcerpt } from "@/app/lib/htmlExcerpt";
+import { PageMeta } from "@/app/components/PageMeta";
+import { DEFAULT_DESCRIPTION } from "@/app/hooks/usePageMeta";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 import { DocumentViewer } from "@/app/components/DocumentViewer";
@@ -77,6 +80,15 @@ export function ArticleDetail() {
   if (loadError || !article) {
     return (
       <section className="page-section">
+        <PageMeta
+          pathname={`/articles/${id ?? ""}`}
+          override={{
+            title: `Article not found | MUTIS Finance Society`,
+            description: DEFAULT_DESCRIPTION,
+            noindex: true,
+            noCanonical: true,
+          }}
+        />
         <div className="inner">
           <div className="crumb"><Link to="/">MUTIS</Link><span>/</span><Link to="/articles">Articles</Link></div>
           <h1 className="page-title r-up" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
@@ -93,8 +105,19 @@ export function ArticleDetail() {
     );
   }
 
+  const articlePath = `/articles/${article.id}`;
+  const description = article.body_html ? htmlToExcerpt(article.body_html, 155) : DEFAULT_DESCRIPTION;
+
   return (
     <>
+      <PageMeta
+        pathname={articlePath}
+        override={{
+          title: `${article.title} | MUTIS Finance Society`,
+          description,
+          image: article.cover_image_url ?? undefined,
+        }}
+      />
       <section
         className="page-hero page-hero-article"
         style={

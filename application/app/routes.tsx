@@ -1,9 +1,10 @@
 import { createBrowserRouter, Outlet, ScrollRestoration, useLocation } from "react-router";
 import { useTiltOnSelectors } from "./hooks/useTilt";
-import { usePageMeta } from "./hooks/usePageMeta";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { BackToTop } from "./components/BackToTop";
+import { PageMeta } from "./components/PageMeta";
+import { OrganizationJsonLd } from "./components/OrganizationJsonLd";
 import { Home } from "./pages/Home";
 import { MEIF } from "./pages/MEIF";
 import { About } from "./pages/About";
@@ -32,13 +33,16 @@ function Root() {
   // Re-wire selector-based tilt whenever the route changes so any newly
   // rendered static markup gets the same hover behaviour as page-shell.js.
   useTiltOnSelectors([pathname]);
-  // Apply per-route SEO metadata (title, description, Open Graph, canonical).
-  usePageMeta(pathname);
   // The home page keeps the dark cinematic theme; all interior pages render on a
   // clean light surface (see mutis-light.css, scoped under .subpage-light).
   const isHome = pathname === "/";
   return (
     <>
+      {/* Per-route SEO metadata (title, description, Open Graph, canonical).
+          Pages with dynamic content (e.g. ArticleDetail) render their own
+          nested <PageMeta override={...}> that takes precedence. */}
+      <PageMeta pathname={pathname} />
+      <OrganizationJsonLd />
       <div className="grain" aria-hidden="true" />
       <a href="#main-content" className="skip-link">Skip to content</a>
       <Header />
@@ -59,26 +63,6 @@ export const router = createBrowserRouter([
     children: [
       { path: "login", lazy: () => import("./admin/pages/Login").then((m) => ({ Component: m.Login })) },
       { path: "set-password", lazy: () => import("./admin/pages/SetPassword").then((m) => ({ Component: m.SetPassword })) },
-      { path: "__preview-dashboard", lazy: () => import("./admin/pages/Dashboard").then((m) => ({ Component: m.Dashboard })) },
-      { path: "__preview-admins", lazy: () => import("./admin/pages/ManageAdmins").then((m) => ({ Component: m.ManageAdmins })) },
-      { path: "__preview-sponsors", lazy: () => import("./admin/pages/Sponsors").then((m) => ({ Component: m.Sponsors })) },
-      { path: "__preview-committee", lazy: () => import("./admin/pages/Committee").then((m) => ({ Component: m.Committee })) },
-      { path: "__preview-events", lazy: () => import("./admin/pages/Events").then((m) => ({ Component: m.Events })) },
-      { path: "__preview-alumni", lazy: () => import("./admin/pages/Alumni").then((m) => ({ Component: m.Alumni })) },
-      { path: "__preview-presidents", lazy: () => import("./admin/pages/PreviousPresidents").then((m) => ({ Component: m.PreviousPresidents })) },
-      { path: "__preview-articles", lazy: () => import("./admin/pages/Articles").then((m) => ({ Component: m.Articles })) },
-      { path: "__preview-podcast", lazy: () => import("./admin/pages/PodcastSettings").then((m) => ({ Component: m.PodcastSettingsPage })) },
-      { path: "__preview-submissions", lazy: () => import("./admin/pages/Submissions").then((m) => ({ Component: m.Submissions })) },
-      { path: "__preview-audit-log", lazy: () => import("./admin/pages/AuditLog").then((m) => ({ Component: m.AuditLog })) },
-      { path: "__preview-gallery", lazy: () => import("./admin/pages/Gallery").then((m) => ({ Component: m.Gallery })) },
-      { path: "__preview-recordings", lazy: () => import("./admin/pages/Recordings").then((m) => ({ Component: m.Recordings })) },
-      { path: "__preview-past-speakers", lazy: () => import("./admin/pages/PastSpeakers").then((m) => ({ Component: m.PastSpeakers })) },
-      { path: "__preview-fund-managers", lazy: () => import("./admin/pages/FundManagers").then((m) => ({ Component: m.FundManagers })) },
-      { path: "__preview-site-settings", lazy: () => import("./admin/pages/SiteSettings").then((m) => ({ Component: m.SiteSettings })) },
-      { path: "__preview-home-programs", lazy: () => import("./admin/pages/HomePrograms").then((m) => ({ Component: m.HomePrograms })) },
-      { path: "__preview-sponsorship-packages", lazy: () => import("./admin/pages/SponsorshipPackages").then((m) => ({ Component: m.SponsorshipPackages })) },
-      { path: "__preview-integrations", lazy: () => import("./admin/pages/Integrations").then((m) => ({ Component: m.Integrations })) },
-      { path: "__preview-documents", lazy: () => import("./admin/pages/Documents").then((m) => ({ Component: m.Documents })) },
       {
         lazy: () => import("./admin/ProtectedRoute").then((m) => ({ Component: m.ProtectedRoute })),
         children: [

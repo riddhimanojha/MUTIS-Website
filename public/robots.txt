@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /admin
 
-Sitemap: https://mutis.co.uk/sitemap.xml
+Sitemap: https://www.mutisfinancesociety.com/sitemap.xml
