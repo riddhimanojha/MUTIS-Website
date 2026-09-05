@@ -4,6 +4,18 @@
 // this file covers copy that doesn't need a database row.
 // ============================================================
 
+// ---- FLAGSHIP EVENT SUPPORTERS ----
+// NOTE: Shade Tree is deliberately NOT listed under sponsorships (see the
+// `sponsors` DB table / admin panel). It is paired with our flagship events
+// instead (see Events page "Flagship" section).
+export const flagshipSupporters = [
+  {
+    name: "Shade Tree",
+    logo: "https://ktleyfwpcuyvvyxpvipp.supabase.co/storage/v1/object/public/sponsor_logos/shade-tree.svg",
+    url: "https://shadetreefund.org/",
+  },
+];
+
 // ---- MEIF SECTOR TEAMS ----
 export const meifTeams = [
   {
