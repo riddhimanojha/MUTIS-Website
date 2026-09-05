@@ -116,7 +116,7 @@ shared component instead of copy-pasted per-form markup: `<FormFeedback>` for th
   this existed before this pass.
 - **Component**: `app/pages/NotFound.tsx`, styled with the same `.page-hero` / `.page-title` /
   `.page-sub` classes as every other page (per `design_brief.md` §6 "Subpage hero") — not a generic
-  browser or Netlify error page.
+  browser or hosting-provider error page.
 - **Fixed**: added a clear `Back to home` primary button and a `Contact us` secondary button (previously
   only a single inline text link inside the paragraph) so a visitor who lands here isn't left with just
   prose to parse.
@@ -124,13 +124,12 @@ shared component instead of copy-pasted per-form markup: `<FormFeedback>` for th
   `app/hooks/usePageMeta.ts` falls through to `NOT_FOUND_META` (`noindex: true`, `noCanonical: true`)
   for any pathname not in the known route table, and `<PageMeta>` renders that into
   `<meta name="robots" content="noindex, follow">`. Verified this fires correctly for the wildcard route.
-- **HTTP-status caveat — flagged, not silently worked around**: Netlify's SPA fallback
-  (`public/_redirects` and `netlify.toml`) rewrites every unmatched path to `/index.html` with
-  `status = 200`. That means the *server* response for a bad URL is still `200 OK`; only once the JS
-  bundle loads and React Router matches the wildcard route does the visitor (or a JS-executing crawler)
-  see the actual 404 UI. This is a structural limitation of static hosting + client-side routing, not a
-  bug this pass can fix without an edge function or a different hosting model — it's documented as a
-  code comment directly above the redirect rule in `netlify.toml` and as a comment at the top of
+- **HTTP-status caveat — flagged, not silently worked around**: the site's Vercel SPA rewrite
+  (`vercel.json`) rewrites every unmatched path to `/index.html` with an HTTP 200. That means the
+  *server* response for a bad URL is still `200 OK`; only once the JS bundle loads and React Router
+  matches the wildcard route does the visitor (or a JS-executing crawler) see the actual 404 UI. This
+  is a structural limitation of client-side routing on a rewrite-based host, not a bug this pass can
+  fix without a Vercel Edge Middleware/Function — it's documented as a code comment at the top of
   `app/pages/NotFound.tsx`, rather than presented as a full technical 404.
 
 ---
@@ -138,8 +137,8 @@ shared component instead of copy-pasted per-form markup: `<FormFeedback>` for th
 ## Left unfixed / out of scope
 
 - **Newsletter/mailing-list form** — doesn't exist on the site (see table above); nothing to fix.
-- **True HTTP 404 status** — architecturally out of reach on the current static-hosting + SPA-fallback
-  setup; documented above and in `netlify.toml`, not silently ignored.
+- **True HTTP 404 status** — architecturally out of reach on the current Vercel SPA-rewrite setup
+  without adding Edge Middleware; documented above, not silently ignored.
 - No form was found with a missing backend endpoint or a genuinely broken submit path — every form
   already inserts into a real Supabase table or Edge Function that exists in `supabase/migrations` /
   `supabase/functions`.
