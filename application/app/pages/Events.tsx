@@ -3,7 +3,6 @@ import { Link } from "react-router";
 import { Helmet } from "react-helmet-async";
 import DOMPurify from "dompurify";
 import { useReveal } from "@/app/hooks/useReveal";
-import { flagshipSupporters } from "@/app/data/siteData";
 import { htmlToExcerpt } from "@/app/lib/htmlExcerpt";
 import { SITE_URL } from "@/app/hooks/usePageMeta";
 import type { Tables } from "@/lib/database.types";
@@ -14,6 +13,7 @@ const FLAGSHIP = [
   { num: "E.01", title: "Women in Finance Conference", term: "Autumn Term", desc: "A flagship day bringing senior women from across investment banking, asset management, and markets onto campus.", foot: "Manchester" },
   { num: "E.02", title: "UK Student Finance Summit", term: "Spring Term", desc: "The largest cross-university gathering of finance students in the UK, hosted by MUTIS in partnership with leading firms.", foot: "Manchester" },
   { num: "E.03", title: "M&A Challenge", term: "Year-round", desc: "A live deal simulation run across the year, judged by working bankers from sponsor firms.", foot: "Manchester" },
+  { num: "E.04", title: "The Shade Tree", term: "Spring Term", desc: "A 25-year, student-run investment initiative run annually with Alliance Manchester Business School, where MUTIS teams pitch real long-term investment theses for capital donated by alumni Adam and Sara Franks.", foot: "Manchester" },
 ];
 
 const eventImageModules = import.meta.glob(
@@ -221,19 +221,7 @@ export function Events() {
       <section className="page-section">
         <div className="inner">
           <div className="page-eyebrow r-up"><span className="bar" />Section 01  -  Flagship</div>
-          <h2 className="r-up">Three events define the year</h2>
-          {flagshipSupporters.length > 0 && (
-            <p className="lede r-up" style={{ marginBottom: 32 }}>
-              Our flagship events are supported by{" "}
-              {flagshipSupporters.map((s, i) => (
-                <span key={s.name}>
-                  {i > 0 && ", "}
-                  <a href={s.url} target="_blank" rel="noreferrer" style={{ color: "var(--pm-accent)", textDecoration: "underline" }}>{s.name}</a>
-                </span>
-              ))}
-              .
-            </p>
-          )}
+          <h2 className="r-up">Four events define the year</h2>
           <div className="card-grid">
             {FLAGSHIP.map((e) => (
               <div className="dark-card r-up" key={e.num}>
