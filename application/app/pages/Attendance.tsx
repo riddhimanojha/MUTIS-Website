@@ -2,10 +2,11 @@ import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
 import { useSiteSettings } from "@/app/hooks/useSiteSettings";
+import { useFormStatus } from "@/app/hooks/useFormStatus";
+import { FormFeedback } from "@/app/components/FormFeedback";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
-type Status = "idle" | "submitting" | "sent" | "error";
 type EventRow = Tables<"events">;
 
 const OTHER_EVENT = "__other__";
@@ -13,8 +14,7 @@ const OTHER_EVENT = "__other__";
 export function Attendance() {
   useReveal();
   const { settings } = useSiteSettings();
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState("");
+  const { status, error, submitting, fail, succeed, reset, onFormInput } = useFormStatus();
   const [rating, setRating] = useState(5);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
@@ -43,7 +43,7 @@ export function Attendance() {
     const form = e.currentTarget;
 
     if ((form.elements.namedItem("bot-field") as HTMLInputElement)?.value) {
-      setStatus("sent");
+      succeed();
       return;
     }
 
@@ -59,17 +59,15 @@ export function Attendance() {
     const comments = (form.elements.namedItem("comments") as HTMLTextAreaElement).value.trim();
 
     if (!eventId || (eventId === OTHER_EVENT && !otherEventName) || !name || !email || !course || !year) {
-      setError(
+      fail(
         eventId === OTHER_EVENT
           ? "Please tell us which event you attended, and fill in your name, email, course, and year of study."
           : "Please select the event you attended and fill in your name, email, course, and year of study."
       );
-      setStatus("error");
       return;
     }
 
-    setStatus("submitting");
-    setError("");
+    submitting();
 
     const { error: insertError } = await supabase.from("attendance_submissions").insert({
       event_id: eventId === OTHER_EVENT ? null : eventId,
@@ -84,14 +82,11 @@ export function Attendance() {
 
     if (insertError) {
       console.error("Failed to submit attendance", insertError);
-      setError(
-        `Something went wrong. Please try again or email us at ${settings.contact_email}.`
-      );
-      setStatus("error");
+      fail(`Something went wrong. Please try again or email us at ${settings.contact_email}.`);
       return;
     }
 
-    setStatus("sent");
+    succeed();
     form.reset();
     setRating(5);
     setSelectedEvent("");
@@ -126,13 +121,15 @@ export function Attendance() {
 
               {status === "sent" ? (
                 <div className="r-up" style={{ marginTop: 32 }}>
-                  <p className="form-status form-success" role="status" style={{ fontSize: 16 }}>
-                    Thanks for logging your attendance — your response has been recorded.
-                  </p>
+                  <FormFeedback
+                    status={status}
+                    successMessage="Thanks for logging your attendance — your response has been recorded."
+                    style={{ fontSize: 16 }}
+                  />
                   <button
                     className="btn btn-ghost"
                     style={{ marginTop: 24, textDecoration: "none" }}
-                    onClick={() => setStatus("idle")}
+                    onClick={reset}
                   >
                     Submit another response
                   </button>
@@ -142,6 +139,7 @@ export function Attendance() {
                   className="contact-form r-up"
                   name="attendance"
                   onSubmit={onSubmit}
+                  onInput={onFormInput}
                   noValidate
                 >
                   <p className="hidden-field">
@@ -267,9 +265,7 @@ export function Attendance() {
                     />
                   </div>
 
-                  {status === "error" && (
-                    <p className="form-status form-error" role="alert">{error}</p>
-                  )}
+                  <FormFeedback status={status} error={error} />
 
                   <button
                     className="btn btn-primary"

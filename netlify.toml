@@ -6,6 +6,16 @@
   NODE_VERSION = "20"
 
 # SPA fallback so React Router deep links resolve after refresh.
+#
+# Known constraint: because this rewrite always returns status 200, an
+# unmatched path (e.g. /no-such-page) is served index.html with an HTTP 200
+# response, even though the client-side router then renders the NotFound
+# component (app/pages/NotFound.tsx) with its own <meta name="robots"
+# content="noindex"> tag. Non-JS clients and anything that reads the raw
+# HTTP status (not just the rendered page) will still see 200, not 404. A
+# true HTTP 404 would require an edge function or a non-static host; that
+# is out of scope here and is documented rather than silently worked around
+# (see FORMS-AUDIT.md).
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Navigate, useLocation } from "react-router";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "../AuthProvider";
+import { FormMessage } from "../components/FormMessage";
 
 type Mode = "signin" | "forgot";
 type Status = "idle" | "submitting" | "error" | "sent";
@@ -106,11 +107,7 @@ export function Login() {
               />
             </div>
 
-            {status === "error" && (
-              <p role="alert" className="text-[13px] text-destructive">
-                {error}
-              </p>
-            )}
+            {status === "error" && <FormMessage kind="error">{error}</FormMessage>}
 
             <button
               type="submit"
@@ -150,9 +147,9 @@ export function Login() {
             </div>
 
             {status === "sent" && (
-              <p role="status" className="text-[13px] text-accent">
+              <FormMessage kind="success">
                 If that email has an admin account, a reset link is on its way.
-              </p>
+              </FormMessage>
             )}
 
             <button

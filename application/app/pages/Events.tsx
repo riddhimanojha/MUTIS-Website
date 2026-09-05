@@ -6,6 +6,8 @@ import { useReveal } from "@/app/hooks/useReveal";
 import { flagshipSupporters } from "@/app/data/siteData";
 import { htmlToExcerpt } from "@/app/lib/htmlExcerpt";
 import { SITE_URL } from "@/app/hooks/usePageMeta";
+import { useFormStatus } from "@/app/hooks/useFormStatus";
+import { FormFeedback } from "@/app/components/FormFeedback";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 import { Modal } from "@/app/components/Modal";
@@ -36,18 +38,15 @@ const formatEventDate = (isoString: string) =>
     minute: "2-digit",
   });
 
-type SignupStatus = "idle" | "submitting" | "sent" | "error";
-
 function EventSignupForm({ eventId }: { eventId: string }) {
-  const [status, setStatus] = useState<SignupStatus>("idle");
-  const [error, setError] = useState("");
+  const { status, error, submitting, fail, succeed, onFormInput } = useFormStatus();
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
 
     if ((form.elements.namedItem("bot-field") as HTMLInputElement)?.value) {
-      setStatus("sent");
+      succeed();
       return;
     }
 
@@ -56,13 +55,11 @@ function EventSignupForm({ eventId }: { eventId: string }) {
     const notes = (form.elements.namedItem("notes") as HTMLTextAreaElement).value.trim();
 
     if (!name || !email) {
-      setError("Please fill in your name and email.");
-      setStatus("error");
+      fail("Please fill in your name and email.");
       return;
     }
 
-    setStatus("submitting");
-    setError("");
+    submitting();
 
     const { error: insertError } = await supabase
       .from("event_signups")
@@ -70,29 +67,30 @@ function EventSignupForm({ eventId }: { eventId: string }) {
 
     if (insertError) {
       console.error("Failed to submit event signup", insertError);
-      setError(
+      fail(
         insertError.code === "23505"
           ? "You've already signed up for this event with that email."
           : "Something went wrong. Please try again or email us at mutis@manchesterstudentsunion.com.",
       );
-      setStatus("error");
       return;
     }
 
-    setStatus("sent");
+    succeed();
     form.reset();
   };
 
   if (status === "sent") {
     return (
-      <p className="form-status form-success" role="status" style={{ marginTop: 12 }}>
-        You're signed up — see you there.
-      </p>
+      <FormFeedback
+        status={status}
+        successMessage="You're signed up — see you there."
+        style={{ marginTop: 12 }}
+      />
     );
   }
 
   return (
-    <form className="contact-form" onSubmit={onSubmit} noValidate style={{ marginTop: 16, gap: 10 }}>
+    <form className="contact-form" onSubmit={onSubmit} onInput={onFormInput} noValidate style={{ marginTop: 16, gap: 10 }}>
       <p className="hidden-field">
         <label>
           Don't fill this out if you're human: <input name="bot-field" tabIndex={-1} autoComplete="off" />
@@ -110,9 +108,7 @@ function EventSignupForm({ eventId }: { eventId: string }) {
         <label htmlFor={`su-notes-${eventId}`}>Notes (optional)</label>
         <textarea id={`su-notes-${eventId}`} name="notes" />
       </div>
-      {status === "error" && (
-        <p className="form-status form-error" role="alert">{error}</p>
-      )}
+      <FormFeedback status={status} error={error} />
       <button
         className="btn btn-primary"
         type="submit"
