@@ -128,6 +128,19 @@ export function Events() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [modalEvent, setModalEvent] = useState<EventRow | null>(null);
+  const [expandedFlagship, setExpandedFlagship] = useState<Set<string>>(new Set());
+
+  const toggleFlagship = (num: string) => {
+    setExpandedFlagship((prev) => {
+      const next = new Set(prev);
+      if (next.has(num)) {
+        next.delete(num);
+      } else {
+        next.add(num);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -224,8 +237,13 @@ export function Events() {
                 <div className="num">{e.num}</div>
                 <h3>{e.title}</h3>
                 <div className="meta">{e.term}</div>
-                <p className="excerpt">{e.desc}</p>
-                <div className="foot"><span>{e.foot}</span></div>
+                <p className={expandedFlagship.has(e.num) ? "excerpt expanded" : "excerpt"}>{e.desc}</p>
+                <div className="foot">
+                  <span>{e.foot}</span>
+                  <button type="button" className="more" onClick={() => toggleFlagship(e.num)}>
+                    {expandedFlagship.has(e.num) ? "Show less" : "Read more"}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
