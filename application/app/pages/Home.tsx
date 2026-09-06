@@ -311,6 +311,13 @@ const EVENTS = [
     desc: "A live deal simulation run across the year, judged by working bankers from our partner firms.",
     location: "Manchester",
   },
+  {
+    id: "E.04",
+    term: "Spring Term",
+    title: "The Shade Tree",
+    desc: "A 25-year, student-run investment initiative run annually with Alliance Manchester Business School, where MUTIS teams pitch real long-term investment theses for capital donated by alumni Adam and Sara Franks.",
+    location: "Alliance MBS",
+  },
 ];
 
 function EventsSection() {
@@ -335,7 +342,7 @@ function EventsSection() {
             ))}
           </h2>
           <p style={{ opacity: t, transition: "opacity 0.9s ease 0.35s" }}>
-            Three events define the MUTIS year, drawing students from
+            Four events define the MUTIS year, drawing students from
             across the UK and senior speakers from the firms our members are targeting.
           </p>
         </div>
