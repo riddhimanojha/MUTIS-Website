@@ -2,8 +2,6 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
 import { useSiteSettings } from "@/app/hooks/useSiteSettings";
-import { useFormStatus } from "@/app/hooks/useFormStatus";
-import { FormFeedback } from "@/app/components/FormFeedback";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
 
@@ -17,6 +15,7 @@ const PAST_EVENT_IMAGES = Object.entries(eventImageModules)
   .map(([, src]) => src)
   .slice(0, 14);
 
+type FormState = "idle" | "submitting" | "sent" | "error";
 type SponsorRow = Tables<"sponsors">;
 type PackageRow = Tables<"sponsorship_packages">;
 
@@ -113,7 +112,8 @@ function SponsorGridSkeleton() {
 
 export function Sponsors() {
   const { settings } = useSiteSettings();
-  const { status, error, submitting, fail, succeed, onFormInput } = useFormStatus();
+  const [status, setStatus] = useState<FormState>("idle");
+  const [error, setError] = useState("");
   const [sponsors, setSponsors] = useState<SponsorRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -180,7 +180,7 @@ export function Sponsors() {
     e.preventDefault();
     const form = e.currentTarget;
     if ((form.elements.namedItem("bot-field") as HTMLInputElement)?.value) {
-      succeed();
+      setStatus("sent");
       return;
     }
     const data = {
@@ -190,20 +190,23 @@ export function Sponsors() {
       message: (form.elements.namedItem("message") as HTMLTextAreaElement).value.trim(),
     };
     if (!data.company || !data.name || !data.email || !data.message) {
-      fail("Please fill in your company, name, email, and a message.");
+      setError("Please fill in your company, name, email, and a message.");
+      setStatus("error");
       return;
     }
-    submitting();
+    setStatus("submitting");
+    setError("");
 
     const { error: insertError } = await supabase.from("sponsorship_enquiries").insert(data);
 
     if (insertError) {
       console.error("Failed to submit sponsorship enquiry", insertError);
-      fail(`Something went wrong. Please email us directly at ${settings.contact_email}.`);
+      setError(`Something went wrong. Please email us directly at ${settings.contact_email}.`);
+      setStatus("error");
       return;
     }
 
-    succeed();
+    setStatus("sent");
     form.reset();
   };
 
@@ -339,7 +342,6 @@ export function Sponsors() {
                 className="contact-form r-up"
                 name="sponsorship"
                 onSubmit={onSponsorSubmit}
-                onInput={onFormInput}
                 noValidate
               >
                 <p className="hidden-field">
@@ -362,11 +364,10 @@ export function Sponsors() {
                   <textarea id="sp-message" name="message" placeholder="What are you interested in?" required />
                 </div>
 
-                <FormFeedback
-                  status={status}
-                  error={error}
-                  successMessage="Thanks — your enquiry is on its way. We'll be in touch soon."
-                />
+                {status === "error" && <p className="form-status form-error" role="alert">{error}</p>}
+                {status === "sent" && (
+                  <p className="form-status form-success" role="status">Thanks — your enquiry is on its way. We&apos;ll be in touch soon.</p>
+                )}
 
                 <button
                   className="btn btn-primary"
