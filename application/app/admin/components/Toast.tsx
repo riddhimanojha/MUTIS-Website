@@ -46,6 +46,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={t.id}
             role={t.kind === "error" ? "alert" : "status"}
+            aria-live={t.kind === "error" ? "assertive" : "polite"}
+            aria-atomic="true"
             className={`flex w-[320px] items-start gap-[10px] rounded-[12px] border bg-popover p-[14px] text-[13px] leading-[1.5] shadow-lg shadow-black/40 backdrop-blur-md ${
               t.kind === "error" ? "border-destructive/40 text-destructive" : "border-accent/40 text-foreground"
             }`}

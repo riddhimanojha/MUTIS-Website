@@ -1,7 +1,7 @@
 # SEO Audit — MUTIS Website
 
 **Date:** 2026-08-26
-**Scope:** Full codebase audit of the React 18 + TypeScript + Vite 6 SPA (react-router v7, Netlify, Supabase backend), live at `mutisfinancesociety.com`.
+**Scope:** Full codebase audit of the React 18 + TypeScript + Vite 6 SPA (react-router v7, Vercel, Supabase backend), live at `mutisfinancesociety.com`.
 
 ## Method and a caveat on live verification
 
@@ -22,12 +22,12 @@ Googlebot does execute JavaScript before indexing, so Google-driven organic sear
 - **Not fixed in this sweep — architectural decision for the owner:** true fix requires prerendering (e.g. a build-time static-HTML-per-route step) or migrating to SSR (Next.js, or react-router's framework/SSR mode). This is a meaningful engineering investment, not a drop-in fix, and is listed in `SEO-PLAN.md` under manual/owner decisions.
 
 ### 1.2 SPA fallback returns HTTP 200 for every route, including nonexistent ones — Critical — needs architectural decision
-`netlify.toml`, `public/_redirects`, and a stray `vercel.json` all rewrite `/*` → `/index.html` with **status 200**. This is required for client-side routing to survive a hard refresh, but it also means a truly nonexistent URL (typo, stale link, deleted content) returns HTTP 200 with the `NotFound` component rendered client-side — a "soft 404." Search engines generally handle soft-404s by demoting/dropping the page from the index once detected, but it takes longer than an honest 404 and can waste crawl budget.
-- Fully solving this also requires server-side awareness of which routes are valid (i.e. SSR/prerendering, same as 1.1) — flagged as the same architectural decision.
+`vercel.json`'s rewrite sends `/*` → `/index.html` with **status 200**. This is required for client-side routing to survive a hard refresh, but it also means a truly nonexistent URL (typo, stale link, deleted content) returns HTTP 200 with the `NotFound` component rendered client-side — a "soft 404." Search engines generally handle soft-404s by demoting/dropping the page from the index once detected, but it takes longer than an honest 404 and can waste crawl budget.
+- Fully solving this also requires server-side awareness of which routes are valid (i.e. SSR/prerendering, same as 1.1, or a Vercel Edge Middleware that checks the path) — flagged as the same architectural decision.
 - Partial mitigation implemented this sweep: `NotFound.tsx` now sets `<meta name="robots" content="noindex, follow">` via Helmet, so once a crawler does render the page (which Googlebot will), it gets an explicit signal not to index it, and no misleading canonical is set.
 
-### 1.3 Stray `vercel.json` — Low — code fix
-The repo ships both `netlify.toml` (the documented, actual deploy target per `DEPLOYMENT.md`) and a `vercel.json` SPA rewrite. If Vercel isn't actually in use, this is dead config that could confuse future maintainers about the deploy target. Left in place (not this sweep's call to delete infra config); flagged for the owner to confirm.
+### 1.3 Resolved: stray unused-host config — Low — code fix
+The repo previously shipped config and a hidden form stub for a second, never-actually-live hosting provider alongside `vercel.json`. Confirmed the deploy target is Vercel; the unused config and the leftover hidden form stub in `index.html` have since been deleted.
 
 ---
 
