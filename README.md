@@ -2,7 +2,7 @@
 
 The official website for the **Manchester University Trading & Investment Society (MUTIS)** - one of the UK's largest student finance societies with 4,000+ members.
 
-Built with React + TypeScript + Vite. Fully static - no backend, no database, no login. Hosted on Netlify with zero running costs.
+Built with React + TypeScript + Vite, with a Supabase backend (database, auth, storage, and edge functions) powering the content and the `/admin` panel. Hosted on Vercel.
 
 ---
 
@@ -17,7 +17,7 @@ Built with React + TypeScript + Vite. Fully static - no backend, no database, no
 | Articles | `/articles` | Member research (empty until articles are published) |
 | Sponsors | `/sponsors` | Partner firms with logos and careers links |
 | Join | `/join` | Membership sign-up funnel |
-| Contact | `/contact` | Contact form (powered by Netlify Forms) |
+| Contact | `/contact` | Contact form (submits to Supabase) |
 | Alumni | `/alumni` | Alumni destinations (alias for Articles) |
 
 ---
@@ -66,11 +66,10 @@ MUTIS-merged/
 │   ├── WebsiteMainbg.webp    # Homepage hero background
 │   ├── eventsbg.jpg          # Events page hero background
 │   ├── robots.txt
-│   ├── sitemap.xml
-│   └── _redirects            # Netlify SPA routing fallback
+│   └── sitemap.xml
 │
-├── index.html                # HTML shell (SEO meta + hidden Netlify form)
-├── netlify.toml              # Netlify build config
+├── index.html                # HTML shell (SEO meta)
+├── vercel.json                # Vercel SPA rewrite config
 ├── vite.config.ts            # Vite config
 ├── tsconfig.json             # TypeScript config (strict mode)
 └── package.json
@@ -113,17 +112,18 @@ const LOCAL_LOGOS = {
 | Styling | Tailwind CSS v4 + custom CSS design system |
 | Icons | lucide-react |
 | Animations | motion (Framer Motion) |
-| Forms | Netlify Forms (no server needed) |
-| Hosting | Netlify |
+| Backend | Supabase (Postgres, Auth, Storage, Edge Functions) |
+| Forms | Direct Supabase inserts from the client |
+| Hosting | Vercel |
 | Package manager | pnpm |
 
 ---
 
 ## Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for the full Netlify setup guide.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the full Vercel setup guide.
 
-The short version: push to your main branch and Netlify auto-deploys. The build command is `pnpm build` and the publish directory is `dist`.
+The short version: push to your main branch and Vercel auto-deploys. The build command is `pnpm build` and the output directory is `dist`.
 
 ---
 
@@ -138,7 +138,7 @@ The short version: push to your main branch and Netlify auto-deploys. The build 
 
 ## Other docs
 
-- [DEPLOYMENT.md](DEPLOYMENT.md) - how to deploy to Netlify
+- [DEPLOYMENT.md](DEPLOYMENT.md) - how to deploy to Vercel
 - [ACCESSIBILITY.md](ACCESSIBILITY.md) - accessibility features and how to maintain them
 - [SEO.md](SEO.md) - how SEO is set up (per-route meta, sitemap, Open Graph)
 - [PERFORMANCE.md](PERFORMANCE.md) - performance tips and image optimisation guide

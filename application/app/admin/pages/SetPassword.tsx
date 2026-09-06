@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "../AuthProvider";
+import { FormMessage } from "../components/FormMessage";
 
 type Status = "idle" | "submitting" | "error" | "done";
 
@@ -111,16 +112,8 @@ export function SetPassword() {
             />
           </div>
 
-          {status === "error" && (
-            <p role="alert" className="text-[13px] text-destructive">
-              {error}
-            </p>
-          )}
-          {status === "done" && (
-            <p role="status" className="text-[13px] text-accent">
-              Password set — redirecting…
-            </p>
-          )}
+          {status === "error" && <FormMessage kind="error">{error}</FormMessage>}
+          {status === "done" && <FormMessage kind="success">Password set — redirecting…</FormMessage>}
 
           <button
             type="submit"

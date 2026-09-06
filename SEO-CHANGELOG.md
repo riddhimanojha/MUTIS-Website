@@ -69,7 +69,7 @@ Everything below needs the site owner — credentials, DNS, content decisions, o
 5. Confirm whether `public/headshots/*` is still referenced anywhere or safe to delete/replace (one file, `Anthony.jpeg`, is a 1.8MB outlier).
 6. Decide whether to invest in SSR/prerendering — the single highest-leverage remaining SEO fix, but a multi-week engineering decision outside this sweep's scope.
 7. ~~Review the unauthenticated `/admin/__preview-*` routes found during this audit~~ — **done**: these 20 routes rendered admin CRUD pages with no `ProtectedRoute` check at all, so they've been deleted from `application/app/routes.tsx` outright rather than just flagged. This was an access-control issue, not strictly an SEO one, but it was surfaced by this audit and directly addressed by `robots.txt`'s new `Disallow: /admin` — there's no longer anything unauthenticated left under `/admin` for that disallow to be a fig leaf for.
-8. Confirm the actual deploy target — both `netlify.toml` and `vercel.json` exist in the repo.
+8. ~~Confirm the actual deploy target~~ — **done**: confirmed Vercel; the unused second-host config and redirects file have been removed.
 9. Update `supabase/functions/admin-add-by-email/index.ts`'s `SITE_URL` to the corrected domain and redeploy that Edge Function.
 10. Periodically spot-check sponsor/committee/document links via the admin panel — they're Supabase-driven content, not code, so a broken link there wouldn't show up in a codebase audit.
 11. Once deployed: run Lighthouse (mobile + desktop) on `/` and `/events`, and check a few shared links in the Facebook Sharing Debugger / Twitter Card Validator.

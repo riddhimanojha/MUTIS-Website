@@ -1,7 +1,7 @@
 # Deployment Guide
 
-The MUTIS site is a fully static React SPA. It builds to `dist/` and can be hosted on any
-static host. **Netlify** is the recommended target because the contact form uses Netlify Forms.
+The MUTIS site is a React + Vite SPA that talks to a Supabase backend (Postgres, Auth, Storage,
+Edge Functions). It builds to `dist/` and is hosted on **Vercel**.
 
 ## Build
 
@@ -10,59 +10,62 @@ pnpm install
 pnpm build        # outputs dist/
 ```
 
-## Recommended: Netlify
+## Vercel
 
-Configuration lives in [`netlify.toml`](netlify.toml):
+Configuration lives in [`vercel.json`](vercel.json):
 
-```toml
-[build]
-  command = "pnpm build"
-  publish = "dist"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
 ```
 
 Steps:
 
-1. Connect the repository in Netlify (or `netlify deploy`).
-2. Netlify reads `netlify.toml` - no manual settings needed.
-3. The SPA redirect rule (also in [`public/_redirects`](public/_redirects)) makes deep links
-   like `/meif` resolve to `index.html` so a refresh doesn’t 404.
+1. Connect the repository in the Vercel dashboard (or `vercel deploy`).
+2. Vercel auto-detects the Vite project — build command `pnpm build`, output directory `dist`.
+3. The rewrite rule in `vercel.json` makes deep links like `/meif` or `/admin/sponsors` resolve
+   to `index.html` so a refresh doesn't 404, while React Router handles the actual routing
+   client-side (see `app/pages/NotFound.tsx` for the caveat this implies for real 404s).
+4. Set the Supabase environment variables (see below) in the Vercel project's Environment
+   Variables settings for Production, Preview, and Development as needed.
 
-### Contact form (Netlify Forms)
+### Environment variables
 
-- The contact form posts URL-encoded data to `/` with a `form-name=contact` field
-  (`application/app/pages/Contact.tsx`).
-- A hidden static `<form name="contact" netlify>` in `index.html` lets Netlify’s build bot
-  register the form (required for a Vite SPA, since Netlify doesn’t parse JSX).
-- A honeypot field (`bot-field`) reduces spam.
-- Submissions appear in **Netlify dashboard → Forms**. Configure email/Slack notifications there.
-- The form fails gracefully off-Netlify (e.g. local `pnpm dev`): it shows an error state and
-  points users to the email address.
+The client reads its Supabase project URL and anon key via Vite env vars (see
+`application/lib/supabase.ts`). Set these in Vercel:
 
-## Alternative hosts
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-The site works on any static host **if you add an SPA fallback**:
+Server-side secrets (e.g. the eToro API keys, service-role keys used by Edge Functions) live in
+Supabase itself — either as Supabase Vault secrets or Edge Function environment variables — never
+in the Vercel/client environment.
 
-| Host          | SPA fallback                                                        |
-| ------------- | ------------------------------------------------------------------- |
-| Vercel        | Add `vercel.json` with a rewrite `{ "source": "/(.*)", "destination": "/" }` |
-| GitHub Pages  | Add a `404.html` copy of `index.html`                               |
-| Cloudflare    | Pages auto-handles SPA; set output dir `dist`                       |
-| Nginx/Apache  | `try_files $uri /index.html;` / rewrite to `index.html`             |
+### Forms
 
-> Note: the contact form’s Netlify Forms integration only works on Netlify. On other hosts,
-> swap the form action for an alternative (Formspree, Getform, a serverless function, etc.).
+All public forms (contact, sponsorship enquiry, event signup, attendance) insert directly into
+Supabase tables from the client (`contact_submissions`, `sponsorship_enquiries`, `event_signups`,
+`attendance_submissions` — see `supabase/migrations`). A client-side honeypot field
+(`bot-field`) reduces spam; submissions are reviewed in the admin panel's **Submissions** inbox
+(`/admin/submissions`), not a third-party forms dashboard.
+
+## Supabase setup
+
+- Apply migrations in `supabase/migrations/` to the project's Postgres database.
+- Deploy the Edge Functions in `supabase/functions/` (`admin-add-by-email`, `etoro-portfolio`,
+  `etoro-set-key`, `purge-storage-cache`) via the Supabase CLI or dashboard.
+- Configure Supabase Auth (email/password) for admin accounts — access is invite-only via the
+  Manage Admins page, backed by the `admin-add-by-email` function.
 
 ## Pre-deploy checklist
 
 - [ ] `pnpm build` succeeds.
 - [ ] `pnpm exec tsc --noEmit` reports no errors.
-- [ ] Update the production domain in `index.html` (canonical/OG URLs),
-      `usePageMeta.ts` (`SITE_URL`), `robots.txt`, and `sitemap.xml`
-      (currently `https://mutis.co.uk`).
-- [ ] Verify deep links (e.g. `/sponsors`) load after a hard refresh.
-- [ ] Submit a test message and confirm it appears in Netlify Forms.
+- [ ] Update the production domain in `index.html` (canonical/OG URLs) and `usePageMeta.ts`
+      (`SITE_URL`), plus `robots.txt` and `sitemap.xml`.
+- [ ] Verify deep links (e.g. `/sponsors`, `/admin/events`) load after a hard refresh.
+- [ ] Confirm Supabase env vars are set for the target Vercel environment.
+- [ ] Submit a test message on `/contact` and confirm it appears in the admin Submissions inbox.
