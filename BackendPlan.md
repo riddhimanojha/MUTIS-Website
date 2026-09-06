@@ -1,14 +1,8 @@
 # MUTIS Backend: Supabase + Bespoke Admin Panel — Planning Document
 
-> **Historical / superseded**: this plan describes the pre-migration state (a static site whose
-> forms posted to a third-party static-site forms service) and the plan to move it onto Supabase.
-> That migration is now complete — the current site is deployed on Vercel with a full Supabase
-> backend and admin panel. Kept here as a historical record of the planning process, not a
-> description of the current architecture.
-
 ## Context
 
-The MUTIS site ([README.md](../../../Users/denial/Desktop/MUTIS/README.md)) is a fully static React/Vite SPA on a static host. Despite a stale README claim, there is no Supabase backend today — confirmed by a full repo and git-history search: zero Supabase references anywhere. All content (sponsors, team, events, alumni, articles) is hardcoded in TypeScript, mostly in `application/app/data/siteData.ts` plus inline arrays inside individual page components. `Articles.tsx` exists as a page but has no real content — it's an empty array with a "coming soon" state. There is no database and no admin panel, so every content update today requires a developer to edit code and redeploy.
+The MUTIS site ([README.md](../../../Users/denial/Desktop/MUTIS/README.md)) is a fully static React/Vite SPA on Netlify. Despite a stale README claim, there is no Supabase backend today — confirmed by a full repo and git-history search: zero Supabase references anywhere. All content (sponsors, team, events, alumni, articles) is hardcoded in TypeScript, mostly in `application/app/data/siteData.ts` plus inline arrays inside individual page components. `Articles.tsx` exists as a page but has no real content — it's an empty array with a "coming soon" state. There is no database and no admin panel, so every content update today requires a developer to edit code and redeploy.
 
 The decision has been made to build a custom backend on **Supabase (Postgres + Auth + Storage)** with a bespoke admin panel for non-technical committee members, so the committee can manage sponsors, team/alumni, events, and articles — plus review form submissions — without touching code. This document is **planning and schema design only**: no code, no migrations, no repo changes. It is meant to be reviewed and then used as the spec for a future, separate implementation effort.
 
@@ -32,8 +26,8 @@ Every page/component file reviewed, classified as **Convert**, **Stays static**,
 | Previous presidents | [PreviousPresidents.tsx:14-26](../../../Users/denial/Desktop/MUTIS/application/app/pages/PreviousPresidents.tsx#L14-L26) | Hardcoded array, mostly "Name TBC" placeholders today | Becomes a DB-backed historical record the committee can fill in over time instead of editing code each year |
 | Recurring industry events | [siteData.ts:12-35](../../../Users/denial/Desktop/MUTIS/application/app/data/siteData.ts#L12-L35) (`industryEvents`) | Hardcoded array; `date` is a vague free-text string like `"Termly"` | Events page fetches published, date-ordered events; the vague `"Termly"` text field is replaced by a real timestamp, which also unlocks event signup (see below) |
 | Article content | [Articles.tsx:11-21](../../../Users/denial/Desktop/MUTIS/application/app/pages/Articles.tsx#L11-L21) (`ARTICLES`, currently empty) | Empty typed array, no CMS/workflow exists at all | Articles page fetches published articles from the DB; a fresh draft/published workflow is introduced (nothing to preserve — designed new in Phase 2) |
-| Contact form submissions | [Contact.tsx](../../../Users/denial/Desktop/MUTIS/application/app/pages/Contact.tsx) | Currently posts to a third-party static-site forms service | Form posts to Supabase instead; committee reviews submissions in the admin panel instead of that service's dashboard |
-| Sponsorship enquiry submissions | [Sponsors.tsx:129-163](../../../Users/denial/Desktop/MUTIS/application/app/pages/Sponsors.tsx#L129-L163) | Currently posts to that same third-party forms service | Same change as above |
+| Contact form submissions | [Contact.tsx](../../../Users/denial/Desktop/MUTIS/application/app/pages/Contact.tsx) | Currently posts to Netlify Forms | Form posts to Supabase instead of Netlify; committee reviews submissions in the admin panel instead of the Netlify dashboard |
+| Sponsorship enquiry submissions | [Sponsors.tsx:129-163](../../../Users/denial/Desktop/MUTIS/application/app/pages/Sponsors.tsx#L129-L163) | Currently posts to Netlify Forms | Same change as above |
 | Event signup | *(does not exist yet)* | Nothing today — only a post-event feedback form exists (see Ambiguous, below) | New form component on the Events/event-detail page; only shown when an event has `signup_enabled = true` |
 
 ### Stays static
@@ -63,11 +57,11 @@ Every page/component file reviewed, classified as **Convert**, **Stays static**,
 
 ### Current state of the contact/signup forms
 
-**Functional, not broken.** All three existing forms (contact, sponsorship enquiry, attendance) are correctly wired to that third-party static-site forms service:
+**Functional, not broken.** All three existing forms (contact, sponsorship enquiry, attendance) are correctly wired to Netlify Forms:
 - Each page posts URL-encoded data via `fetch("/", { method: "POST", ... })` with a matching `form-name` field ([Contact.tsx:44-49](../../../Users/denial/Desktop/MUTIS/application/app/pages/Contact.tsx#L44-L49), [Sponsors.tsx:150-155](../../../Users/denial/Desktop/MUTIS/application/app/pages/Sponsors.tsx#L150-L155), [Attendance.tsx:53-58](../../../Users/denial/Desktop/MUTIS/application/app/pages/Attendance.tsx#L53-L58)).
-- [index.html:40-73](../../../Users/denial/Desktop/MUTIS/index.html#L40-L73) contains a hidden static `<form>` for all three (`contact`, `sponsorship`, `attendance`), each with field names matching the live React forms exactly — this is required for that service's build bot to detect and register the forms, since it can't parse JSX. All three are correctly registered; none are missing.
+- [index.html:40-73](../../../Users/denial/Desktop/MUTIS/index.html#L40-L73) contains a hidden static `<form>` for all three (`contact`, `sponsorship`, `attendance`), each with field names matching the live React forms exactly — this is required for Netlify's build bot to detect and register the forms, since it can't parse JSX. All three are correctly registered; none are missing.
 - Each has a honeypot field (`bot-field`) for basic spam filtering.
-- Confirmed in [DEPLOYMENT.md:35-44](../../../Users/denial/Desktop/MUTIS/DEPLOYMENT.md#L35-L44): submissions land in that service's dashboard, with optional email/Slack notification. This only worked on that specific host — a known, documented limitation, not a bug.
+- Confirmed in [DEPLOYMENT.md:35-44](../../../Users/denial/Desktop/MUTIS/DEPLOYMENT.md#L35-L44): submissions land in the Netlify dashboard → Forms, with optional email/Slack notification. This only works on Netlify — a known, documented limitation, not a bug.
 
 This is the baseline being replaced for **contact** and **sponsorship enquiry** by Supabase tables in Phase 2 below. **Event signup** is new — nothing to preserve, nothing currently broken to fix.
 
@@ -239,10 +233,10 @@ create table public.event_signups (
 );
 ```
 **Plain language:**
-- `status` on the two enquiry tables lets an admin mark a submission as read/archived once handled, so the inbox is manageable — this mirrors what the previous forms service's dashboard already did informally.
+- `status` on the two enquiry tables lets an admin mark a submission as read/archived once handled, so the inbox is manageable — this mirrors what the Netlify Forms dashboard already does informally today.
 - `contact_submissions.reason` is deliberately **not** locked to the current 5 dropdown options at the database level — that dropdown's wording is just UI copy likely to be tweaked year to year, and this field never drives any access rule or logic, so pinning it in the database would only create friction (a migration every time the wording changes) for no real benefit. The options list lives in the frontend dropdown only.
 - `event_signups` has a uniqueness rule preventing the same email from registering for the same event twice by accident.
-- **Known, accepted gap**: moving these three forms off the previous forms service and onto direct Supabase inserts drops that service's built-in spam filtering. As agreed, this plan keeps the existing honeypot field client-side and **documents this as a future hardening step** (a thin rate-limiting function in front of the inserts) rather than building it now.
+- **Known, accepted gap**: moving these three forms off Netlify Forms and onto direct Supabase inserts drops Netlify's built-in spam filtering. As agreed, this plan keeps the existing honeypot field client-side and **documents this as a future hardening step** (a thin rate-limiting function in front of the inserts) rather than building it now.
 - The existing **Attendance/feedback form** is out of scope per Phase 1, but if converted later it should follow this exact same pattern (public insert, admin-only read).
 
 ### 6. Image / logo / photo storage
@@ -344,7 +338,7 @@ Build and migrate **one content type at a time**, not the whole schema and admin
 1. **Sponsors first.** Smallest, cleanest schema (one table, no relationships to anything else), directly fixes a real live bug (the `FIRM_ROLE` name-keyed lookup), and gives the committee an immediately visible, low-risk win to validate the whole admin-panel pattern (login → edit → publish → see it live) before anything more sensitive is involved.
 2. **Committee/team next.** Still a single table, no cross-table relationships, and reuses everything learned building the sponsors admin screen (image upload, publish toggle, ordering).
 3. **Events third.** Introduces the one real complexity increase — a genuine date/time field replacing free text — but still no dependency on anything not yet built.
-4. **Event signup, immediately after events**, since it depends on the `events` table existing first (a signup always references a specific event) and is the first form to be moved onto Supabase (it never had a static-forms equivalent).
+4. **Event signup, immediately after events**, since it depends on the `events` table existing first (a signup always references a specific event) and is the first form to be moved off Netlify.
 5. **Contact + sponsorship enquiry forms**, once the admin panel already has a working "review submissions" pattern from event signups to extend, rather than building that pattern three times independently.
 6. **Alumni last, deliberately**, *after* the team is comfortable with the basic publish/unpublish flow from steps 1-2 — because alumni also requires understanding and correctly using the consent-gated publish rule (`is_published` can't be `true` without `consent_confirmed`), which is worth introducing once the simpler pattern is already second nature, not on day one.
 7. **Articles last overall.** It has no existing content to migrate (starting from zero), the most novel workflow (draft/published, markdown body vs. PDF link), and is the least time-sensitive — nothing on the live site breaks by leaving `Articles.tsx` exactly as it is today until everything else is stable.

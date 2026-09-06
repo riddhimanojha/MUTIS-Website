@@ -39,11 +39,11 @@ contact details, external links, leadership bios, copyright, and mission copy.
 7. **`data/siteData.ts` file-header comment is factually wrong**: it claims
    "all content is static; no backend or database," but Contact.tsx writes to
    Supabase, and sponsor logos are already hosted on Supabase Storage.
-8. ~~**Attendance.tsx form likely broken**~~ — **resolved**: it previously submitted via
-   `fetch("/")` using a static-site forms-detection convention that only worked on a specific
-   hosting provider, while every other form in the app (e.g. Sponsors enquiry) inserted directly
-   into Supabase. It now inserts into `attendance_submissions` the same way, and the leftover
-   hidden static form markup in `index.html` has been removed.
+8. **Attendance.tsx form likely broken**: submits via `fetch("/")` using the
+   Netlify Forms static-site convention (`data-netlify` attributes), while
+   every other form in the app (e.g. Sponsors enquiry) inserts directly into
+   Supabase. If the site isn't deployed on Netlify with form detection enabled,
+   this form silently does nothing.
 
 ---
 
@@ -175,7 +175,7 @@ contact details, external links, leadership bios, copyright, and mission copy.
 ### `app/pages/Attendance.tsx`
 | Line | Snippet | Description | Suggested action | Duplication |
 |---|---|---|---|---|
-| 53–59 | ~~`fetch("/", {...})` using a static-site forms-detection convention~~ | **Resolved** — now inserts directly into `attendance_submissions`, matching Sponsors.tsx's `sponsorship_enquiries` pattern | Done | Sponsors.tsx does the equivalent correctly via Supabase |
+| 53–59 | `fetch("/", {...})` using Netlify Forms convention (`data-netlify` attrs) | **Likely broken form handler** — inconsistent with rest of app's Supabase-insert pattern | **One-off manual fix** — verify hosting platform; convert to a Supabase insert (e.g. `attendance_submissions` table) matching Sponsors.tsx's `sponsorship_enquiries` pattern | Sponsors.tsx does the equivalent correctly via Supabase |
 | 65 | Fallback error text with email | Email | Leave static, centralize | Dup of Sponsors.tsx, Footer.tsx, Contact.tsx |
 | 239–241 | mailto link | Email | Leave static, centralize | same |
 | 247 | Instagram link | Social link | Leave static | Dup of Recordings.tsx:49 |

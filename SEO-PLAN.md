@@ -31,7 +31,7 @@ Admin routes (`/admin/*`) are explicitly left unoptimized and excluded from the 
 6. **Confirm `public/headshots/*` legacy status** — are these files still referenced anywhere, or safe to delete/replace? (See audit 5.4.)
 7. **Decide on SSR/prerendering investment** — the single highest-leverage remaining SEO fix is moving off pure CSR (via prerendering or a framework migration). This is a multi-week engineering decision, not something to fold into a sweep like this one.
 8. ~~Review the unauthenticated `/admin/__preview-*` routes~~ — **resolved**: deleted outright rather than left for review, since there was no legitimate reason for them to be unauthenticated. See `SEO-CHANGELOG.md`.
-9. ~~Confirm the deploy target~~ — **resolved**: the site is deployed on Vercel; the leftover config and redirects file for a never-actually-live second host have been deleted.
+9. **Confirm the deploy target** — both `netlify.toml` and a `vercel.json` exist; confirm which is actually live so the other can be removed or documented as intentional.
 10. **Update `supabase/functions/admin-add-by-email/index.ts`'s `SITE_URL`** to the corrected domain and redeploy the Edge Function (left out of this sweep since it requires a function redeploy, not just a site rebuild).
 11. **Periodic manual link check**: sponsor logos, committee LinkedIn URLs, and document/PDF links are all Supabase-driven content, not code — a broken link there is a content problem best caught via the admin panel, not a codebase audit.
 12. **Live verification once deployed**: Lighthouse (mobile + desktop) on `/` and `/events`, Facebook Sharing Debugger / Twitter Card Validator against a few routes, `view-source:` spot-checks. None of this could be done from this sandbox (no live internet egress).
