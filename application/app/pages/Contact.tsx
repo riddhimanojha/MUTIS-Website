@@ -1,16 +1,15 @@
-import { useState, type FormEvent } from "react";
+import { type FormEvent } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
 import { useSiteSettings } from "@/app/hooks/useSiteSettings";
+import { useFormStatus } from "@/app/hooks/useFormStatus";
+import { FormFeedback } from "@/app/components/FormFeedback";
 import { supabase } from "@/lib/supabase";
-
-type Status = "idle" | "submitting" | "sent" | "error";
 
 export function Contact() {
   useReveal();
   const { settings } = useSiteSettings();
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState<string>("");
+  const { status, error, submitting, fail, succeed, onFormInput } = useFormStatus();
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -18,7 +17,7 @@ export function Contact() {
 
     // Honeypot: if a bot filled the hidden field, silently succeed.
     if ((form.elements.namedItem("bot-field") as HTMLInputElement)?.value) {
-      setStatus("sent");
+      succeed();
       return;
     }
 
@@ -30,26 +29,21 @@ export function Contact() {
     };
 
     if (!data.name || !data.email || !data.message) {
-      setError("Please fill in your name, email, and a message.");
-      setStatus("error");
+      fail("Please fill in your name, email, and a message.");
       return;
     }
 
-    setStatus("submitting");
-    setError("");
+    submitting();
 
     const { error: insertError } = await supabase.from("contact_submissions").insert(data);
 
     if (insertError) {
       console.error("Failed to submit contact message", insertError);
-      setError(
-        `Something went wrong sending your message. Please email us directly at ${settings.contact_email}.`
-      );
-      setStatus("error");
+      fail(`Something went wrong sending your message. Please email us directly at ${settings.contact_email}.`);
       return;
     }
 
-    setStatus("sent");
+    succeed();
     form.reset();
   };
 
@@ -78,6 +72,7 @@ export function Contact() {
                 className="contact-form r-up"
                 name="contact"
                 onSubmit={onSubmit}
+                onInput={onFormInput}
                 noValidate
               >
                 <p className="hidden-field">
@@ -108,14 +103,11 @@ export function Contact() {
                   <textarea id="contact-message" name="message" placeholder="Tell us a bit more…" required />
                 </div>
 
-                {status === "error" && (
-                  <p className="form-status form-error" role="alert">{error}</p>
-                )}
-                {status === "sent" && (
-                  <p className="form-status form-success" role="status">
-                    Thanks, your message is on its way. We’ll be in touch soon.
-                  </p>
-                )}
+                <FormFeedback
+                  status={status}
+                  error={error}
+                  successMessage="Thanks, your message is on its way. We’ll be in touch soon."
+                />
 
                 <button
                   className="btn btn-primary"
