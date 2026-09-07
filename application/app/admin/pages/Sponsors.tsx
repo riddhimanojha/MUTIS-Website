@@ -200,11 +200,12 @@ export function Sponsors() {
     },
     { key: "name", label: "Name", render: (r) => r.name, sortValue: (r) => r.name },
     { key: "tier", label: "Tier", render: (r) => r.tier, sortValue: (r) => r.tier },
-    { key: "sector", label: "Sector", render: (r) => r.sector ?? "—" },
-    { key: "years_active", label: "Years", render: (r) => r.years_active ?? "—" },
+    { key: "sector", label: "Sector", render: (r) => r.sector ?? "—", exportValue: (r) => r.sector ?? "" },
+    { key: "years_active", label: "Years", render: (r) => r.years_active ?? "—", exportValue: (r) => r.years_active ?? "" },
     {
       key: "is_published",
       label: "Published",
+      exportValue: (r) => (r.is_published ? "Yes" : "No"),
       render: (r) => (
         <PublishToggle
           checked={r.is_published}
@@ -374,7 +375,7 @@ export function Sponsors() {
             })}
           </div>
         ) : (
-          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage="No sponsors match." />
+          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage="No sponsors match." exportFilename="sponsors.csv" />
         )}
       </div>
 

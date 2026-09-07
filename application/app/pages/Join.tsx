@@ -26,7 +26,7 @@ export function Join() {
             <div className="numlist-item r-up">
               <div className="n">01</div>
               <div>
-                <div className="t">Buy a membership</div>
+                <div className="t">Sign Up</div>
                 <div className="d">Standard membership runs the full academic year and includes access to all weekly meetings, workshops, and partner events.</div>
               </div>
               <div className="arrow">→</div>

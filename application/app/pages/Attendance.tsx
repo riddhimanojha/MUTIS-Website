@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
 import { useSiteSettings } from "@/app/hooks/useSiteSettings";
@@ -15,7 +15,7 @@ export function Attendance() {
   useReveal();
   const { settings } = useSiteSettings();
   const { status, error, submitting, fail, succeed, reset, onFormInput } = useFormStatus();
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState<number | null>(null);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState("");
@@ -55,14 +55,13 @@ export function Attendance() {
     const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
     const course = (form.elements.namedItem("course") as HTMLInputElement).value.trim();
     const year = (form.elements.namedItem("year") as HTMLSelectElement).value;
-    const ratingVal = (form.elements.namedItem("rating") as HTMLInputElement).value;
     const comments = (form.elements.namedItem("comments") as HTMLTextAreaElement).value.trim();
 
-    if (!eventId || (eventId === OTHER_EVENT && !otherEventName) || !name || !email || !course || !year) {
+    if (!eventId || (eventId === OTHER_EVENT && !otherEventName) || !name || !email || !course || !year || !rating) {
       fail(
         eventId === OTHER_EVENT
-          ? "Please tell us which event you attended, and fill in your name, email, course, and year of study."
-          : "Please select the event you attended and fill in your name, email, course, and year of study."
+          ? "Please tell us which event you attended, fill in your name, email, course, and year of study, and rate the event."
+          : "Please select the event you attended, fill in your name, email, course, and year of study, and rate the event."
       );
       return;
     }
@@ -76,7 +75,7 @@ export function Attendance() {
       email,
       course,
       year,
-      rating: Number(ratingVal),
+      rating,
       comments: comments || null,
     });
 
@@ -88,7 +87,7 @@ export function Attendance() {
 
     succeed();
     form.reset();
-    setRating(5);
+    setRating(null);
     setSelectedEvent("");
   };
 
@@ -233,26 +232,41 @@ export function Attendance() {
                   </div>
 
                   <div className="field">
-                    <label htmlFor="att-rating">
-                      How would you rate the event? *&nbsp;
-                      <span style={{ color: "var(--pm-accent)", fontVariantNumeric: "tabular-nums" }}>
-                        {rating} / 10
-                      </span>
-                    </label>
-                    <input
-                      id="att-rating"
-                      name="rating"
-                      type="range"
-                      min={1}
-                      max={10}
-                      step={1}
-                      value={rating}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setRating(Number(e.target.value))}
-                      style={{ width: "100%", accentColor: "var(--pm-accent)", cursor: "pointer" }}
-                    />
+                    <label htmlFor="att-rating-1">How would you rate the event? *</label>
+                    <div
+                      role="radiogroup"
+                      aria-labelledby="att-rating-1"
+                      style={{ display: "flex", gap: 8 }}
+                    >
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          id={n === 1 ? "att-rating-1" : undefined}
+                          type="button"
+                          role="radio"
+                          aria-checked={rating === n}
+                          onClick={() => setRating(n)}
+                          style={{
+                            flex: 1,
+                            padding: "12px 0",
+                            fontSize: 16,
+                            fontWeight: 600,
+                            fontVariantNumeric: "tabular-nums",
+                            borderRadius: 8,
+                            border: rating === n ? "1px solid var(--pm-accent)" : "1px solid var(--hair)",
+                            background: rating === n ? "var(--pm-accent)" : "transparent",
+                            color: rating === n ? "var(--base)" : "var(--ink)",
+                            cursor: "pointer",
+                            transition: "background 0.15s, border-color 0.15s, color 0.15s",
+                          }}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--ink-soft)", letterSpacing: "0.08em", marginTop: 4 }}>
                       <span>1 — Poor</span>
-                      <span>10 — Excellent</span>
+                      <span>5 — Excellent</span>
                     </div>
                   </div>
 

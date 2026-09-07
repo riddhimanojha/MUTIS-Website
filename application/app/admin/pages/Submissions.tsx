@@ -170,11 +170,11 @@ export function Submissions() {
 
   const contactColumns: DataTableColumn<Contact>[] = [
     { key: "created_at", label: "Received", render: (r) => formatDateTime(r.created_at), sortValue: (r) => r.created_at },
-    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
-    { key: "name", label: "Name", render: (r) => r.name },
-    { key: "email", label: "Email", render: (r) => r.email },
-    { key: "reason", label: "Reason", render: (r) => r.reason },
-    { key: "message", label: "Message", render: (r) => truncate(r.message, 60) },
+    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} />, exportValue: (r) => r.status },
+    { key: "name", label: "Name", render: (r) => r.name, exportValue: (r) => r.name },
+    { key: "email", label: "Email", render: (r) => r.email, exportValue: (r) => r.email },
+    { key: "reason", label: "Reason", render: (r) => r.reason, exportValue: (r) => r.reason },
+    { key: "message", label: "Message", render: (r) => truncate(r.message, 60), exportValue: (r) => r.message },
     {
       key: "actions",
       label: "",
@@ -188,11 +188,11 @@ export function Submissions() {
 
   const sponsorshipColumns: DataTableColumn<Sponsorship>[] = [
     { key: "created_at", label: "Received", render: (r) => formatDateTime(r.created_at), sortValue: (r) => r.created_at },
-    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
-    { key: "company", label: "Company", render: (r) => r.company },
-    { key: "name", label: "Name", render: (r) => r.name },
-    { key: "email", label: "Email", render: (r) => r.email },
-    { key: "message", label: "Message", render: (r) => truncate(r.message, 60) },
+    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} />, exportValue: (r) => r.status },
+    { key: "company", label: "Company", render: (r) => r.company, exportValue: (r) => r.company },
+    { key: "name", label: "Name", render: (r) => r.name, exportValue: (r) => r.name },
+    { key: "email", label: "Email", render: (r) => r.email, exportValue: (r) => r.email },
+    { key: "message", label: "Message", render: (r) => truncate(r.message, 60), exportValue: (r) => r.message },
     {
       key: "actions",
       label: "",
@@ -206,11 +206,11 @@ export function Submissions() {
 
   const signupColumns: DataTableColumn<Signup>[] = [
     { key: "created_at", label: "Signed up", render: (r) => formatDateTime(r.created_at), sortValue: (r) => r.created_at },
-    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
-    { key: "event", label: "Event", render: (r) => eventTitle(r.event_id) },
-    { key: "name", label: "Name", render: (r) => r.name },
-    { key: "email", label: "Email", render: (r) => r.email },
-    { key: "notes", label: "Notes", render: (r) => (r.notes ? truncate(r.notes, 40) : "—") },
+    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} />, exportValue: (r) => r.status },
+    { key: "event", label: "Event", render: (r) => eventTitle(r.event_id), exportValue: (r) => eventTitle(r.event_id) },
+    { key: "name", label: "Name", render: (r) => r.name, exportValue: (r) => r.name },
+    { key: "email", label: "Email", render: (r) => r.email, exportValue: (r) => r.email },
+    { key: "notes", label: "Notes", render: (r) => (r.notes ? truncate(r.notes, 40) : "—"), exportValue: (r) => r.notes ?? "" },
     {
       key: "actions",
       label: "",
@@ -224,13 +224,13 @@ export function Submissions() {
 
   const attendanceColumns: DataTableColumn<Attendance>[] = [
     { key: "created_at", label: "Received", render: (r) => formatDateTime(r.created_at), sortValue: (r) => r.created_at },
-    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
-    { key: "event", label: "Event", render: (r) => attendanceEventLabel(r) },
-    { key: "name", label: "Name", render: (r) => r.name },
-    { key: "email", label: "Email", render: (r) => r.email },
-    { key: "course", label: "Course", render: (r) => r.course },
-    { key: "year", label: "Year", render: (r) => r.year },
-    { key: "rating", label: "Rating", render: (r) => `${r.rating} / 10` },
+    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} />, exportValue: (r) => r.status },
+    { key: "event", label: "Event", render: (r) => attendanceEventLabel(r), exportValue: (r) => attendanceEventLabel(r) },
+    { key: "name", label: "Name", render: (r) => r.name, exportValue: (r) => r.name },
+    { key: "email", label: "Email", render: (r) => r.email, exportValue: (r) => r.email },
+    { key: "course", label: "Course", render: (r) => r.course, exportValue: (r) => r.course },
+    { key: "year", label: "Year", render: (r) => r.year, exportValue: (r) => r.year },
+    { key: "rating", label: "Rating", render: (r) => `${r.rating} / 5`, sortValue: (r) => r.rating },
     {
       key: "actions",
       label: "",
@@ -289,13 +289,13 @@ export function Submissions() {
             <Loader2 className="h-[18px] w-[18px] animate-spin" />
           </div>
         ) : tab === "contact" ? (
-          <DataTable columns={contactColumns} data={filteredContacts} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "contact", row: r })} emptyMessage="No contact submissions." />
+          <DataTable columns={contactColumns} data={filteredContacts} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "contact", row: r })} emptyMessage="No contact submissions." exportFilename="contact-submissions.csv" />
         ) : tab === "sponsorship" ? (
-          <DataTable columns={sponsorshipColumns} data={filteredSponsorships} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "sponsorship", row: r })} emptyMessage="No sponsorship enquiries." />
+          <DataTable columns={sponsorshipColumns} data={filteredSponsorships} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "sponsorship", row: r })} emptyMessage="No sponsorship enquiries." exportFilename="sponsorship-enquiries.csv" />
         ) : tab === "signups" ? (
-          <DataTable columns={signupColumns} data={filteredSignups} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "signups", row: r })} emptyMessage="No event signups." />
+          <DataTable columns={signupColumns} data={filteredSignups} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "signups", row: r })} emptyMessage="No event signups." exportFilename="event-signups.csv" />
         ) : (
-          <DataTable columns={attendanceColumns} data={filteredAttendances} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "attendance", row: r })} emptyMessage="No attendance submissions." />
+          <DataTable columns={attendanceColumns} data={filteredAttendances} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "attendance", row: r })} emptyMessage="No attendance submissions." exportFilename="attendance-submissions.csv" />
         )}
       </div>
 
@@ -332,7 +332,7 @@ export function Submissions() {
             {detail.tab === "contact" && "reason" in detail.row && <DetailRow label="Reason" value={detail.row.reason} />}
             {detail.tab === "attendance" && "course" in detail.row && <DetailRow label="Course" value={detail.row.course} />}
             {detail.tab === "attendance" && "year" in detail.row && <DetailRow label="Year of study" value={detail.row.year} />}
-            {detail.tab === "attendance" && "rating" in detail.row && <DetailRow label="Rating" value={`${detail.row.rating} / 10`} />}
+            {detail.tab === "attendance" && "rating" in detail.row && <DetailRow label="Rating" value={`${detail.row.rating} / 5`} />}
             {"message" in detail.row && <DetailRow label="Message" value={detail.row.message} multiline />}
             {"notes" in detail.row && detail.row.notes && <DetailRow label="Notes" value={detail.row.notes} multiline />}
             {"comments" in detail.row && detail.row.comments && <DetailRow label="Comments" value={detail.row.comments} multiline />}

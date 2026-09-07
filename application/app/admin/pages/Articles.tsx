@@ -173,10 +173,10 @@ export function Articles() {
       ),
     },
     { key: "title", label: "Title", render: (r) => r.title, sortValue: (r) => r.title },
-    { key: "tag", label: "Tag", render: (r) => r.tag },
-    { key: "author_name", label: "Author", render: (r) => r.author_name },
-    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
-    { key: "published_at", label: "Published", render: (r) => formatDate(r.published_at) },
+    { key: "tag", label: "Tag", render: (r) => r.tag, exportValue: (r) => r.tag },
+    { key: "author_name", label: "Author", render: (r) => r.author_name, exportValue: (r) => r.author_name },
+    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} />, exportValue: (r) => r.status },
+    { key: "published_at", label: "Published", render: (r) => formatDate(r.published_at), exportValue: (r) => r.published_at ?? "" },
     { key: "updated_at", label: "Updated", render: (r) => formatDate(r.updated_at), sortValue: (r) => r.updated_at },
     {
       key: "actions",
@@ -235,7 +235,7 @@ export function Articles() {
             <Loader2 className="h-[18px] w-[18px] animate-spin" />
           </div>
         ) : (
-          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage="No articles match." />
+          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage="No articles match." exportFilename="articles.csv" />
         )}
       </div>
 

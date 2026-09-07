@@ -165,11 +165,12 @@ export function Alumni() {
     },
     { key: "name", label: "Name", render: (r) => r.name, sortValue: (r) => r.name },
     { key: "firm", label: "Firm", render: (r) => r.firm, sortValue: (r) => r.firm },
-    { key: "role", label: "Role", render: (r) => r.role },
+    { key: "role", label: "Role", render: (r) => r.role, exportValue: (r) => r.role },
     { key: "cohort", label: "Cohort", render: (r) => r.cohort, sortValue: (r) => r.cohort },
     {
       key: "consent",
       label: "Consent",
+      exportValue: (r) => (r.consent_confirmed ? "Yes" : "No"),
       render: (r) =>
         r.consent_confirmed ? (
           <CheckCircle2 className="h-[15px] w-[15px] text-accent" />
@@ -180,6 +181,7 @@ export function Alumni() {
     {
       key: "is_published",
       label: "Published",
+      exportValue: (r) => (r.is_published ? "Yes" : "No"),
       render: (r) => (
         <PublishToggle
           checked={r.is_published}
@@ -247,7 +249,7 @@ export function Alumni() {
             <Loader2 className="h-[18px] w-[18px] animate-spin" />
           </div>
         ) : (
-          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage="No alumni match." />
+          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage="No alumni match." exportFilename="alumni.csv" />
         )}
       </div>
 

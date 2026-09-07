@@ -218,13 +218,14 @@ export function Events() {
     },
     { key: "title", label: "Title", render: (r) => r.title, sortValue: (r) => r.title },
     { key: "starts_at", label: "Starts", render: (r) => formatDateTime(r.starts_at), sortValue: (r) => r.starts_at },
-    { key: "location", label: "Location", render: (r) => r.location },
-    { key: "signup", label: "Signup", render: (r) => (r.signup_enabled ? <StatusBadge status="confirmed" /> : "—") },
-    { key: "capacity", label: "Capacity", render: (r) => (r.capacity != null ? `${signupCounts.get(r.id) ?? 0} / ${r.capacity}` : `${signupCounts.get(r.id) ?? 0} / unlimited`) },
-    { key: "attendance", label: "Attendance", render: (r) => `${attendanceCounts.get(r.id) ?? 0}` },
+    { key: "location", label: "Location", render: (r) => r.location, exportValue: (r) => r.location },
+    { key: "signup", label: "Signup", render: (r) => (r.signup_enabled ? <StatusBadge status="confirmed" /> : "—"), exportValue: (r) => (r.signup_enabled ? "Yes" : "No") },
+    { key: "capacity", label: "Capacity", render: (r) => (r.capacity != null ? `${signupCounts.get(r.id) ?? 0} / ${r.capacity}` : `${signupCounts.get(r.id) ?? 0} / unlimited`), exportValue: (r) => (r.capacity != null ? `${signupCounts.get(r.id) ?? 0} / ${r.capacity}` : `${signupCounts.get(r.id) ?? 0} / unlimited`) },
+    { key: "attendance", label: "Attendance", render: (r) => `${attendanceCounts.get(r.id) ?? 0}`, exportValue: (r) => attendanceCounts.get(r.id) ?? 0 },
     {
       key: "is_published",
       label: "Published",
+      exportValue: (r) => (r.is_published ? "Yes" : "No"),
       render: (r) => (
         <PublishToggle
           checked={r.is_published}
@@ -303,7 +304,7 @@ export function Events() {
             <Loader2 className="h-[18px] w-[18px] animate-spin" />
           </div>
         ) : (
-          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage={`No ${view} events.`} />
+          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage={`No ${view} events.`} exportFilename="events.csv" />
         )}
       </div>
 

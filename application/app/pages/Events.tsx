@@ -136,14 +136,17 @@ export function Events() {
       setIsLoading(true);
       setLoadError("");
 
-      // Hide events more than 24h past their scheduled start — a read-time filter,
-      // not a cron job. Always sorted chronologically; there's no user-facing sort control.
-      const expiryCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      // Hide events once they've ended — a read-time filter, not a cron job.
+      // Events with an ends_at stay visible until that passes; events without
+      // one (ends_at is optional) fall back to 24h after their scheduled
+      // start. Always sorted chronologically; there's no user-facing sort control.
+      const now = new Date().toISOString();
+      const graceCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       const { data, error } = await supabase
         .from("events")
         .select("*")
         .eq("is_published", true)
-        .gt("starts_at", expiryCutoff)
+        .or(`and(ends_at.is.null,starts_at.gt.${graceCutoff}),ends_at.gt.${now}`)
         .order("starts_at", { ascending: true });
 
       if (cancelled) {

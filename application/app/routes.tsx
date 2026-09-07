@@ -7,6 +7,7 @@ import { PageMeta } from "./components/PageMeta";
 import { OrganizationJsonLd } from "./components/OrganizationJsonLd";
 import { Home } from "./pages/Home";
 import { MEIF } from "./pages/MEIF";
+import { WIF } from "./pages/WIF";
 import { About } from "./pages/About";
 import { Team } from "./pages/Team";
 import { Events } from "./pages/Events";
@@ -177,6 +178,7 @@ export const router = createBrowserRouter([
       { path: "join", Component: Join },
       { path: "contact", Component: Contact },
       { path: "meif", Component: MEIF },
+      { path: "wif", Component: WIF },
       { path: "*", Component: NotFound },
     ],
   },

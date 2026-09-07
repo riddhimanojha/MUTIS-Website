@@ -145,11 +145,12 @@ export function PreviousPresidents() {
         </div>
       ),
     },
-    { key: "year_label", label: "Year", render: (r) => r.year_label, sortValue: (r) => r.start_year },
+    { key: "year_label", label: "Year", render: (r) => r.year_label, sortValue: (r) => r.start_year, exportValue: (r) => r.year_label },
     { key: "name", label: "Name", render: (r) => r.name, sortValue: (r) => r.name },
     {
       key: "is_published",
       label: "Published",
+      exportValue: (r) => (r.is_published ? "Yes" : "No"),
       render: (r) => (
         <PublishToggle
           checked={r.is_published}
@@ -211,7 +212,7 @@ export function PreviousPresidents() {
             <Loader2 className="h-[18px] w-[18px] animate-spin" />
           </div>
         ) : (
-          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage="No presidents match." />
+          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} emptyMessage="No presidents match." exportFilename="previous-presidents.csv" />
         )}
       </div>
 

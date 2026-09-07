@@ -1,11 +1,14 @@
 import { useState, type ReactNode } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, Download } from "lucide-react";
 
 export interface DataTableColumn<T> {
   key: string;
   label: string;
   render: (row: T) => ReactNode;
   sortValue?: (row: T) => string | number;
+  /** Value used for CSV export. Falls back to sortValue when omitted; columns
+   * with neither (e.g. an action/icon column) are left out of the export. */
+  exportValue?: (row: T) => string | number;
 }
 
 interface DataTableProps<T> {
@@ -14,11 +17,35 @@ interface DataTableProps<T> {
   keyField: (row: T) => string;
   onRowClick?: (row: T) => void;
   emptyMessage?: string;
+  /** When set, shows an "Export CSV" button above the table that downloads
+   * the currently displayed rows to this filename. */
+  exportFilename?: string;
 }
 
 type SortState = { key: string; direction: "asc" | "desc" } | null;
 
-export function DataTable<T>({ columns, data, keyField, onRowClick, emptyMessage = "Nothing here yet." }: DataTableProps<T>) {
+function csvCell(value: string | number): string {
+  const s = String(value);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function exportRowsToCsv<T>(columns: DataTableColumn<T>[], rows: T[], filename: string) {
+  const exportCols = columns.filter((c) => c.exportValue || c.sortValue);
+  const header = exportCols.map((c) => csvCell(c.label)).join(",");
+  const lines = rows.map((row) =>
+    exportCols.map((c) => csvCell((c.exportValue ?? c.sortValue!)(row))).join(",")
+  );
+  const csv = [header, ...lines].join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function DataTable<T>({ columns, data, keyField, onRowClick, emptyMessage = "Nothing here yet.", exportFilename }: DataTableProps<T>) {
   const [sort, setSort] = useState<SortState>(null);
 
   const sorted = (() => {
@@ -54,6 +81,18 @@ export function DataTable<T>({ columns, data, keyField, onRowClick, emptyMessage
 
   return (
     <>
+      {exportFilename && (
+        <div className="mb-[12px] flex justify-end">
+          <button
+            type="button"
+            onClick={() => exportRowsToCsv(columns, sorted, exportFilename)}
+            className="inline-flex items-center gap-[6px] rounded-[10px] border border-border bg-card px-[12px] py-[8px] text-[12px] font-medium text-foreground transition-colors hover:bg-white/[0.03]"
+          >
+            <Download className="h-[14px] w-[14px]" />
+            Export CSV
+          </button>
+        </div>
+      )}
       {/* Desktop / tablet table */}
       <div className="hidden min-[901px]:block overflow-x-auto rounded-[16px] border border-border bg-card">
         <table className="w-full border-collapse text-left text-[13px]">
