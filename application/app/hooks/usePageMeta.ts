@@ -47,6 +47,11 @@ export const ROUTE_META: Record<string, Meta> = {
     description:
       "The MUTIS Ethical Investment Fund is a student-managed global equity fund with five equity coverage desks and a macro team, screened against ethical criteria.",
   },
+  "/wif": {
+    title: "Women in Finance (WiF) | MUTIS Finance Society",
+    description:
+      "Women in Finance (WiF) is MUTIS's dedicated sub-committee supporting women and gender minorities pursuing careers in finance, with its own events, mentorship, and networking.",
+  },
   "/articles": {
     title: "Articles | MUTIS Finance Society Member Research",
     description:

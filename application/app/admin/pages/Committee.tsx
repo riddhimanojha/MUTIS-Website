@@ -166,10 +166,11 @@ export function Committee() {
     },
     { key: "name", label: "Name", render: (r) => r.name, sortValue: (r) => r.name },
     { key: "role", label: "Role", render: (r) => r.role, sortValue: (r) => r.role },
-    { key: "linkedin", label: "LinkedIn", render: (r) => (r.linkedin_url ? <Linkedin className="h-[14px] w-[14px] text-accent" /> : "—") },
+    { key: "linkedin", label: "LinkedIn", render: (r) => (r.linkedin_url ? <Linkedin className="h-[14px] w-[14px] text-accent" /> : "—"), exportValue: (r) => r.linkedin_url ?? "" },
     {
       key: "is_active",
       label: "Active",
+      exportValue: (r) => (r.is_active ? "Yes" : "No"),
       render: (r) => (
         <PublishToggle
           checked={r.is_active}
@@ -278,7 +279,7 @@ export function Committee() {
             )}
           />
         ) : (
-          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} />
+          <DataTable columns={columns} data={filtered} keyField={(r) => r.id} onRowClick={openEdit} exportFilename="committee.csv" />
         )}
       </div>
 

@@ -14,13 +14,13 @@ const navLinks: NavItem[] = [
       { to: "/network", label: "Our Network" },
     ],
   },
-  { to: "/team", label: "Team" },
   {
     to: "/events",
     label: "Events",
     children: [{ to: "/past-speakers", label: "Past Speakers" }],
   },
   { to: "/meif", label: "MEIF" },
+  { to: "/wif", label: "WIF" },
   { to: "/articles", label: "Articles" },
   { to: "/sponsors", label: "Sponsors" },
   {
@@ -32,6 +32,7 @@ const navLinks: NavItem[] = [
     ],
   },
   { to: "/contact", label: "Contact" },
+  { to: "/team", label: "Team" },
 ];
 
 export function Header() {
