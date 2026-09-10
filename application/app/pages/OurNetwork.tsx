@@ -271,6 +271,28 @@ export function OurNetwork() {
           )}
         </div>
       </section>
+
+      {/* Alumni submission — Google Form embed */}
+      <section className="page-section" style={{ borderTop: "1px solid var(--hair)" }}>
+        <div className="inner">
+          <div className="page-eyebrow r-up"><span className="bar" />Get featured</div>
+          <h2 className="r-up">Are you a MUTIS alumnus?</h2>
+          <p className="lede r-up">
+            Help us grow the network directory above. Share your details, career journey,
+            and a short piece of advice for current members — it only takes a couple of
+            minutes.
+          </p>
+          <div className="alumni-form-frame r-up" style={{ marginTop: 28 }}>
+            <iframe
+              src="https://docs.google.com/forms/d/e/1FAIpQLSc5o5bGeOB7u8AyHbqROWX9sP1I-StIqAUBW6nyZGz0JPU1FQ/viewform?embedded=true"
+              title="MUTIS Alumni Details Form"
+              loading="lazy"
+            >
+              Loading…
+            </iframe>
+          </div>
+        </div>
+      </section>
     </>
   );
 }
