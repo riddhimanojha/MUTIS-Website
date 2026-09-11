@@ -173,6 +173,7 @@
 .subpage-light .contact-info .row .v { color: var(--ink-text); }
 .subpage-light .form-success { color: #0a4a63; background: rgba(15,122,168,0.10); border: 1px solid rgba(15,122,168,0.4); }
 .subpage-light .form-error { color: #b42318; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35); }
+.subpage-light .form-toast-success { color: #0a4a63; background: #fff; border: 1px solid rgba(15,122,168,0.4); }
 .subpage-light .field-error { color: #b42318; }
 .subpage-light .field-hint { color: var(--ink-faint); }
 .subpage-light .field-checkbox label { color: var(--ink-soft); }

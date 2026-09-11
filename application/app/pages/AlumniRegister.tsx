@@ -65,21 +65,49 @@ export function AlumniRegister() {
   const { settings } = useSiteSettings();
   const { status, error, submitting, fail, succeed, onFormInput } = useFormStatus();
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [toastVisible, setToastVisible] = useState(false);
 
   // Floating instead of an inline banner: a long form means "sent" can
   // happen while the visitor is scrolled well past the top of the page,
-  // where an inline success banner would go unseen. Ties to `status`
-  // rather than a one-off flag so a second submission re-triggers it.
+  // where an inline success banner would go unseen. `toastVisible` mounts
+  // the toast; `toastIn` is flipped a frame later so the opacity/transform
+  // change is a genuine CSS transition (mount → paint → transition), the
+  // same two-step trick the site's own .r-up/.r-up.in reveal uses. Hiding
+  // reverses that (`toastIn` false triggers the fade-out transition) and
+  // only unmounts once that transition has actually finished.
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastIn, setToastIn] = useState(false);
+  const toastHideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const toastUnmountTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const hideToast = () => {
+    clearTimeout(toastHideTimer.current);
+    setToastIn(false);
+    toastUnmountTimer.current = setTimeout(() => setToastVisible(false), 250);
+  };
+
   useEffect(() => {
     if (status !== "sent") {
-      setToastVisible(false);
+      if (toastVisible) hideToast();
       return;
     }
+    clearTimeout(toastUnmountTimer.current);
     setToastVisible(true);
-    const timer = setTimeout(() => setToastVisible(false), SUCCESS_TOAST_MS);
-    return () => clearTimeout(timer);
+    const raf = requestAnimationFrame(() => setToastIn(true));
+    toastHideTimer.current = setTimeout(hideToast, SUCCESS_TOAST_MS);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(toastHideTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
+
+  useEffect(
+    () => () => {
+      clearTimeout(toastHideTimer.current);
+      clearTimeout(toastUnmountTimer.current);
+    },
+    []
+  );
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [photoUrl, setPhotoUrl] = useState("");
@@ -476,12 +504,12 @@ export function AlumniRegister() {
 
       {toastVisible && (
         <div className="form-toast-wrap">
-          <div className="form-toast">
-            <p className="form-status form-success" role="status" aria-live="polite" aria-atomic="true">
+          <div className={toastIn ? "form-toast form-toast-success in" : "form-toast form-toast-success"}>
+            <p role="status" aria-live="polite" aria-atomic="true">
               Thanks — your details have been submitted. The committee will review them before adding you to the
               directory. Feel free to submit another response above.
             </p>
-            <button type="button" className="form-toast-dismiss" onClick={() => setToastVisible(false)} aria-label="Dismiss">
+            <button type="button" className="form-toast-dismiss" onClick={hideToast} aria-label="Dismiss">
               <X style={{ width: 14, height: 14 }} />
             </button>
           </div>
