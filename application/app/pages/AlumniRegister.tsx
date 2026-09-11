@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { Loader2, Upload, X } from "lucide-react";
 import { useReveal } from "@/app/hooks/useReveal";
@@ -6,6 +6,8 @@ import { useSiteSettings } from "@/app/hooks/useSiteSettings";
 import { useFormStatus } from "@/app/hooks/useFormStatus";
 import { FormFeedback } from "@/app/components/FormFeedback";
 import { supabase } from "@/lib/supabase";
+
+const SUCCESS_TOAST_MS = 10000;
 
 const CURRENT_YEAR = new Date().getFullYear();
 const MIN_GRAD_YEAR = 1960;
@@ -63,6 +65,21 @@ export function AlumniRegister() {
   const { settings } = useSiteSettings();
   const { status, error, submitting, fail, succeed, onFormInput } = useFormStatus();
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [toastVisible, setToastVisible] = useState(false);
+
+  // Floating instead of an inline banner: a long form means "sent" can
+  // happen while the visitor is scrolled well past the top of the page,
+  // where an inline success banner would go unseen. Ties to `status`
+  // rather than a one-off flag so a second submission re-triggers it.
+  useEffect(() => {
+    if (status !== "sent") {
+      setToastVisible(false);
+      return;
+    }
+    setToastVisible(true);
+    const timer = setTimeout(() => setToastVisible(false), SUCCESS_TOAST_MS);
+    return () => clearTimeout(timer);
+  }, [status]);
 
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [photoUrl, setPhotoUrl] = useState("");
@@ -215,16 +232,6 @@ export function AlumniRegister() {
               <div className="page-eyebrow r-up"><span className="bar" />Registration form</div>
               <h2 className="r-up">Your details</h2>
               <p className="lede r-up">Fields marked * are required. Everything else is optional.</p>
-
-              {status === "sent" && (
-                <div style={{ marginTop: 24 }}>
-                  <FormFeedback
-                    status={status}
-                    successMessage="Thanks — your details have been submitted. The committee will review them before adding you to the directory. Feel free to submit another response below."
-                    style={{ fontSize: 16 }}
-                  />
-                </div>
-              )}
 
               <form
                 className="contact-form r-up"
@@ -466,6 +473,20 @@ export function AlumniRegister() {
           </div>
         </div>
       </section>
+
+      {toastVisible && (
+        <div className="form-toast-wrap">
+          <div className="form-toast">
+            <p className="form-status form-success" role="status" aria-live="polite" aria-atomic="true">
+              Thanks — your details have been submitted. The committee will review them before adding you to the
+              directory. Feel free to submit another response above.
+            </p>
+            <button type="button" className="form-toast-dismiss" onClick={() => setToastVisible(false)} aria-label="Dismiss">
+              <X style={{ width: 14, height: 14 }} />
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
