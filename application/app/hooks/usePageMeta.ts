@@ -118,6 +118,17 @@ export const ROUTE_META: Record<string, Meta> = {
     description: "Log your attendance at a MUTIS event.",
     noindex: true,
   },
+  // Utility form page, reached via the CTA on /network — no independent
+  // search intent, same reasoning as /attendance above.
+  "/alumni/register": {
+    title: "Register | MUTIS Alumni Network",
+    description: "Add your details to the MUTIS alumni network directory.",
+    noindex: true,
+  },
+  "/privacy": {
+    title: "Privacy Notice | MUTIS Finance Society",
+    description: "What MUTIS collects through this site's forms, why, and how to request access or deletion.",
+  },
 };
 
 export const NOT_FOUND_META: Meta = {

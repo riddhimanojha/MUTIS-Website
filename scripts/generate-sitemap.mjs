@@ -11,7 +11,8 @@ const OUTPUT_PATH = fileURLToPath(new URL("../public/sitemap.xml", import.meta.u
 // Static public routes. Keep in sync with the public route list in
 // application/app/routes.tsx. Deliberately excludes: /admin/* (noindex),
 // /alumni (a client-side redirect stub, not a real page — see SEO-AUDIT.md 2.5),
-// and /attendance (an unlisted, QR-code-only utility page with no SEO value).
+// /attendance (an unlisted, QR-code-only utility page with no SEO value), and
+// /alumni/register (reached only via the CTA on /network, same reasoning).
 const STATIC_ROUTES = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/about", changefreq: "monthly", priority: "0.8" },
@@ -29,6 +30,7 @@ const STATIC_ROUTES = [
   { path: "/recordings", changefreq: "monthly", priority: "0.6" },
   { path: "/join", changefreq: "monthly", priority: "0.9" },
   { path: "/contact", changefreq: "yearly", priority: "0.6" },
+  { path: "/privacy", changefreq: "yearly", priority: "0.3" },
 ];
 
 function urlEntry(loc, { changefreq, priority, lastmod }) {

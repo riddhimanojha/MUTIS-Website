@@ -173,6 +173,12 @@
 .subpage-light .contact-info .row .v { color: var(--ink-text); }
 .subpage-light .form-success { color: #0a4a63; background: rgba(15,122,168,0.10); border: 1px solid rgba(15,122,168,0.4); }
 .subpage-light .form-error { color: #b42318; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35); }
+.subpage-light .field-error { color: #b42318; }
+.subpage-light .field-hint { color: var(--ink-faint); }
+.subpage-light .field-checkbox label { color: var(--ink-soft); }
+.subpage-light .field input[aria-invalid="true"],
+.subpage-light .field textarea[aria-invalid="true"],
+.subpage-light .field select[aria-invalid="true"] { border-color: #dc2626; }
 
 /* ---------- MEIF sectors ---------- */
 .subpage-light .sector-block { border-top: 1px solid var(--hair); }
@@ -281,21 +287,6 @@
 .network-linkedin {
   display: inline-block; margin-top: 14px; text-decoration: none;
   font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pm-accent);
-}
-
-/* ---------- Alumni submission form (Google Form embed) ---------- */
-.alumni-form-frame {
-  width: 100%;
-  max-width: 640px;
-  border: 1px solid var(--hair);
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(10,31,68,0.04);
-}
-.alumni-form-frame iframe {
-  display: block;
-  width: 100%;
-  height: 2100px;
-  border: none;
 }
 
 /* ---------- Past Speakers ---------- */

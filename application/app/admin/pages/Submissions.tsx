@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Trash2, Search, Inbox as InboxIcon } from "lucide-react";
+import { Loader2, Trash2, Search, Inbox as InboxIcon, UserPlus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/lib/database.types";
 import { useToast } from "../components/Toast";
+import { useAuth } from "../AuthProvider";
+import { useAdminMutation } from "../useAdminMutation";
 import { Drawer } from "../components/Drawer";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../components/DataTable";
@@ -14,8 +16,9 @@ type Sponsorship = Database["public"]["Tables"]["sponsorship_enquiries"]["Row"];
 type Signup = Database["public"]["Tables"]["event_signups"]["Row"];
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 type Attendance = Database["public"]["Tables"]["attendance_submissions"]["Row"];
+type AlumniSubmission = Database["public"]["Tables"]["alumni_submissions"]["Row"];
 
-type Tab = "contact" | "sponsorship" | "signups" | "attendance";
+type Tab = "contact" | "sponsorship" | "signups" | "attendance" | "alumni";
 
 function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -30,42 +33,67 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "sponsorship", label: "Sponsorship" },
   { key: "signups", label: "Event signups" },
   { key: "attendance", label: "Attendance" },
+  { key: "alumni", label: "Alumni" },
 ];
 
 export function Submissions() {
   const toast = useToast();
+  const { session } = useAuth();
+  const { insertRow } = useAdminMutation();
   const [tab, setTab] = usePageCache<Tab>("admin:submissions:tab", "contact");
 
   const [contacts, setContacts] = usePageCache<Contact[]>("admin:submissions:contacts", []);
   const [sponsorships, setSponsorships] = usePageCache<Sponsorship[]>("admin:submissions:sponsorships", []);
   const [signups, setSignups] = usePageCache<Signup[]>("admin:submissions:signups", []);
   const [attendances, setAttendances] = usePageCache<Attendance[]>("admin:submissions:attendances", []);
+  const [alumniSubs, setAlumniSubs] = usePageCache<AlumniSubmission[]>("admin:submissions:alumni", []);
   const [events, setEvents] = usePageCache<EventRow[]>("admin:submissions:events", []);
   const [loading, setLoading] = useState(!hasCached("admin:submissions:contacts"));
 
   const [search, setSearch] = usePageCache("admin:submissions:search", "");
   const [statusFilter, setStatusFilter] = usePageCache("admin:submissions:statusFilter", "all");
   const [eventFilter, setEventFilter] = usePageCache("admin:submissions:eventFilter", "all");
+  const [converting, setConverting] = useState(false);
 
-  const [detail, setDetail] = useState<{ tab: Tab; row: Contact | Sponsorship | Signup | Attendance } | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<{ tab: Tab; row: Contact | Sponsorship | Signup | Attendance } | null>(null);
+  type AnyRow = Contact | Sponsorship | Signup | Attendance | AlumniSubmission;
+  const [detail, setDetail] = useState<{ tab: Tab; row: AnyRow } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ tab: Tab; row: AnyRow } | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fetchAll = async () => {
-    const [c, s, sg, ev, a] = await Promise.all([
+    const [c, s, sg, ev, a, al] = await Promise.all([
       supabase.from("contact_submissions").select("*"),
       supabase.from("sponsorship_enquiries").select("*"),
       supabase.from("event_signups").select("*"),
       supabase.from("events").select("*"),
       supabase.from("attendance_submissions").select("*"),
+      supabase.from("alumni_submissions").select("*"),
     ]);
-    if (c.error || s.error || sg.error || ev.error || a.error) toast.error("Could not load submissions.");
+    if (c.error || s.error || sg.error || ev.error || a.error || al.error) toast.error("Could not load submissions.");
     if (c.data) setContacts(c.data);
     if (s.data) setSponsorships(s.data);
     if (sg.data) setSignups(sg.data);
     if (ev.data) setEvents(ev.data);
     if (a.data) setAttendances(a.data);
+    if (al.data) setAlumniSubs(al.data);
     setLoading(false);
+  };
+
+  // Alumni submissions are the one tab here with a required audit trail
+  // (status changes and deletions) per the admin panel's stated guarantee
+  // that admin actions are logged — the other three tabs predate that
+  // requirement and are left as-is to keep this change scoped.
+  const logAlumniChange = async (rowId: string, action: "update" | "delete", before: unknown, after: unknown) => {
+    const { error } = await supabase.from("audit_log").insert({
+      actor_user_id: session?.user.id ?? null,
+      actor_email: session?.user.email ?? "unknown",
+      table_name: "alumni_submissions",
+      row_id: rowId,
+      action,
+      before: before as never,
+      after: after as never,
+    });
+    if (error) console.error("Failed to write audit log entry for alumni_submissions", rowId, error);
   };
 
   useEffect(() => {
@@ -136,10 +164,34 @@ export function Submissions() {
       .sort((a, b) => b.created_at.localeCompare(a.created_at));
   }, [attendances, statusFilter, eventFilter, search]);
 
+  const filteredAlumniSubs = useMemo(() => {
+    return alumniSubs
+      .filter((r) => statusFilter === "all" || r.status === statusFilter)
+      .filter((r) => {
+        if (!search.trim()) return true;
+        const q = search.trim().toLowerCase();
+        return (
+          r.full_name.toLowerCase().includes(q) ||
+          r.current_company.toLowerCase().includes(q) ||
+          r.current_position.toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  }, [alumniSubs, statusFilter, search]);
+
   const tableFor = (t: Tab) =>
-    t === "contact" ? "contact_submissions" : t === "sponsorship" ? "sponsorship_enquiries" : t === "signups" ? "event_signups" : "attendance_submissions";
+    t === "contact"
+      ? "contact_submissions"
+      : t === "sponsorship"
+        ? "sponsorship_enquiries"
+        : t === "signups"
+          ? "event_signups"
+          : t === "alumni"
+            ? "alumni_submissions"
+            : "attendance_submissions";
 
   const updateStatus = async (t: Tab, id: string, status: string) => {
+    const before = t === "alumni" ? alumniSubs.find((r) => r.id === id) : undefined;
     const { error } = await supabase.from(tableFor(t)).update({ status }).eq("id", id);
     if (error) {
       toast.error("Could not update status.");
@@ -149,8 +201,10 @@ export function Submissions() {
     if (t === "sponsorship") setSponsorships((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (t === "signups") setSignups((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (t === "attendance") setAttendances((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    if (t === "alumni") setAlumniSubs((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     setDetail((prev) => (prev && prev.row.id === id ? { ...prev, row: { ...prev.row, status } } : prev));
     toast.success("Status updated.");
+    if (t === "alumni" && before) void logAlumniChange(id, "update", before, { ...before, status });
   };
 
   const confirmDelete = async () => {
@@ -162,10 +216,52 @@ export function Submissions() {
       toast.error("Could not delete that submission.");
       return;
     }
+    if (pendingDelete.tab === "alumni") void logAlumniChange(pendingDelete.row.id, "delete", pendingDelete.row, null);
     toast.success("Deleted.");
     setPendingDelete(null);
     setDetail(null);
     fetchAll();
+  };
+
+  const convertToAlumni = async (submission: AlumniSubmission) => {
+    setConverting(true);
+    try {
+      const newRow = await insertRow("alumni", {
+        name: submission.full_name,
+        firm: submission.current_company,
+        role: submission.current_position,
+        cohort: String(submission.graduation_year),
+        linkedin_url: submission.linkedin_url,
+        consent_confirmed: submission.consent_publish,
+      });
+
+      if (submission.photo_url) {
+        try {
+          const photoRes = await fetch(submission.photo_url);
+          const blob = await photoRes.blob();
+          await supabase.storage.from("alumni_photos").upload(`${newRow.id}.jpeg`, blob, {
+            contentType: "image/jpeg",
+            upsert: true,
+          });
+        } catch (photoErr) {
+          console.error("Failed to copy submitted photo to alumni_photos", photoErr);
+          toast.error("Alumni entry created, but the photo couldn't be copied — upload it manually.");
+        }
+      }
+
+      if (submission.status === "new") {
+        await supabase.from("alumni_submissions").update({ status: "reviewed" }).eq("id", submission.id);
+        setAlumniSubs((prev) => prev.map((r) => (r.id === submission.id ? { ...r, status: "reviewed" } : r)));
+        void logAlumniChange(submission.id, "update", submission, { ...submission, status: "reviewed" });
+      }
+
+      toast.success("Added to the Alumni page as an unpublished draft — review and publish it there.");
+      setDetail(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not convert this submission.");
+    } finally {
+      setConverting(false);
+    }
   };
 
   const contactColumns: DataTableColumn<Contact>[] = [
@@ -242,7 +338,26 @@ export function Submissions() {
     },
   ];
 
-  const statusOptions = tab === "signups" ? ["confirmed", "cancelled"] : ["new", "read", "archived"];
+  const alumniColumns: DataTableColumn<AlumniSubmission>[] = [
+    { key: "created_at", label: "Received", render: (r) => formatDateTime(r.created_at), sortValue: (r) => r.created_at },
+    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} />, exportValue: (r) => r.status },
+    { key: "full_name", label: "Name", render: (r) => r.full_name, exportValue: (r) => r.full_name },
+    { key: "graduation_year", label: "Grad. year", render: (r) => String(r.graduation_year), sortValue: (r) => r.graduation_year },
+    { key: "current_company", label: "Company", render: (r) => r.current_company, exportValue: (r) => r.current_company },
+    { key: "current_position", label: "Position", render: (r) => r.current_position, exportValue: (r) => r.current_position },
+    {
+      key: "actions",
+      label: "",
+      render: (r) => (
+        <button type="button" onClick={(e) => { e.stopPropagation(); setPendingDelete({ tab: "alumni", row: r }); }} className="rounded-[8px] p-[6px] text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive">
+          <Trash2 className="h-[14px] w-[14px]" />
+        </button>
+      ),
+    },
+  ];
+
+  const statusOptions =
+    tab === "signups" ? ["confirmed", "cancelled"] : tab === "alumni" ? ["new", "reviewed", "archived"] : ["new", "read", "archived"];
 
   return (
     <div className="px-[24px] py-[48px] lg:px-[40px] lg:py-[56px]">
@@ -294,8 +409,10 @@ export function Submissions() {
           <DataTable columns={sponsorshipColumns} data={filteredSponsorships} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "sponsorship", row: r })} emptyMessage="No sponsorship enquiries." exportFilename="sponsorship-enquiries.csv" />
         ) : tab === "signups" ? (
           <DataTable columns={signupColumns} data={filteredSignups} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "signups", row: r })} emptyMessage="No event signups." exportFilename="event-signups.csv" />
-        ) : (
+        ) : tab === "attendance" ? (
           <DataTable columns={attendanceColumns} data={filteredAttendances} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "attendance", row: r })} emptyMessage="No attendance submissions." exportFilename="attendance-submissions.csv" />
+        ) : (
+          <DataTable columns={alumniColumns} data={filteredAlumniSubs} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "alumni", row: r })} emptyMessage="No alumni submissions." exportFilename="alumni-submissions.csv" />
         )}
       </div>
 
@@ -312,7 +429,12 @@ export function Submissions() {
                 onChange={(e) => updateStatus(detail.tab, detail.row.id, e.target.value)}
                 className="rounded-[8px] border border-input bg-input px-[10px] py-[6px] text-[12px]! text-foreground outline-hidden"
               >
-                {(detail.tab === "signups" ? ["confirmed", "cancelled"] : ["new", "read", "archived"]).map((s) => (
+                {(detail.tab === "signups"
+                  ? ["confirmed", "cancelled"]
+                  : detail.tab === "alumni"
+                    ? ["new", "reviewed", "archived"]
+                    : ["new", "read", "archived"]
+                ).map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
@@ -327,8 +449,8 @@ export function Submissions() {
             {detail.tab === "attendance" && "event_id" in detail.row && (
               <DetailRow label="Event" value={attendanceEventLabel(detail.row as Attendance)} />
             )}
-            <DetailRow label="Name" value={detail.row.name} />
-            <DetailRow label="Email" value={detail.row.email} />
+            {detail.tab !== "alumni" && "name" in detail.row && <DetailRow label="Name" value={detail.row.name} />}
+            {detail.tab !== "alumni" && "email" in detail.row && <DetailRow label="Email" value={detail.row.email} />}
             {detail.tab === "contact" && "reason" in detail.row && <DetailRow label="Reason" value={detail.row.reason} />}
             {detail.tab === "attendance" && "course" in detail.row && <DetailRow label="Course" value={detail.row.course} />}
             {detail.tab === "attendance" && "year" in detail.row && <DetailRow label="Year of study" value={detail.row.year} />}
@@ -337,7 +459,50 @@ export function Submissions() {
             {"notes" in detail.row && detail.row.notes && <DetailRow label="Notes" value={detail.row.notes} multiline />}
             {"comments" in detail.row && detail.row.comments && <DetailRow label="Comments" value={detail.row.comments} multiline />}
 
-            <div className="mt-[8px] flex justify-end">
+            {detail.tab === "alumni" && "full_name" in detail.row && (
+              <>
+                {detail.row.photo_url && (
+                  <div className="flex flex-col gap-[4px]">
+                    <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-muted-foreground">Photo</span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={detail.row.photo_url} alt="" className="h-[96px] w-[96px] rounded-full object-cover border border-border" />
+                  </div>
+                )}
+                <DetailRow label="Full name" value={detail.row.full_name} />
+                <DetailRow label="Graduation year" value={String(detail.row.graduation_year)} />
+                {detail.row.degree_course && <DetailRow label="Degree / course" value={detail.row.degree_course} />}
+                <DetailRow label="Current company" value={detail.row.current_company} />
+                <DetailRow label="Current position" value={detail.row.current_position} />
+                {detail.row.industry && <DetailRow label="Industry / division" value={detail.row.industry} />}
+                {detail.row.linkedin_url && (
+                  <div className="flex flex-col gap-[4px]">
+                    <span className="text-[10px] font-medium uppercase tracking-[0.06em] text-muted-foreground">LinkedIn</span>
+                    <a href={detail.row.linkedin_url} target="_blank" rel="noreferrer" className="text-[14px] text-accent underline">
+                      {detail.row.linkedin_url}
+                    </a>
+                  </div>
+                )}
+                {detail.row.mutis_position && <DetailRow label="MUTIS involvement" value={detail.row.mutis_position} />}
+                {detail.row.testimonial && <DetailRow label="Testimonial" value={detail.row.testimonial} multiline />}
+                {detail.row.advice_for_members && <DetailRow label="Advice for members" value={detail.row.advice_for_members} multiline />}
+                {detail.row.career_advice && <DetailRow label="Career / university advice" value={detail.row.career_advice} multiline />}
+                <DetailRow label="Permission to publish" value={detail.row.consent_publish ? "Yes" : "No"} />
+                <DetailRow label="Privacy consent given" value={formatDateTime(detail.row.consent_at)} />
+              </>
+            )}
+
+            <div className="mt-[8px] flex justify-end gap-[8px]">
+              {detail.tab === "alumni" && "full_name" in detail.row && (
+                <button
+                  type="button"
+                  disabled={converting}
+                  onClick={() => convertToAlumni(detail.row as AlumniSubmission)}
+                  className="inline-flex items-center gap-[6px] rounded-[10px] border border-border px-[16px] py-[10px] text-[13px]! font-medium text-foreground transition-colors hover:bg-white/5 disabled:opacity-50"
+                >
+                  {converting ? <Loader2 className="h-[14px] w-[14px] animate-spin" /> : <UserPlus className="h-[14px] w-[14px]" />}
+                  Convert to alumni entry
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setPendingDelete(detail)}

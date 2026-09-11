@@ -14,6 +14,7 @@ import {
   UserCheck,
   CalendarClock,
   History,
+  UserPlus,
 } from "lucide-react";
 import { useAuth } from "../AuthProvider";
 import { supabase } from "@/lib/supabase";
@@ -57,6 +58,7 @@ const GROUPS: { label: string; items: QuickLink[] }[] = [
 export function Dashboard() {
   const { session } = useAuth();
   const [totals, setTotals] = usePageCache<AttendanceTotals | null>("admin:dashboard:totals", null);
+  const [newAlumniCount, setNewAlumniCount] = usePageCache<number | null>("admin:dashboard:newAlumniCount", null);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,6 +69,18 @@ export function Dashboard() {
       .then(({ data }) => {
         if (cancelled) return;
         if (data) setTotals(data);
+      });
+    // count: 'exact', head: true — a real server-side count rather than
+    // fetching rows and measuring the array (see BackendPlan.md's dashboard
+    // counting fix: that pattern silently undercounts past PostgREST's
+    // default page size).
+    supabase
+      .from("alumni_submissions")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "new")
+      .then(({ count }) => {
+        if (cancelled) return;
+        setNewAlumniCount(count ?? 0);
       });
     return () => {
       cancelled = true;
@@ -79,6 +93,7 @@ export function Dashboard() {
     { label: "Unique attendees", value: totals?.unique_attendees, icon: UserCheck },
     { label: "Upcoming events", value: totals?.upcoming_events, icon: CalendarClock },
     { label: "Past events", value: totals?.past_events, icon: History },
+    { label: "New alumni submissions", value: newAlumniCount, icon: UserPlus },
   ];
 
   return (

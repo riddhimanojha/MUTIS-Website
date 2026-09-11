@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { useSiteSettings } from "@/app/hooks/useSiteSettings";
 
 export function Footer() {
@@ -14,6 +15,7 @@ export function Footer() {
           LinkedIn
         </a>
         <a href={`mailto:${settings.contact_email}`}>Email</a>
+        <Link to="/privacy">Privacy</Link>
       </div>
     </footer>
   );

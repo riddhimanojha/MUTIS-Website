@@ -272,7 +272,7 @@ export function OurNetwork() {
         </div>
       </section>
 
-      {/* Alumni submission — Google Form embed */}
+      {/* Alumni submission — native form */}
       <section className="page-section" style={{ borderTop: "1px solid var(--hair)" }}>
         <div className="inner">
           <div className="page-eyebrow r-up"><span className="bar" />Get featured</div>
@@ -282,15 +282,10 @@ export function OurNetwork() {
             and a short piece of advice for current members — it only takes a couple of
             minutes.
           </p>
-          <div className="alumni-form-frame r-up" style={{ marginTop: 28 }}>
-            <iframe
-              src="https://docs.google.com/forms/d/e/1FAIpQLSc5o5bGeOB7u8AyHbqROWX9sP1I-StIqAUBW6nyZGz0JPU1FQ/viewform?embedded=true"
-              title="MUTIS Alumni Details Form"
-              loading="lazy"
-            >
-              Loading…
-            </iframe>
-          </div>
+          <Link to="/alumni/register" className="btn btn-primary r-up" style={{ marginTop: 28, textDecoration: "none" }}>
+            Register your details
+            <span className="arrow" />
+          </Link>
         </div>
       </section>
     </>

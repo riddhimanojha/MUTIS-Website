@@ -80,6 +80,69 @@ export type Database = {
         }
         Relationships: []
       }
+      alumni_submissions: {
+        Row: {
+          advice_for_members: string | null
+          career_advice: string | null
+          consent_at: string
+          consent_gdpr: boolean
+          consent_publish: boolean
+          created_at: string
+          current_company: string
+          current_position: string
+          degree_course: string | null
+          full_name: string
+          graduation_year: number
+          id: string
+          industry: string | null
+          linkedin_url: string | null
+          mutis_position: string | null
+          photo_url: string | null
+          status: string
+          testimonial: string | null
+        }
+        Insert: {
+          advice_for_members?: string | null
+          career_advice?: string | null
+          consent_at: string
+          consent_gdpr: boolean
+          consent_publish: boolean
+          created_at?: string
+          current_company: string
+          current_position: string
+          degree_course?: string | null
+          full_name: string
+          graduation_year: number
+          id?: string
+          industry?: string | null
+          linkedin_url?: string | null
+          mutis_position?: string | null
+          photo_url?: string | null
+          status?: string
+          testimonial?: string | null
+        }
+        Update: {
+          advice_for_members?: string | null
+          career_advice?: string | null
+          consent_at?: string
+          consent_gdpr?: boolean
+          consent_publish?: boolean
+          created_at?: string
+          current_company?: string
+          current_position?: string
+          degree_course?: string | null
+          full_name?: string
+          graduation_year?: number
+          id?: string
+          industry?: string | null
+          linkedin_url?: string | null
+          mutis_position?: string | null
+          photo_url?: string | null
+          status?: string
+          testimonial?: string | null
+        }
+        Relationships: []
+      }
       articles: {
         Row: {
           author_id: string | null
