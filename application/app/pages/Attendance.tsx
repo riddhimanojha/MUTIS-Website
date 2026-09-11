@@ -123,7 +123,7 @@ export function Attendance() {
               </p>
 
               {status === "sent" ? (
-                <div className="r-up" style={{ marginTop: 32 }}>
+                <div style={{ marginTop: 32 }}>
                   <FormFeedback
                     status={status}
                     successMessage="Thanks for logging your attendance — your response has been recorded."

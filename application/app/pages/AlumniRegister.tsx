@@ -217,7 +217,7 @@ export function AlumniRegister() {
               <p className="lede r-up">Fields marked * are required. Everything else is optional.</p>
 
               {status === "sent" && (
-                <div className="r-up" style={{ marginTop: 24 }}>
+                <div style={{ marginTop: 24 }}>
                   <FormFeedback
                     status={status}
                     successMessage="Thanks — your details have been submitted. The committee will review them before adding you to the directory. Feel free to submit another response below."
