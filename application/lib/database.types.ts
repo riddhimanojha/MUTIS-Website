@@ -40,42 +40,60 @@ export type Database = {
       }
       alumni: {
         Row: {
+          advice_for_members: string | null
+          career_advice: string | null
           cohort: string
           consent_confirmed: boolean
           created_at: string
+          degree_course: string | null
           firm: string
           id: string
+          industry: string | null
           is_published: boolean
           linkedin_url: string | null
           location: string | null
+          mutis_position: string | null
           name: string
           role: string
+          testimonial: string | null
           updated_at: string
         }
         Insert: {
+          advice_for_members?: string | null
+          career_advice?: string | null
           cohort: string
           consent_confirmed?: boolean
           created_at?: string
+          degree_course?: string | null
           firm: string
           id?: string
+          industry?: string | null
           is_published?: boolean
           linkedin_url?: string | null
           location?: string | null
+          mutis_position?: string | null
           name: string
           role: string
+          testimonial?: string | null
           updated_at?: string
         }
         Update: {
+          advice_for_members?: string | null
+          career_advice?: string | null
           cohort?: string
           consent_confirmed?: boolean
           created_at?: string
+          degree_course?: string | null
           firm?: string
           id?: string
+          industry?: string | null
           is_published?: boolean
           linkedin_url?: string | null
           location?: string | null
+          mutis_position?: string | null
           name?: string
           role?: string
+          testimonial?: string | null
           updated_at?: string
         }
         Relationships: []

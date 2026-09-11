@@ -233,6 +233,12 @@ export function Submissions() {
         cohort: String(submission.graduation_year),
         linkedin_url: submission.linkedin_url,
         consent_confirmed: submission.consent_publish,
+        degree_course: submission.degree_course,
+        industry: submission.industry,
+        mutis_position: submission.mutis_position,
+        testimonial: submission.testimonial,
+        advice_for_members: submission.advice_for_members,
+        career_advice: submission.career_advice,
       });
 
       if (submission.photo_url) {

@@ -26,6 +26,53 @@ function alumniPhotoUrl(id: string) {
   return supabase.storage.from("alumni_photos").getPublicUrl(`${id}.jpeg`).data.publicUrl;
 }
 
+type QAEntry = { question: string; answer: string };
+
+function NetworkCard({ m }: { m: AlumniRow }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const qaEntries: QAEntry[] = [
+    m.testimonial ? { question: "How MUTIS helped", answer: m.testimonial } : null,
+    m.advice_for_members ? { question: "Advice for current members", answer: m.advice_for_members } : null,
+    m.career_advice ? { question: "Career advice", answer: m.career_advice } : null,
+  ].filter((entry): entry is QAEntry => entry !== null);
+
+  return (
+    <article className="network-card">
+      <div className="network-portrait">
+        <NetworkPortrait name={m.name} id={m.id} />
+      </div>
+      <div className="network-name">{m.name}</div>
+      <div className="network-firm">{m.firm}</div>
+      <div className="network-role">{m.role} · {m.cohort}</div>
+      {m.degree_course && <div className="network-meta">{m.degree_course}</div>}
+      {m.industry && <div className="network-meta">{m.industry}</div>}
+      {m.mutis_position && <div className="network-meta">{m.mutis_position}</div>}
+      {m.location && (
+        <div style={{ fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--ink-soft)", marginTop: 4 }}>{m.location}</div>
+      )}
+      {m.linkedin_url && (
+        <a className="network-linkedin" href={m.linkedin_url} target="_blank" rel="noreferrer">
+          LinkedIn →
+        </a>
+      )}
+      {qaEntries.length > 0 && (
+        <div className="network-qa">
+          {qaEntries.map((qa) => (
+            <div className="network-qa-item" key={qa.question}>
+              <div className="network-qa-q">{qa.question}</div>
+              <p className={expanded ? "network-qa-a" : "network-qa-a clamped"}>{qa.answer}</p>
+            </div>
+          ))}
+          <button type="button" className="network-expand-toggle" onClick={() => setExpanded((v) => !v)}>
+            {expanded ? "Show less" : "Read more"}
+          </button>
+        </div>
+      )}
+    </article>
+  );
+}
+
 function NetworkPortrait({ name, id }: { name: string; id: string }) {
   const [failed, setFailed] = useState(false);
 
@@ -250,22 +297,7 @@ export function OurNetwork() {
           ) : (
             <div className="network-grid r-up">
               {filtered.map((m) => (
-                <article className="network-card" key={m.id}>
-                  <div className="network-portrait">
-                    <NetworkPortrait name={m.name} id={m.id} />
-                  </div>
-                  <div className="network-name">{m.name}</div>
-                  <div className="network-firm">{m.firm}</div>
-                  <div className="network-role">{m.role} · {m.cohort}</div>
-                  {m.location && (
-                    <div style={{ fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--ink-soft)", marginTop: 4 }}>{m.location}</div>
-                  )}
-                  {m.linkedin_url && (
-                    <a className="network-linkedin" href={m.linkedin_url} target="_blank" rel="noreferrer">
-                      LinkedIn →
-                    </a>
-                  )}
-                </article>
+                <NetworkCard m={m} key={m.id} />
               ))}
             </div>
           )}
