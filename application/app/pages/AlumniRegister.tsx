@@ -210,7 +210,7 @@ export function AlumniRegister() {
 
       <section className="page-section">
         <div className="inner">
-          <div className="contact-grid">
+          <div style={{ maxWidth: 640 }}>
             <div>
               <div className="page-eyebrow r-up"><span className="bar" />Registration form</div>
               <h2 className="r-up">Your details</h2>
@@ -464,27 +464,6 @@ export function AlumniRegister() {
                   </button>
                 </form>
               )}
-            </div>
-
-            <div className="contact-info r-up">
-              <div className="row">
-                <div className="l">Directory</div>
-                <div className="v">
-                  <Link to="/network" style={{ color: "var(--pm-accent)" }}>View the network →</Link>
-                </div>
-              </div>
-              <div className="row">
-                <div className="l">Review process</div>
-                <div className="v" style={{ fontSize: 14, textTransform: "none", letterSpacing: "normal" }}>
-                  The committee reviews every submission before it appears publicly.
-                </div>
-              </div>
-              <div className="row">
-                <div className="l">Questions</div>
-                <div className="v">
-                  <a href={`mailto:${settings.contact_email}`}>{settings.contact_email}</a>
-                </div>
-              </div>
             </div>
           </div>
         </div>
