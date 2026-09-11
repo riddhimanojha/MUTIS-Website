@@ -61,7 +61,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 export function AlumniRegister() {
   useReveal();
   const { settings } = useSiteSettings();
-  const { status, error, submitting, fail, succeed, reset, onFormInput } = useFormStatus();
+  const { status, error, submitting, fail, succeed, onFormInput } = useFormStatus();
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -216,25 +216,24 @@ export function AlumniRegister() {
               <h2 className="r-up">Your details</h2>
               <p className="lede r-up">Fields marked * are required. Everything else is optional.</p>
 
-              {status === "sent" ? (
-                <div className="r-up" style={{ marginTop: 32 }}>
+              {status === "sent" && (
+                <div className="r-up" style={{ marginTop: 24 }}>
                   <FormFeedback
                     status={status}
-                    successMessage="Thanks — your details have been submitted. The committee will review them before adding you to the directory."
+                    successMessage="Thanks — your details have been submitted. The committee will review them before adding you to the directory. Feel free to submit another response below."
                     style={{ fontSize: 16 }}
                   />
-                  <button className="btn btn-ghost" style={{ marginTop: 24, textDecoration: "none" }} onClick={reset}>
-                    Submit another response
-                  </button>
                 </div>
-              ) : (
-                <form
-                  className="contact-form r-up"
-                  name="alumni-register"
-                  onSubmit={onSubmit}
-                  onInput={onFormInput}
-                  noValidate
-                >
+              )}
+
+              <form
+                className="contact-form r-up"
+                name="alumni-register"
+                onSubmit={onSubmit}
+                onInput={onFormInput}
+                noValidate
+                style={{ marginTop: 24 }}
+              >
                   <p className="hidden-field">
                     <label>
                       Don't fill this out if you're human:{" "}
@@ -463,7 +462,6 @@ export function AlumniRegister() {
                     <span className="arrow" />
                   </button>
                 </form>
-              )}
             </div>
           </div>
         </div>

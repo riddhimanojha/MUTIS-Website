@@ -34,9 +34,11 @@ export function useFormStatus() {
 
   // Attach to the <form>'s onInput — form.reset() doesn't fire input events,
   // so this only clears the banner on genuine visitor interaction, not on
-  // the programmatic reset that follows a successful submit.
+  // the programmatic reset that follows a successful submit. Clears "sent"
+  // too, for forms that stay mounted (blank) after success instead of
+  // swapping to a standalone confirmation view.
   const onFormInput = useCallback(() => {
-    setStatus((prev) => (prev === "error" ? "idle" : prev));
+    setStatus((prev) => (prev === "error" || prev === "sent" ? "idle" : prev));
   }, []);
 
   return { status, error, submitting, fail, succeed, reset, onFormInput };
