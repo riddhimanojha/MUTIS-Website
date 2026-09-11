@@ -210,7 +210,7 @@ export function AlumniRegister() {
 
       <section className="page-section">
         <div className="inner">
-          <div style={{ maxWidth: 640 }}>
+          <div style={{ maxWidth: 640, marginInline: "auto" }}>
             <div>
               <div className="page-eyebrow r-up"><span className="bar" />Registration form</div>
               <h2 className="r-up">Your details</h2>
