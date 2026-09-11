@@ -81,7 +81,11 @@ export function Attendance() {
 
     if (insertError) {
       console.error("Failed to submit attendance", insertError);
-      fail(`Something went wrong. Please try again or email us at ${settings.contact_email}.`);
+      fail(
+        insertError.code === "23505"
+          ? "You've already logged your attendance for this event with that email."
+          : `Something went wrong. Please try again or email us at ${settings.contact_email}.`
+      );
       return;
     }
 

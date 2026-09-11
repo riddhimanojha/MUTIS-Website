@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { useEffect } from "react";
 import type { ComponentType } from "react";
 import {
   Handshake,
@@ -10,8 +11,16 @@ import {
   Inbox,
   ShieldCheck,
   ScrollText,
+  UserCheck,
+  CalendarClock,
+  History,
 } from "lucide-react";
 import { useAuth } from "../AuthProvider";
+import { supabase } from "@/lib/supabase";
+import type { Database } from "@/lib/database.types";
+import { usePageCache } from "../usePageCache";
+
+type AttendanceTotals = Database["public"]["Views"]["dashboard_attendance_totals"]["Row"];
 
 interface QuickLink {
   label: string;
@@ -47,12 +56,53 @@ const GROUPS: { label: string; items: QuickLink[] }[] = [
 
 export function Dashboard() {
   const { session } = useAuth();
+  const [totals, setTotals] = usePageCache<AttendanceTotals | null>("admin:dashboard:totals", null);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("dashboard_attendance_totals")
+      .select("*")
+      .single()
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (data) setTotals(data);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const statCards = [
+    { label: "Total registrations", value: totals?.total_signups, icon: Inbox },
+    { label: "Unique attendees", value: totals?.unique_attendees, icon: UserCheck },
+    { label: "Upcoming events", value: totals?.upcoming_events, icon: CalendarClock },
+    { label: "Past events", value: totals?.past_events, icon: History },
+  ];
 
   return (
     <div className="px-[24px] py-[48px] lg:px-[40px] lg:py-[56px]">
       <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-muted-foreground">MUTIS Admin</p>
       <h1 className="mt-[8px] text-[22px] font-medium text-foreground">Welcome, {session?.user.email}</h1>
       <p className="mt-[12px] text-[14px] leading-[1.6] text-muted-foreground">Jump to a section below.</p>
+
+      <div className="mt-[24px] grid grid-cols-2 gap-[12px] lg:grid-cols-4">
+        {statCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div key={card.label} className="rounded-[14px] border border-border bg-card p-[16px]">
+              <span className="flex h-[32px] w-[32px] items-center justify-center rounded-[10px] border border-border bg-input text-accent">
+                <Icon className="h-[15px] w-[15px]" />
+              </span>
+              <p className="mt-[12px] text-[22px] font-medium text-foreground">
+                {card.value == null ? "—" : card.value}
+              </p>
+              <p className="mt-[2px] text-[12px] text-muted-foreground">{card.label}</p>
+            </div>
+          );
+        })}
+      </div>
 
       <div className="mt-[32px] flex flex-col gap-[32px]">
         {GROUPS.map((group) => (

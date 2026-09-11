@@ -75,25 +75,24 @@ export function Events() {
   const [deleting, setDeleting] = useState(false);
 
   const fetchRows = async () => {
-    const [eventsRes, signupsRes, attendanceRes] = await Promise.all([
+    const [eventsRes, statsRes] = await Promise.all([
       supabase.from("events").select("*"),
-      supabase.from("event_signups").select("event_id"),
-      supabase.from("attendance_submissions").select("event_id"),
+      supabase.from("event_attendance_stats").select("event_id, signup_count, attendance_count"),
     ]);
     if (eventsRes.error) toast.error("Could not load events.");
     else setRows(eventsRes.data);
-    if (!signupsRes.error) {
-      const counts = new Map<string, number>();
-      for (const row of signupsRes.data) counts.set(row.event_id, (counts.get(row.event_id) ?? 0) + 1);
-      setSignupCounts(counts);
-    }
-    if (!attendanceRes.error) {
-      const counts = new Map<string, number>();
-      for (const row of attendanceRes.data) {
+    if (!statsRes.error) {
+      const signups = new Map<string, number>();
+      const attendance = new Map<string, number>();
+      for (const row of statsRes.data) {
         if (!row.event_id) continue;
-        counts.set(row.event_id, (counts.get(row.event_id) ?? 0) + 1);
+        signups.set(row.event_id, row.signup_count ?? 0);
+        attendance.set(row.event_id, row.attendance_count ?? 0);
       }
-      setAttendanceCounts(counts);
+      setSignupCounts(signups);
+      setAttendanceCounts(attendance);
+    } else {
+      toast.error("Could not load attendance stats.");
     }
     setLoading(false);
   };
