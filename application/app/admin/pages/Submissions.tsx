@@ -190,11 +190,11 @@ export function Submissions() {
             ? "alumni_submissions"
             : "attendance_submissions";
 
-  const updateStatus = async (t: Tab, id: string, status: string) => {
+  const updateStatus = async (t: Tab, id: string, status: string, opts?: { silent?: boolean }) => {
     const before = t === "alumni" ? alumniSubs.find((r) => r.id === id) : undefined;
     const { error } = await supabase.from(tableFor(t)).update({ status }).eq("id", id);
     if (error) {
-      toast.error("Could not update status.");
+      if (!opts?.silent) toast.error("Could not update status.");
       return;
     }
     if (t === "contact") setContacts((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
@@ -203,8 +203,19 @@ export function Submissions() {
     if (t === "attendance") setAttendances((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (t === "alumni") setAlumniSubs((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     setDetail((prev) => (prev && prev.row.id === id ? { ...prev, row: { ...prev.row, status } } : prev));
-    toast.success("Status updated.");
+    if (!opts?.silent) toast.success("Status updated.");
     if (t === "alumni" && before) void logAlumniChange(id, "update", before, { ...before, status });
+  };
+
+  // Opening a "new" alumni submission is the only signal we have that an
+  // admin has actually looked at it, so treat that as marking it reviewed —
+  // silently, since the admin didn't explicitly choose a status change.
+  // This is what keeps the Dashboard's "new submissions" count meaningful.
+  const openDetail = (t: Tab, row: AnyRow) => {
+    setDetail({ tab: t, row });
+    if (t === "alumni" && "status" in row && row.status === "new") {
+      void updateStatus("alumni", row.id, "reviewed", { silent: true });
+    }
   };
 
   const confirmDelete = async () => {
@@ -418,7 +429,7 @@ export function Submissions() {
         ) : tab === "attendance" ? (
           <DataTable columns={attendanceColumns} data={filteredAttendances} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "attendance", row: r })} emptyMessage="No attendance submissions." exportFilename="attendance-submissions.csv" />
         ) : (
-          <DataTable columns={alumniColumns} data={filteredAlumniSubs} keyField={(r) => r.id} onRowClick={(r) => setDetail({ tab: "alumni", row: r })} emptyMessage="No alumni submissions." exportFilename="alumni-submissions.csv" />
+          <DataTable columns={alumniColumns} data={filteredAlumniSubs} keyField={(r) => r.id} onRowClick={(r) => openDetail("alumni", r)} emptyMessage="No alumni submissions." exportFilename="alumni-submissions.csv" />
         )}
       </div>
 
