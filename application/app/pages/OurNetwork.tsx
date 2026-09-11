@@ -3,7 +3,6 @@ import { Link } from "react-router";
 import { useReveal } from "@/app/hooks/useReveal";
 import type { Tables } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
-import { Modal } from "@/app/components/Modal";
 
 // Company destinations — shown as logo bubbles. Replace text with <img> once logo assets are available.
 const DESTINATION_GROUPS = [
@@ -27,25 +26,7 @@ function alumniPhotoUrl(id: string) {
   return supabase.storage.from("alumni_photos").getPublicUrl(`${id}.jpeg`).data.publicUrl;
 }
 
-type QAEntry = { question: string; answer: string };
-
-function alumniQaEntries(m: AlumniRow): QAEntry[] {
-  return [
-    m.testimonial ? { question: "How MUTIS helped", answer: m.testimonial } : null,
-    m.advice_for_members ? { question: "Advice for current members", answer: m.advice_for_members } : null,
-    m.career_advice ? { question: "Career advice", answer: m.career_advice } : null,
-  ].filter((entry): entry is QAEntry => entry !== null);
-}
-
-// Deliberately NOT rendering the <Modal> here: this card sits inside
-// .network-grid.r-up, and a `transform` on any ancestor (which .r-up sets,
-// even at rest via translateY(0)) creates a new containing block for
-// position:fixed descendants — the modal's "fixed" overlay would be
-// trapped inside the grid's box instead of covering the viewport. The
-// modal lives once, at the page's top level, in OurNetwork below.
-function NetworkCard({ m, onOpenModal }: { m: AlumniRow; onOpenModal: (m: AlumniRow) => void }) {
-  const qaEntries = alumniQaEntries(m);
-
+function NetworkCard({ m }: { m: AlumniRow }) {
   return (
     <article className="network-card">
       <div className="network-portrait">
@@ -64,19 +45,6 @@ function NetworkCard({ m, onOpenModal }: { m: AlumniRow; onOpenModal: (m: Alumni
         <a className="network-linkedin" href={m.linkedin_url} target="_blank" rel="noreferrer">
           LinkedIn →
         </a>
-      )}
-      {qaEntries.length > 0 && (
-        <div className="network-qa">
-          {qaEntries.map((qa) => (
-            <div className="network-qa-item" key={qa.question}>
-              <div className="network-qa-q">{qa.question}</div>
-              <p className="network-qa-a clamped">{qa.answer}</p>
-            </div>
-          ))}
-          <button type="button" className="network-expand-toggle" onClick={() => onOpenModal(m)}>
-            Read more
-          </button>
-        </div>
       )}
     </article>
   );
@@ -108,7 +76,6 @@ export function OurNetwork() {
   const [members, setMembers] = useState<AlumniRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const [modalMember, setModalMember] = useState<AlumniRow | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -307,7 +274,7 @@ export function OurNetwork() {
           ) : (
             <div className="network-grid r-up">
               {filtered.map((m) => (
-                <NetworkCard m={m} key={m.id} onOpenModal={setModalMember} />
+                <NetworkCard m={m} key={m.id} />
               ))}
             </div>
           )}
@@ -330,25 +297,6 @@ export function OurNetwork() {
           </Link>
         </div>
       </section>
-
-      <Modal open={modalMember !== null} onClose={() => setModalMember(null)} labelledBy="network-modal-title">
-        {modalMember && (
-          <div className="modal-body">
-            <h3 id="network-modal-title">{modalMember.name}</h3>
-            <div className="modal-meta">
-              <span>{modalMember.role}</span>
-              <span>·</span>
-              <span>{modalMember.firm}</span>
-            </div>
-            {alumniQaEntries(modalMember).map((qa, i) => (
-              <div key={qa.question} style={{ marginTop: i === 0 ? 24 : 20 }}>
-                <div className="network-qa-q">{qa.question}</div>
-                <p className="network-qa-a" style={{ marginTop: 6 }}>{qa.answer}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </Modal>
     </>
   );
 }

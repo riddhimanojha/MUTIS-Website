@@ -171,9 +171,6 @@ export function AlumniRegister() {
     const industry = (form.elements.namedItem("industry") as HTMLInputElement).value.trim();
     const linkedinUrl = (form.elements.namedItem("linkedin-url") as HTMLInputElement).value.trim();
     const mutisPosition = (form.elements.namedItem("mutis-position") as HTMLInputElement).value.trim();
-    const testimonial = (form.elements.namedItem("testimonial") as HTMLTextAreaElement).value.trim();
-    const adviceForMembers = (form.elements.namedItem("advice-for-members") as HTMLTextAreaElement).value.trim();
-    const careerAdvice = (form.elements.namedItem("career-advice") as HTMLTextAreaElement).value.trim();
     const consentPublish = (form.elements.namedItem("consent-publish") as HTMLInputElement).checked;
     const consentGdpr = (form.elements.namedItem("consent-gdpr") as HTMLInputElement).checked;
 
@@ -215,9 +212,6 @@ export function AlumniRegister() {
       linkedin_url: linkedinUrl || null,
       photo_url: photoUrl || null,
       mutis_position: mutisPosition || null,
-      testimonial: testimonial || null,
-      advice_for_members: adviceForMembers || null,
-      career_advice: careerAdvice || null,
       consent_publish: consentPublish,
       consent_gdpr: consentGdpr,
       consent_at: new Date().toISOString(),
@@ -427,25 +421,6 @@ export function AlumniRegister() {
                       type="text"
                       placeholder="e.g. Former President, Member, Events Team"
                     />
-                  </div>
-
-                  <div className="field">
-                    <label htmlFor="al-testimonial">Short testimonial (optional)</label>
-                    <textarea
-                      id="al-testimonial"
-                      name="testimonial"
-                      placeholder="How did MUTIS contribute to your university or career journey?"
-                    />
-                  </div>
-
-                  <div className="field">
-                    <label htmlFor="al-advice-for-members">Advice for current MUTIS members (optional)</label>
-                    <textarea id="al-advice-for-members" name="advice-for-members" />
-                  </div>
-
-                  <div className="field">
-                    <label htmlFor="al-career-advice">One short piece of career / university advice (optional)</label>
-                    <textarea id="al-career-advice" name="career-advice" />
                   </div>
 
                   <div className="field-checkbox">

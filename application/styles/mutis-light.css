@@ -290,18 +290,6 @@
   font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pm-accent);
 }
 .network-meta { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
-.network-qa { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--hair); text-align: left; }
-.network-qa-item { margin-bottom: 12px; }
-.network-qa-item:last-of-type { margin-bottom: 0; }
-.network-qa-q { font-size: 9.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pm-accent-2); font-weight: 600; }
-.network-qa-a { font-size: 13px; line-height: 1.55; color: var(--ink-soft); margin-top: 4px; white-space: pre-wrap; }
-.network-qa-a.clamped { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.network-expand-toggle {
-  display: inline-flex; align-items: center; gap: 4px; margin-top: 12px;
-  background: none; border: none; cursor: pointer; padding: 0;
-  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pm-accent);
-}
-.network-expand-toggle:hover { color: var(--pm-accent-2); }
 
 /* ---------- Past Speakers ---------- */
 .speaker-grid {

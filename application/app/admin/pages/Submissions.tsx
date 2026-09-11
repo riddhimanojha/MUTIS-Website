@@ -247,9 +247,6 @@ export function Submissions() {
         degree_course: submission.degree_course,
         industry: submission.industry,
         mutis_position: submission.mutis_position,
-        testimonial: submission.testimonial,
-        advice_for_members: submission.advice_for_members,
-        career_advice: submission.career_advice,
       });
 
       if (submission.photo_url) {
@@ -500,9 +497,6 @@ export function Submissions() {
                   </div>
                 )}
                 {detail.row.mutis_position && <DetailRow label="MUTIS involvement" value={detail.row.mutis_position} />}
-                {detail.row.testimonial && <DetailRow label="Testimonial" value={detail.row.testimonial} multiline />}
-                {detail.row.advice_for_members && <DetailRow label="Advice for members" value={detail.row.advice_for_members} multiline />}
-                {detail.row.career_advice && <DetailRow label="Career / university advice" value={detail.row.career_advice} multiline />}
                 <DetailRow label="Permission to publish" value={detail.row.consent_publish ? "Yes" : "No"} />
                 <DetailRow label="Privacy consent given" value={formatDateTime(detail.row.consent_at)} />
               </>

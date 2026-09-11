@@ -23,9 +23,6 @@ type FormState = {
   degree_course: string;
   industry: string;
   mutis_position: string;
-  testimonial: string;
-  advice_for_members: string;
-  career_advice: string;
   consent_confirmed: boolean;
   is_published: boolean;
 };
@@ -40,9 +37,6 @@ const EMPTY_FORM: FormState = {
   degree_course: "",
   industry: "",
   mutis_position: "",
-  testimonial: "",
-  advice_for_members: "",
-  career_advice: "",
   consent_confirmed: false,
   is_published: false,
 };
@@ -112,9 +106,6 @@ export function Alumni() {
       degree_course: row.degree_course ?? "",
       industry: row.industry ?? "",
       mutis_position: row.mutis_position ?? "",
-      testimonial: row.testimonial ?? "",
-      advice_for_members: row.advice_for_members ?? "",
-      career_advice: row.career_advice ?? "",
       consent_confirmed: row.consent_confirmed,
       is_published: row.is_published,
     });
@@ -136,9 +127,6 @@ export function Alumni() {
         degree_course: form.degree_course.trim() || null,
         industry: form.industry.trim() || null,
         mutis_position: form.mutis_position.trim() || null,
-        testimonial: form.testimonial.trim() || null,
-        advice_for_members: form.advice_for_members.trim() || null,
-        career_advice: form.career_advice.trim() || null,
         consent_confirmed: form.consent_confirmed,
         is_published: form.consent_confirmed ? form.is_published : false,
       };
@@ -306,16 +294,6 @@ export function Alumni() {
           <Field label="MUTIS position / involvement">
             <input type="text" placeholder="e.g. Former President" value={form.mutis_position} onChange={(e) => setForm({ ...form, mutis_position: e.target.value })} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
           </Field>
-          <Field label="Testimonial">
-            <textarea placeholder="How did MUTIS contribute to your university or career journey?" value={form.testimonial} onChange={(e) => setForm({ ...form, testimonial: e.target.value })} rows={3} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
-          </Field>
-          <Field label="Advice for current members">
-            <textarea value={form.advice_for_members} onChange={(e) => setForm({ ...form, advice_for_members: e.target.value })} rows={3} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
-          </Field>
-          <Field label="Career / university advice">
-            <textarea value={form.career_advice} onChange={(e) => setForm({ ...form, career_advice: e.target.value })} rows={3} className="w-full rounded-[10px] border border-input bg-input px-[14px] py-[12px] text-[15px]! text-foreground outline-hidden transition-colors focus:border-accent" />
-          </Field>
-
           <div className="flex items-center justify-between rounded-[12px] border border-border px-[16px] py-[14px]">
             <span className="text-[13px] font-medium text-foreground">Consent confirmed</span>
             <PublishToggle

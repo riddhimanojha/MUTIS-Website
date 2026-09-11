@@ -40,8 +40,6 @@ export type Database = {
       }
       alumni: {
         Row: {
-          advice_for_members: string | null
-          career_advice: string | null
           cohort: string
           consent_confirmed: boolean
           created_at: string
@@ -55,12 +53,9 @@ export type Database = {
           mutis_position: string | null
           name: string
           role: string
-          testimonial: string | null
           updated_at: string
         }
         Insert: {
-          advice_for_members?: string | null
-          career_advice?: string | null
           cohort: string
           consent_confirmed?: boolean
           created_at?: string
@@ -74,12 +69,9 @@ export type Database = {
           mutis_position?: string | null
           name: string
           role: string
-          testimonial?: string | null
           updated_at?: string
         }
         Update: {
-          advice_for_members?: string | null
-          career_advice?: string | null
           cohort?: string
           consent_confirmed?: boolean
           created_at?: string
@@ -93,15 +85,12 @@ export type Database = {
           mutis_position?: string | null
           name?: string
           role?: string
-          testimonial?: string | null
           updated_at?: string
         }
         Relationships: []
       }
       alumni_submissions: {
         Row: {
-          advice_for_members: string | null
-          career_advice: string | null
           consent_at: string
           consent_gdpr: boolean
           consent_publish: boolean
@@ -117,11 +106,8 @@ export type Database = {
           mutis_position: string | null
           photo_url: string | null
           status: string
-          testimonial: string | null
         }
         Insert: {
-          advice_for_members?: string | null
-          career_advice?: string | null
           consent_at: string
           consent_gdpr: boolean
           consent_publish: boolean
@@ -137,11 +123,8 @@ export type Database = {
           mutis_position?: string | null
           photo_url?: string | null
           status?: string
-          testimonial?: string | null
         }
         Update: {
-          advice_for_members?: string | null
-          career_advice?: string | null
           consent_at?: string
           consent_gdpr?: boolean
           consent_publish?: boolean
@@ -157,7 +140,6 @@ export type Database = {
           mutis_position?: string | null
           photo_url?: string | null
           status?: string
-          testimonial?: string | null
         }
         Relationships: []
       }
